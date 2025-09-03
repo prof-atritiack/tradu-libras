@@ -514,6 +514,23 @@
             transform: translateY(-1px);
         }
 
+        .button-info {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            color: white;
+            border: 2px solid #3b82f6;
+        }
+
+        .button-info:hover {
+            background: linear-gradient(135deg, #1d4ed8, #1e40af);
+            border-color: #1d4ed8;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);
+        }
+
+        .button-info:active {
+            transform: translateY(-1px);
+        }
+
         .button:disabled {
             opacity: 0.6;
             cursor: not-allowed;
@@ -847,6 +864,12 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                         </svg>
                         Limpar Texto
+                    </button>
+                    <button class="button button-info" onclick="mostrarInfoRede()">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9v-9m0-9v9m0 9c-5 0-9-4-9-9s4-9 9-9" />
+                        </svg>
+                        Info Rede
                     </button>
                 </div>
             </div>
@@ -1290,6 +1313,46 @@
                 textoCorrigidoElement.title = 'Texto sem correções necessárias';
                 alert('Nenhuma correção foi necessária para este texto.');
             }
+        }
+
+        function mostrarInfoRede() {
+            fetch('/network-info')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        alert('Erro ao obter informações de rede: ' + data.error);
+                        return;
+                    }
+                    
+                    const mensagem = `
+🌐 INFORMAÇÕES DE REDE
+
+📱 Para acessar de outros dispositivos:
+
+📱 Celular/Tablet:
+   ${data.access_urls.network}
+
+💻 Outro computador:
+   ${data.access_urls.network}
+
+📋 Requisitos:
+   • Todos os dispositivos devem estar na mesma rede Wi-Fi
+   • Firewall deve permitir conexões na porta 5000
+   • Use o endereço IP mostrado acima
+
+🔗 URLs de acesso:
+   • Local: ${data.access_urls.local}
+   • Rede: ${data.access_urls.network}
+
+💡 Dica: Copie o endereço da rede e cole no navegador de outros dispositivos!
+                    `;
+                    
+                    alert(mensagem);
+                })
+                .catch(error => {
+                    console.error('Erro ao obter informações de rede:', error);
+                    alert('Erro ao obter informações de rede. Verifique a conexão.');
+                });
         }
 
         // Verificar status do sistema

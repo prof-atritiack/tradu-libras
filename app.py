@@ -214,6 +214,16 @@ def status():
         except:
             pass
         
+        # Obter informações de rede
+        import socket
+        try:
+            s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            s.connect(("8.8.8.8", 80))
+            local_ip = s.getsockname()[0]
+            s.close()
+        except:
+            local_ip = "127.0.0.1"
+        
         return jsonify({
             'status': 'online',
             'model_loaded': model_loaded,
@@ -222,12 +232,22 @@ def status():
             'speech_available': True,
             'voice': 'gTTS (Google Text-to-Speech)',
             'version': '2.0.0',
+            'network_info': {
+                'local_ip': local_ip,
+                'port': 5000,
+                'access_urls': [
+                    f"http://localhost:5000",
+                    f"http://127.0.0.1:5000",
+                    f"http://{local_ip}:5000"
+                ]
+            },
             'features': [
                 'Reconhecimento de gestos em tempo real',
                 'Síntese de voz integrada ao navegador',
                 'Interface web responsiva',
                 'Sistema de cooldown para estabilização',
-                'Formação automática de palavras'
+                'Formação automática de palavras',
+                'Acesso via rede local'
             ]
         })
     except Exception as e:
@@ -236,10 +256,75 @@ def status():
             'error': str(e)
         })
 
+@app.route('/network-info')
+def network_info():
+    """Rota para obter informações de rede"""
+    import socket
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(("8.8.8.8", 80))
+        local_ip = s.getsockname()[0]
+        s.close()
+        
+        return jsonify({
+            'local_ip': local_ip,
+            'port': 5000,
+            'access_urls': {
+                'local': f"http://localhost:5000",
+                'local_alt': f"http://127.0.0.1:5000",
+                'network': f"http://{local_ip}:5000"
+            },
+            'instructions': {
+                'mobile': f"Para acessar do celular: http://{local_ip}:5000",
+                'tablet': f"Para acessar do tablet: http://{local_ip}:5000",
+                'other_pc': f"Para acessar de outro computador: http://{local_ip}:5000"
+            },
+            'requirements': [
+                "Todos os dispositivos devem estar na mesma rede Wi-Fi",
+                "Firewall deve permitir conexões na porta 5000",
+                "Use o endereço IP mostrado acima"
+            ]
+        })
+    except Exception as e:
+        return jsonify({
+            'error': str(e),
+            'fallback': 'http://localhost:5000'
+        })
+
 if __name__ == '__main__':
+    import socket
+    
+    # Obter o IP local da máquina
+    def get_local_ip():
+        try:
+            # Conecta a um endereço externo para descobrir o IP local
+            s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            s.connect(("8.8.8.8", 80))
+            ip = s.getsockname()[0]
+            s.close()
+            return ip
+        except:
+            return "127.0.0.1"
+    
+    local_ip = get_local_ip()
+    
     print("🚀 Iniciando TraduLibras v2.0.0...")
-    print("📱 Acesse: http://localhost:5000")
+    print("=" * 50)
+    print("📱 ACESSO LOCAL:")
+    print(f"   http://localhost:5000")
+    print(f"   http://127.0.0.1:5000")
+    print("=" * 50)
+    print("🌐 ACESSO NA REDE LOCAL:")
+    print(f"   http://{local_ip}:5000")
+    print("=" * 50)
+    print("📱 Para acessar de outros dispositivos:")
+    print("   1. Certifique-se que estão na mesma rede Wi-Fi")
+    print("   2. Use o endereço acima no navegador")
+    print("   3. Exemplo: http://192.168.1.100:5000")
+    print("=" * 50)
     print("🎤 Voz: gTTS (Google Text-to-Speech)")
     print("🤖 Modelo: Random Forest")
     print("📊 Classes:", model_info.get('classes', []) if model_info else [])
+    print("=" * 50)
+    
     app.run(debug=True, host='0.0.0.0', port=5000) 
