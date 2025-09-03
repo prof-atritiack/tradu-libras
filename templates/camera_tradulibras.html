@@ -93,6 +93,44 @@
             color: var(--primary);
         }
 
+        .user-info {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            margin-right: 1rem;
+        }
+
+        .user-name {
+            font-weight: 600;
+            color: var(--text);
+            font-size: 0.9rem;
+        }
+
+        .user-role {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            background: #f1f5f9;
+            padding: 2px 8px;
+            border-radius: 12px;
+            margin-top: 2px;
+        }
+
+        .logout-btn {
+            background: #dc3545;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .logout-btn:hover {
+            background: #c82333;
+            transform: translateY(-1px);
+        }
+
         .nav-link.active {
             color: var(--primary);
             background: rgba(99, 102, 241, 0.1);
@@ -764,6 +802,16 @@
                     <a href="/" class="nav-link">Início</a>
                     <a href="/camera" class="nav-link active">Câmera</a>
                     <a href="/tutorial" class="nav-link">Tutorial</a>
+                    {% if current_user.is_authenticated %}
+                        <div class="user-info">
+                            <span class="user-name">{{ current_user.username }}</span>
+                            <span class="user-role">{{ current_user.role.upper() }}</span>
+                        </div>
+                        {% if current_user.is_admin() %}
+                            <a href="/admin" class="nav-link">Admin</a>
+                        {% endif %}
+                        <a href="/logout" class="logout-btn">Sair</a>
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -780,17 +828,17 @@
                     </svg>
                     Câmera ao Vivo
                 </div>
-                <img id="camera-feed" src="{{ url_for('video_feed') }}" alt="Camera Feed">
-                
-                <div class="letra-display">
+            <img id="camera-feed" src="{{ url_for('video_feed') }}" alt="Camera Feed">
+            
+            <div class="letra-display">
                     <h2>
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14" />
                         </svg>
                         Letra Detectada
                     </h2>
-                    <div class="letra-atual" id="letra">-</div>
-                </div>
+                <div class="letra-atual" id="letra">-</div>
+            </div>
 
                 <div class="controls">
                     <button class="button button-primary" onclick="falarLetra()">
@@ -811,10 +859,7 @@
                     Correções: <span id="contador-correcoes">0</span>
                 </div>
                 
-                <h2 style="color: var(--text); font-size: 1.25rem; margin-bottom: 1.5rem; font-weight: 600; display: flex; align-items: center; gap: 0.5rem;">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
+                <h2 style="color: var(--text); font-size: 1.25rem; margin-bottom: 1.5rem; font-weight: 600;">
                     Texto Formado
                 </h2>
 
@@ -848,11 +893,11 @@
                         Reproduzir Texto
                     </button>
                     <button class="button button-secondary" onclick="simularTexto()">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                        </svg>
+                    </svg>
                         Simular Texto
-                    </button>
+                </button>
                     <button class="button button-secondary" onclick="testarCorrecao()">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -860,11 +905,11 @@
                         Testar Correção
                     </button>
                     <button class="button button-secondary" onclick="limparTexto()">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                        </svg>
-                        Limpar Texto
-                    </button>
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                    Limpar Texto
+                </button>
                     <button class="button button-info" onclick="mostrarInfoRede()">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9v-9m0-9v9m0 9c-5 0-9-4-9-9s4-9 9-9" />
@@ -951,7 +996,7 @@
 
                 // Se não encontrou uma correção boa, retorna a palavra original
                 if (menorDistancia > Math.max(2, Math.floor(palavraUpper.length / 3))) {
-                    return palavra;
+                return palavra;
                 }
 
                 return melhorCorrecao;
@@ -1069,15 +1114,20 @@
             fetch('/letra_atual')
                 .then(response => response.json())
                 .then(data => {
+                    // Sempre atualiza o display, mesmo se a letra não mudou
+                    const letraElement = document.getElementById('letra');
+                    const letraDisplay = document.querySelector('.letra-display');
+                    
+                    // Garante que sempre mostra hífen quando não há letra
+                    const letraParaMostrar = (data.letra && data.letra.trim() !== '') ? data.letra : '-';
+                    letraElement.textContent = letraParaMostrar;
+                    
+                    // Só processa animações se a letra realmente mudou
                     if (data.letra !== letraAtual) {
                         letraAtual = data.letra;
-                        const letraElement = document.getElementById('letra');
-                        const letraDisplay = document.querySelector('.letra-display');
-                        
-                        letraElement.textContent = letraAtual || '-';
                         
                         // Adicionar animação de digitação e detecção
-                        if (letraAtual && letraAtual !== '-') {
+                        if (letraAtual && letraAtual !== '-' && letraAtual.trim() !== '') {
                             // Animação de digitação
                             letraElement.classList.add('typing');
                             setTimeout(() => {
@@ -1224,21 +1274,56 @@
         }
 
         function limparTexto() {
-            textoAcumulado = "";
-            contadorCorrecoes = 0;
-            document.getElementById('texto').textContent = textoAcumulado;
-            document.getElementById('texto-corrigido').textContent = "";
-            document.getElementById('texto-corrigido').title = '';
-            document.getElementById('contador-correcoes').textContent = '0';
-            
-            // Adicionar animação de limpeza
-            const textElements = document.querySelectorAll('.texto-acumulado, .text-corrected');
-            textElements.forEach(element => {
-                element.style.opacity = '0.5';
-                setTimeout(() => {
-                    element.style.opacity = '1';
-                }, 200);
-            });
+            // Limpar no servidor
+            fetch('/clear_text')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        // Limpar variáveis locais
+                        textoAcumulado = "";
+                        letraAtual = "";
+                        contadorCorrecoes = 0;
+                        
+                        // Limpar elementos da interface
+                        document.getElementById('texto').textContent = textoAcumulado;
+                        document.getElementById('texto-corrigido').textContent = "";
+                        document.getElementById('texto-corrigido').title = '';
+                        document.getElementById('contador-correcoes').textContent = '0';
+                        
+                        // Limpar a letra detectada
+                        const letraElement = document.getElementById('letra');
+                        if (letraElement) {
+                            letraElement.textContent = '-';
+                        }
+                        
+                        // Adicionar animação de limpeza
+                        const textElements = document.querySelectorAll('.texto-acumulado, .text-corrected');
+                        textElements.forEach(element => {
+                            element.style.opacity = '0.5';
+                            setTimeout(() => {
+                                element.style.opacity = '1';
+                            }, 200);
+                        });
+                        
+                        console.log('Texto limpo com sucesso');
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro ao limpar texto:', error);
+                    // Fallback: limpar apenas no frontend
+                    textoAcumulado = "";
+                    letraAtual = "";
+                    contadorCorrecoes = 0;
+                    document.getElementById('texto').textContent = textoAcumulado;
+                    document.getElementById('texto-corrigido').textContent = "";
+                    document.getElementById('texto-corrigido').title = '';
+                    document.getElementById('contador-correcoes').textContent = '0';
+                    
+                    const letraElement = document.getElementById('letra');
+                    if (letraElement) {
+                        letraElement.textContent = '-';
+                    }
+                });
         }
 
         function simularTexto() {
@@ -1369,6 +1454,12 @@
 
         // Inicializar
         document.addEventListener('DOMContentLoaded', function() {
+            // Garantir que o hífen seja mostrado inicialmente
+            const letraElement = document.getElementById('letra');
+            if (letraElement) {
+                letraElement.textContent = '-';
+            }
+            
             updateStatusIndicator(true);
             checkSystemStatus();
             

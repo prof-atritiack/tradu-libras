@@ -1,4 +1,6 @@
-from flask import Flask, render_template, Response, jsonify
+from flask import Flask, render_template, Response, jsonify, request, redirect, url_for, flash, session
+from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
+
 import cv2
 import mediapipe as mp
 import numpy as np
@@ -10,8 +12,23 @@ import tempfile
 from datetime import datetime
 import threading
 import time
+import subprocess
+import json
+from auth import user_manager, User
 
 app = Flask(__name__)
+app.secret_key = 'tradulibras_secret_key_2024'  # Chave secreta para sessões
+
+# Configurar Flask-Login
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'login'
+login_manager.login_message = 'Por favor, faça login para acessar esta página.'
+login_manager.login_message_category = 'info'
+
+@login_manager.user_loader
+def load_user(user_id):
+    return user_manager.get_user(user_id)
 
 # Initialize MediaPipe
 mp_hands = mp.solutions.hands
@@ -105,15 +122,204 @@ def generate_frames():
         yield (b'--frame\r\n'
                b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
 
+# Rotas de Autenticação
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        username = request.form.get('username')
+        password = request.form.get('password')
+        
+        user = user_manager.authenticate(username, password)
+        if user:
+            login_user(user)
+            flash(f'Bem-vindo, {user.username}!', 'success')
+            
+            # Redirecionar baseado no tipo de usuário
+            if user.is_admin():
+                return redirect(url_for('admin_dashboard'))
+            else:
+                return redirect(url_for('camera'))
+        else:
+            flash('Usuário ou senha incorretos!', 'error')
+    
+    return render_template('login.html')
+
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    flash('Logout realizado com sucesso!', 'info')
+    return redirect(url_for('login'))
+
+@app.route('/admin')
+@login_required
+def admin_dashboard():
+    if not current_user.is_admin():
+        flash('Acesso negado! Apenas administradores podem acessar esta página.', 'error')
+        return redirect(url_for('camera'))
+    
+    user_stats = user_manager.get_stats()
+    return render_template('admin_dashboard.html', user_stats=user_stats)
+
+# Rotas de gerenciamento de usuários (apenas admin)
+@app.route('/admin/create-user', methods=['POST'])
+@login_required
+def create_user():
+    if not current_user.is_admin():
+        return jsonify({'success': False, 'error': 'Acesso negado'})
+    
+    data = request.get_json()
+    username = data.get('username')
+    password = data.get('password')
+    role = data.get('role', 'user')
+    
+    if not username or not password:
+        return jsonify({'success': False, 'error': 'Username e password são obrigatórios'})
+    
+    user = user_manager.create_user(username, password, role)
+    if user:
+        return jsonify({'success': True, 'message': 'Usuário criado com sucesso'})
+    else:
+        return jsonify({'success': False, 'error': 'Usuário já existe'})
+
+@app.route('/admin/check-updates')
+@login_required
+def check_updates():
+    if not current_user.is_admin():
+        return jsonify({'error': 'Acesso negado'})
+    
+    try:
+        # Verificar se há atualizações no GitHub
+        result = subprocess.run(['git', 'fetch', 'origin'], capture_output=True, text=True)
+        if result.returncode != 0:
+            return jsonify({'error': 'Erro ao verificar atualizações'})
+        
+        result = subprocess.run(['git', 'status', '-uno'], capture_output=True, text=True)
+        updates_available = 'behind' in result.stdout
+        
+        return jsonify({
+            'updates_available': updates_available,
+            'message': 'Atualizações disponíveis' if updates_available else 'Sistema atualizado'
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)})
+
+@app.route('/admin/update-system', methods=['POST'])
+@login_required
+def update_system():
+    if not current_user.is_admin():
+        return jsonify({'success': False, 'error': 'Acesso negado'})
+    
+    try:
+        # Fazer backup dos modelos
+        import shutil
+        from pathlib import Path
+        
+        backup_dir = Path('backup')
+        backup_dir.mkdir(exist_ok=True)
+        
+        models_dir = Path('modelos')
+        if models_dir.exists():
+            timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+            for model_file in models_dir.glob('*.pkl'):
+                backup_file = backup_dir / f'{model_file.stem}_backup_{timestamp}.pkl'
+                shutil.copy2(model_file, backup_file)
+        
+        # Aplicar atualizações
+        result = subprocess.run(['git', 'pull', 'origin', 'main'], capture_output=True, text=True)
+        if result.returncode != 0:
+            return jsonify({'success': False, 'error': 'Erro ao aplicar atualizações'})
+        
+        return jsonify({'success': True, 'message': 'Sistema atualizado com sucesso'})
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)})
+
+@app.route('/admin/create-backup', methods=['POST'])
+@login_required
+def create_backup():
+    if not current_user.is_admin():
+        return jsonify({'success': False, 'error': 'Acesso negado'})
+    
+    try:
+        import shutil
+        from pathlib import Path
+        
+        backup_dir = Path('backup')
+        backup_dir.mkdir(exist_ok=True)
+        
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        
+        # Backup dos modelos
+        models_dir = Path('modelos')
+        if models_dir.exists():
+            for model_file in models_dir.glob('*.pkl'):
+                backup_file = backup_dir / f'{model_file.stem}_backup_{timestamp}.pkl'
+                shutil.copy2(model_file, backup_file)
+        
+        # Backup dos dados
+        data_file = Path('gestos_libras.csv')
+        if data_file.exists():
+            backup_file = backup_dir / f'gestos_libras_backup_{timestamp}.csv'
+            shutil.copy2(data_file, backup_file)
+        
+        # Backup dos usuários
+        users_file = Path('users.json')
+        if users_file.exists():
+            backup_file = backup_dir / f'users_backup_{timestamp}.json'
+            shutil.copy2(users_file, backup_file)
+        
+        return jsonify({'success': True, 'message': 'Backup criado com sucesso'})
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)})
+
+@app.route('/admin/clear-logs', methods=['POST'])
+@login_required
+def clear_logs():
+    if not current_user.is_admin():
+        return jsonify({'success': False, 'error': 'Acesso negado'})
+    
+    try:
+        # Limpar logs (implementar conforme necessário)
+        return jsonify({'success': True, 'message': 'Logs limpos com sucesso'})
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)})
+
+@app.route('/admin/logs')
+@login_required
+def view_logs():
+    if not current_user.is_admin():
+        flash('Acesso negado!', 'error')
+        return redirect(url_for('camera'))
+    
+    # Implementar visualização de logs
+    return render_template('logs.html')
+
+@app.route('/admin/manage-users')
+@login_required
+def manage_users():
+    if not current_user.is_admin():
+        flash('Acesso negado!', 'error')
+        return redirect(url_for('camera'))
+    
+    users = user_manager.list_users()
+    return render_template('manage_users.html', users=users)
+
 @app.route('/')
 def index():
-    return render_template('index.html')
+    if current_user.is_authenticated:
+        if current_user.is_admin():
+            return redirect(url_for('admin_dashboard'))
+        else:
+            return redirect(url_for('camera'))
+    return redirect(url_for('login'))
 
 @app.route('/camera')
+@login_required
 def camera():
-    return render_template('camera.html')
+    return render_template('camera_tradulibras.html')
 
 @app.route('/tutorial')
+@login_required
 def tutorial():
     return render_template('tutorial.html')
 
@@ -158,7 +364,10 @@ def reset_detection():
 def letra_atual():
     global current_letter, letter_detected
     # Retorna hífen se não há letra detectada ou se está vazio
-    letra_para_retornar = current_letter if current_letter and current_letter.strip() else "-"
+    letra_para_retornar = "-"
+    if current_letter and current_letter.strip() and current_letter.strip() != "":
+        letra_para_retornar = current_letter.strip()
+    
     return jsonify({
         'letra': letra_para_retornar,
         'detectada': letter_detected
