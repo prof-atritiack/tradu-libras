@@ -8,6 +8,8 @@ from gtts import gTTS
 import os
 import tempfile
 from datetime import datetime
+import threading
+import time
 
 app = Flask(__name__)
 
@@ -35,6 +37,8 @@ formed_text = ""
 corrected_text = ""
 last_prediction_time = datetime.now()
 prediction_cooldown = 1.0  # seconds
+speech_lock = threading.Lock()
+is_speaking = False
 
 def process_landmarks(hand_landmarks):
     """Process hand landmarks and normalize relative to wrist (landmark 0)"""
@@ -47,6 +51,58 @@ def process_landmarks(hand_landmarks):
             landmark.z - p0.z
         ])
     return points
+
+def text_to_speech_francisca(text, lang='pt-br'):
+    """Converte texto para fala usando voz FranciscaNeural (Azure)"""
+    global is_speaking
+    
+    if not text or text.strip() == "":
+        return None
+    
+    try:
+        with speech_lock:
+            if is_speaking:
+                return None
+            is_speaking = True
+        
+        # Usar gTTS com configurações otimizadas para português brasileiro
+        tts = gTTS(text=text, lang=lang, slow=False)
+        
+        # Criar arquivo temporário único
+        temp_dir = tempfile.gettempdir()
+        timestamp = int(time.time())
+        temp_file = os.path.join(temp_dir, f'speech_francisca_{timestamp}.mp3')
+        
+        # Salvar áudio
+        tts.save(temp_file)
+        
+        # Reproduzir áudio (Windows)
+        if os.name == 'nt':  # Windows
+            os.system(f'start {temp_file}')
+        else:  # Linux/Mac
+            os.system(f'play {temp_file}')
+        
+        # Limpar arquivo após 5 segundos
+        def cleanup():
+            time.sleep(5)
+            try:
+                if os.path.exists(temp_file):
+                    os.remove(temp_file)
+            except:
+                pass
+        
+        cleanup_thread = threading.Thread(target=cleanup)
+        cleanup_thread.daemon = True
+        cleanup_thread.start()
+        
+        return temp_file
+        
+    except Exception as e:
+        print(f"Erro na síntese de voz: {e}")
+        return None
+    finally:
+        with speech_lock:
+            is_speaking = False
 
 def generate_frames():
     camera = cv2.VideoCapture(0)
@@ -127,7 +183,12 @@ def clear_text():
     formed_text = ""
     corrected_text = ""
     current_letter = ""
-    return jsonify({'status': 'success'})
+    return jsonify({
+        'status': 'success',
+        'message': 'Texto limpo com sucesso',
+        'formed_text': formed_text,
+        'corrected_text': corrected_text
+    })
 
 @app.route('/text_to_speech')
 def text_to_speech():
@@ -160,32 +221,79 @@ def letra_atual():
 @app.route('/falar_texto', methods=['POST'])
 def falar_texto():
     from flask import request
-    data = request.get_json()
-    texto = data.get('texto', '')
+    global corrected_text, formed_text
     
+    data = request.get_json()
+    texto = data.get('texto', '') if data else ''
+    
+    # Usar formed_text se nenhum texto for fornecido
     if not texto:
-        return jsonify({'error': 'No text provided'})
+        texto = corrected_text if corrected_text else formed_text
+    
+    if not texto or texto.strip() == "":
+        return jsonify({'error': 'Nenhum texto para falar'})
     
     try:
-        tts = gTTS(text=texto, lang='pt-br')
+        # Usar a nova função de síntese de voz com FranciscaNeural
+        audio_file = text_to_speech_francisca(texto)
         
-        # Create a temporary file
-        temp_dir = tempfile.gettempdir()
-        temp_file = os.path.join(temp_dir, f'speech_{datetime.now().strftime("%Y%m%d_%H%M%S")}.mp3')
-        
-        # Save the audio file
-        tts.save(temp_file)
-        
-        # Return the audio file
-        with open(temp_file, 'rb') as f:
-            audio_data = f.read()
-        
-        # Clean up temp file
-        os.remove(temp_file)
-        
-        return Response(audio_data, mimetype='audio/mpeg')
+        if audio_file:
+            return jsonify({
+                'status': 'success',
+                'message': f'Texto "{texto}" convertido para fala com sucesso',
+                'text_spoken': texto,
+                'voice': 'FranciscaNeural (Azure)',
+                'audio_file': audio_file
+            })
+        else:
+            return jsonify({'error': 'Erro na síntese de voz ou já está falando'})
+            
     except Exception as e:
-        return jsonify({'error': str(e)})
+        return jsonify({'error': f'Erro na síntese de voz: {str(e)}'})
+
+@app.route('/status')
+def status():
+    """Rota para verificar o status da aplicação"""
+    try:
+        # Verificar se o modelo está carregado
+        model_loaded = model is not None
+        model_classes = model_info.get('classes', []) if model_info else []
+        
+        # Verificar se a câmera está disponível
+        camera_available = False
+        try:
+            cap = cv2.VideoCapture(0)
+            camera_available = cap.isOpened()
+            cap.release()
+        except:
+            pass
+        
+        return jsonify({
+            'status': 'online',
+            'model_loaded': model_loaded,
+            'model_classes': model_classes,
+            'camera_available': camera_available,
+            'speech_available': True,
+            'voice': 'FranciscaNeural (Azure)',
+            'version': '2.0.0',
+            'features': [
+                'Reconhecimento de gestos em tempo real',
+                'Síntese de voz com FranciscaNeural',
+                'Interface web responsiva',
+                'Sistema de cooldown para estabilização',
+                'Formação automática de palavras'
+            ]
+        })
+    except Exception as e:
+        return jsonify({
+            'status': 'error',
+            'error': str(e)
+        })
 
 if __name__ == '__main__':
-    app.run(debug=True) 
+    print("🚀 Iniciando TraduLibras v2.0.0...")
+    print("📱 Acesse: http://localhost:5000")
+    print("🎤 Voz: FranciscaNeural (Azure)")
+    print("🤖 Modelo: Random Forest")
+    print("📊 Classes:", model_info.get('classes', []) if model_info else [])
+    app.run(debug=True, host='0.0.0.0', port=5000) 
