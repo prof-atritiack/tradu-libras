@@ -618,6 +618,9 @@
                 <div class="status-indicator" id="status-indicator">
                     Sistema Online
                 </div>
+                <div class="status-indicator" id="correcoes-indicator" style="background: rgba(59, 130, 246, 0.1); color: #3b82f6; margin-left: 1rem;">
+                    Correções: <span id="contador-correcoes">0</span>
+                </div>
                 
                 <h2 style="color: var(--text); font-size: 1.25rem; margin-bottom: 1.5rem; font-weight: 600; display: flex; align-items: center; gap: 0.5rem;">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -655,6 +658,18 @@
                         </svg>
                         Reproduzir Texto
                     </button>
+                    <button class="button button-secondary" onclick="simularTexto()">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                        Simular Texto
+                    </button>
+                    <button class="button button-secondary" onclick="testarCorrecao()">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        Testar Correção
+                    </button>
                     <button class="button button-secondary" onclick="limparTexto()">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -670,23 +685,34 @@
         let audioContext = new (window.AudioContext || window.webkitAudioContext)();
         let letraAtual = "";
         let textoAcumulado = "";
+        let contadorCorrecoes = 0;
 
         function corrigirTexto(texto) {
+            // Dicionário de palavras comuns em português brasileiro
+            const dicionario = [
+                'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
+                'OLA', 'OI', 'BOM', 'DIA', 'TARDE', 'NOITE', 'OBRIGADO', 'POR', 'FAVOR', 'DESCULPA', 'COM', 'LICENCA',
+                'SIM', 'NAO', 'TALVEZ', 'QUEM', 'QUE', 'ONDE', 'QUANDO', 'COMO', 'PORQUE', 'PARA', 'COM', 'SEM',
+                'EU', 'VOCE', 'ELE', 'ELA', 'NOS', 'VOCES', 'ELES', 'ELAS', 'MEU', 'MINHA', 'SEU', 'SUA', 'NOSSO', 'NOSSA',
+                'TRADULIBRAS', 'LIBRAS', 'SURDO', 'SURDA', 'OUVIDO', 'FALA', 'GESTO', 'SINAL', 'COMUNICACAO',
+                'AGUA', 'COMIDA', 'CASA', 'FAMILIA', 'AMIGO', 'AMIGA', 'TRABALHO', 'ESCOLA', 'HOSPITAL', 'LOJA',
+                'CARRO', 'ONIBUS', 'AVIAO', 'TREM', 'BICICLETA', 'PES', 'MAOS', 'CABECA', 'OLHOS', 'BOCA',
+                'VERMELHO', 'AZUL', 'VERDE', 'AMARELO', 'PRETO', 'BRANCO', 'ROSA', 'ROXO', 'LARANJA', 'MARROM',
+                'UM', 'DOIS', 'TRES', 'QUATRO', 'CINCO', 'SEIS', 'SETE', 'OITO', 'NOVE', 'DEZ'
+            ];
+
             // Função para calcular a distância de Levenshtein entre duas strings
             function levenshteinDistance(a, b) {
                 if (a.length === 0) return b.length;
                 if (b.length === 0) return a.length;
 
                 const matrix = [];
-
                 for (let i = 0; i <= b.length; i++) {
                     matrix[i] = [i];
                 }
-
                 for (let j = 0; j <= a.length; j++) {
                     matrix[0][j] = j;
                 }
-
                 for (let i = 1; i <= b.length; i++) {
                     for (let j = 1; j <= a.length; j++) {
                         if (b.charAt(i - 1) === a.charAt(j - 1)) {
@@ -700,21 +726,148 @@
                         }
                     }
                 }
-
                 return matrix[b.length][a.length];
             }
 
-            // Divide o texto em palavras
-            const palavras = texto.split(' ');
-            const palavrasCorrigidas = palavras.map(palavra => {
-                // Se a palavra for similar a "TRADULIBRAS" (distância de Levenshtein <= 3)
-                if (levenshteinDistance(palavra.toUpperCase(), "TRADULIBRAS") <= 3) {
-                    return "TRADULIBRAS";
+            // Função para encontrar a melhor correção para uma palavra
+            function encontrarMelhorCorrecao(palavra) {
+                const palavraUpper = palavra.toUpperCase();
+                
+                // Se a palavra já está no dicionário, retorna ela
+                if (dicionario.includes(palavraUpper)) {
+                    return palavraUpper;
                 }
-                return palavra;
-            });
 
-            return palavrasCorrigidas.join(' ');
+                let melhorCorrecao = palavra;
+                let menorDistancia = Infinity;
+
+                // Procura a palavra mais similar no dicionário
+                for (const palavraDicionario of dicionario) {
+                    const distancia = levenshteinDistance(palavraUpper, palavraDicionario);
+                    
+                    // Se a distância for menor e a palavra tiver tamanho similar
+                    if (distancia < menorDistancia && 
+                        distancia <= Math.max(2, Math.floor(palavraUpper.length / 3)) &&
+                        Math.abs(palavraUpper.length - palavraDicionario.length) <= 2) {
+                        menorDistancia = distancia;
+                        melhorCorrecao = palavraDicionario;
+                    }
+                }
+
+                // Se não encontrou uma correção boa, retorna a palavra original
+                if (menorDistancia > Math.max(2, Math.floor(palavraUpper.length / 3))) {
+                    return palavra;
+                }
+
+                return melhorCorrecao;
+            }
+
+            // Função para corrigir sequências de letras que podem formar palavras
+            function corrigirSequencias(texto) {
+                // Remove espaços e converte para maiúsculo
+                const textoLimpo = texto.replace(/\s+/g, '').toUpperCase();
+                let resultado = '';
+                let i = 0;
+
+                while (i < textoLimpo.length) {
+                    let melhorPalavra = textoLimpo[i];
+                    let melhorScore = 0;
+
+                    // Tenta formar palavras de 2 a 8 caracteres
+                    for (let tamanho = 2; tamanho <= Math.min(8, textoLimpo.length - i); tamanho++) {
+                        const subsequencia = textoLimpo.substring(i, i + tamanho);
+                        const correcao = encontrarMelhorCorrecao(subsequencia);
+                        
+                        // Calcula um score baseado na similaridade
+                        const distancia = levenshteinDistance(subsequencia, correcao);
+                        const score = (subsequencia.length - distancia) / subsequencia.length;
+                        
+                        if (score > melhorScore && score > 0.6) {
+                            melhorScore = score;
+                            melhorPalavra = correcao;
+                        }
+                    }
+
+                    // Se encontrou uma palavra boa, adiciona ela
+                    if (melhorPalavra.length > 1) {
+                        resultado += melhorPalavra + ' ';
+                        i += melhorPalavra.length;
+                    } else {
+                        resultado += textoLimpo[i] + ' ';
+                        i++;
+                    }
+                }
+
+                return resultado.trim();
+            }
+
+            // Função para aplicar correções baseadas em padrões comuns
+            function aplicarCorrecoesPadrao(texto) {
+                let textoCorrigido = texto.toUpperCase();
+                
+                // Padrões comuns de confusão entre letras similares
+                const padroesCorrecao = {
+                    // Letras que podem ser confundidas
+                    '0': 'O', '1': 'I', '5': 'S', '8': 'B',
+                    'I1': 'II', 'O0': 'OO', 'S5': 'SS', 'B8': 'BB',
+                    
+                    // Palavras comuns que podem ser mal reconhecidas
+                    'TRADULIBRAS': 'TRADULIBRAS',
+                    'LIBRAS': 'LIBRAS',
+                    'OLA': 'OLA',
+                    'OI': 'OI',
+                    'BOM': 'BOM',
+                    'DIA': 'DIA',
+                    'NOITE': 'NOITE',
+                    'OBRIGADO': 'OBRIGADO',
+                    'POR': 'POR',
+                    'FAVOR': 'FAVOR',
+                    'SIM': 'SIM',
+                    'NAO': 'NAO',
+                    'EU': 'EU',
+                    'VOCE': 'VOCE',
+                    'ELE': 'ELE',
+                    'ELA': 'ELA',
+                    'AGUA': 'AGUA',
+                    'CASA': 'CASA',
+                    'FAMILIA': 'FAMILIA',
+                    'AMIGO': 'AMIGO',
+                    'AMIGA': 'AMIGA',
+                    'CARRO': 'CARRO',
+                    'VERMELHO': 'VERMELHO',
+                    'AZUL': 'AZUL',
+                    'VERDE': 'VERDE',
+                    'AMARELO': 'AMARELO',
+                    'PRETO': 'PRETO',
+                    'BRANCO': 'BRANCO'
+                };
+
+                // Aplica correções de padrões
+                for (const [padrao, correcao] of Object.entries(padroesCorrecao)) {
+                    const regex = new RegExp(padrao, 'gi');
+                    textoCorrigido = textoCorrigido.replace(regex, correcao);
+                }
+
+                return textoCorrigido;
+            }
+
+            // Aplica a correção
+            if (!texto || texto.trim() === '') {
+                return '';
+            }
+
+            // Primeiro, aplica correções de padrões
+            const textoComPadroes = aplicarCorrecoesPadrao(texto);
+            
+            // Depois, tenta corrigir sequências de letras
+            const textoCorrigido = corrigirSequencias(textoComPadroes);
+            
+            // Se o resultado for muito diferente do original, retorna o original
+            if (textoCorrigido.length < texto.length * 0.3) {
+                return texto;
+            }
+
+            return textoCorrigido;
         }
 
         function atualizarLetra() {
@@ -739,7 +892,18 @@
                             // Atualiza o texto corrigido com animação
                             const textoCorrigido = corrigirTexto(textoAcumulado);
                             const textoCorrigidoElement = document.getElementById('texto-corrigido');
-                            textoCorrigidoElement.textContent = textoCorrigido;
+                            
+                            // Mostra a diferença visualmente
+                            if (textoCorrigido !== textoAcumulado) {
+                                textoCorrigidoElement.innerHTML = `<span style="color: #10b981; font-weight: 600;">${textoCorrigido}</span>`;
+                                textoCorrigidoElement.title = `Corrigido de: ${textoAcumulado}`;
+                                contadorCorrecoes++;
+                                document.getElementById('contador-correcoes').textContent = contadorCorrecoes;
+                            } else {
+                                textoCorrigidoElement.textContent = textoCorrigido;
+                                textoCorrigidoElement.title = 'Texto sem correções necessárias';
+                            }
+                            
                             textoCorrigidoElement.classList.add('updated');
                             setTimeout(() => {
                                 textoCorrigidoElement.classList.remove('updated');
@@ -831,8 +995,11 @@
 
         function limparTexto() {
             textoAcumulado = "";
+            contadorCorrecoes = 0;
             document.getElementById('texto').textContent = textoAcumulado;
             document.getElementById('texto-corrigido').textContent = "";
+            document.getElementById('texto-corrigido').title = '';
+            document.getElementById('contador-correcoes').textContent = '0';
             
             // Adicionar animação de limpeza
             const textElements = document.querySelectorAll('.texto-acumulado, .text-corrected');
@@ -842,6 +1009,73 @@
                     element.style.opacity = '1';
                 }, 200);
             });
+        }
+
+        function simularTexto() {
+            const exemplos = [
+                'O1A',
+                'B0M D1A',
+                'S1M',
+                'V0CE',
+                'CASA',
+                'TRADULIBRAS',
+                'O1A B0M D1A TARDE',
+                'EU S0U SEU AM1G0'
+            ];
+            
+            const exemploAleatorio = exemplos[Math.floor(Math.random() * exemplos.length)];
+            textoAcumulado = exemploAleatorio;
+            
+            document.getElementById('texto').textContent = textoAcumulado;
+            
+            // Aplicar correção
+            const textoCorrigido = corrigirTexto(textoAcumulado);
+            const textoCorrigidoElement = document.getElementById('texto-corrigido');
+            
+            if (textoCorrigido !== textoAcumulado) {
+                textoCorrigidoElement.innerHTML = `<span style="color: #10b981; font-weight: 600;">${textoCorrigido}</span>`;
+                textoCorrigidoElement.title = `Corrigido de: ${textoAcumulado}`;
+                contadorCorrecoes++;
+                document.getElementById('contador-correcoes').textContent = contadorCorrecoes;
+            } else {
+                textoCorrigidoElement.textContent = textoCorrigido;
+                textoCorrigidoElement.title = 'Texto sem correções necessárias';
+            }
+            
+            textoCorrigidoElement.classList.add('updated');
+            setTimeout(() => {
+                textoCorrigidoElement.classList.remove('updated');
+            }, 600);
+        }
+
+        function testarCorrecao() {
+            const textoOriginal = document.getElementById('texto').textContent;
+            console.log('Texto original:', textoOriginal);
+            
+            if (!textoOriginal) {
+                // Teste com texto de exemplo
+                const textoExemplo = 'O1A B0M D1A';
+                console.log('Testando com exemplo:', textoExemplo);
+                const textoCorrigido = corrigirTexto(textoExemplo);
+                console.log('Resultado da correção:', textoCorrigido);
+                
+                alert(`Teste de correção:\n\nOriginal: ${textoExemplo}\nCorrigido: ${textoCorrigido}`);
+                return;
+            }
+            
+            const textoCorrigido = corrigirTexto(textoOriginal);
+            console.log('Texto corrigido:', textoCorrigido);
+            const textoCorrigidoElement = document.getElementById('texto-corrigido');
+            
+            if (textoCorrigido !== textoOriginal) {
+                textoCorrigidoElement.innerHTML = `<span style="color: #10b981; font-weight: 600;">${textoCorrigido}</span>`;
+                textoCorrigidoElement.title = `Corrigido de: ${textoOriginal}`;
+                alert(`Texto corrigido!\n\nOriginal: ${textoOriginal}\nCorrigido: ${textoCorrigido}`);
+            } else {
+                textoCorrigidoElement.textContent = textoCorrigido;
+                textoCorrigidoElement.title = 'Texto sem correções necessárias';
+                alert('Nenhuma correção foi necessária para este texto.');
+            }
         }
 
         // Verificar status do sistema

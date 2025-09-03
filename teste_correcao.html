@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste de Correção de Texto</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        button {
+            background: #6366f1;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+        }
+        button:hover {
+            background: #4f46e5;
+        }
+        .result {
+            margin: 10px 0;
+            padding: 15px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        .original {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        .corrected {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        .no-change {
+            background: #e5e7eb;
+            color: #374151;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Teste de Correção de Texto - TraduLibras</h1>
+        
+        <div class="test-section">
+            <h3>Teste Manual</h3>
+            <input type="text" id="textoInput" placeholder="Digite um texto para testar a correção..." value="O1A B0M D1A">
+            <button onclick="testarCorrecao()">Testar Correção</button>
+            <div id="resultado"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>Testes Automáticos</h3>
+            <button onclick="executarTestes()">Executar Testes Automáticos</button>
+            <div id="testesAutomaticos"></div>
+        </div>
+    </div>
+
+    <script>
+        // Dicionário de palavras comuns em português brasileiro
+        const dicionario = [
+            'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
+            'OLA', 'OI', 'BOM', 'DIA', 'TARDE', 'NOITE', 'OBRIGADO', 'POR', 'FAVOR', 'DESCULPA', 'COM', 'LICENCA',
+            'SIM', 'NAO', 'TALVEZ', 'QUEM', 'QUE', 'ONDE', 'QUANDO', 'COMO', 'PORQUE', 'PARA', 'COM', 'SEM',
+            'EU', 'VOCE', 'ELE', 'ELA', 'NOS', 'VOCES', 'ELES', 'ELAS', 'MEU', 'MINHA', 'SEU', 'SUA', 'NOSSO', 'NOSSA',
+            'TRADULIBRAS', 'LIBRAS', 'SURDO', 'SURDA', 'OUVIDO', 'FALA', 'GESTO', 'SINAL', 'COMUNICACAO',
+            'AGUA', 'COMIDA', 'CASA', 'FAMILIA', 'AMIGO', 'AMIGA', 'TRABALHO', 'ESCOLA', 'HOSPITAL', 'LOJA',
+            'CARRO', 'ONIBUS', 'AVIAO', 'TREM', 'BICICLETA', 'PES', 'MAOS', 'CABECA', 'OLHOS', 'BOCA',
+            'VERMELHO', 'AZUL', 'VERDE', 'AMARELO', 'PRETO', 'BRANCO', 'ROSA', 'ROXO', 'LARANJA', 'MARROM',
+            'UM', 'DOIS', 'TRES', 'QUATRO', 'CINCO', 'SEIS', 'SETE', 'OITO', 'NOVE', 'DEZ'
+        ];
+
+        // Função para calcular a distância de Levenshtein entre duas strings
+        function levenshteinDistance(a, b) {
+            if (a.length === 0) return b.length;
+            if (b.length === 0) return a.length;
+
+            const matrix = [];
+            for (let i = 0; i <= b.length; i++) {
+                matrix[i] = [i];
+            }
+            for (let j = 0; j <= a.length; j++) {
+                matrix[0][j] = j;
+            }
+            for (let i = 1; i <= b.length; i++) {
+                for (let j = 1; j <= a.length; j++) {
+                    if (b.charAt(i - 1) === a.charAt(j - 1)) {
+                        matrix[i][j] = matrix[i - 1][j - 1];
+                    } else {
+                        matrix[i][j] = Math.min(
+                            matrix[i - 1][j - 1] + 1,
+                            matrix[i][j - 1] + 1,
+                            matrix[i - 1][j] + 1
+                        );
+                    }
+                }
+            }
+            return matrix[b.length][a.length];
+        }
+
+        // Função para encontrar a melhor correção para uma palavra
+        function encontrarMelhorCorrecao(palavra) {
+            const palavraUpper = palavra.toUpperCase();
+            
+            // Se a palavra já está no dicionário, retorna ela
+            if (dicionario.includes(palavraUpper)) {
+                return palavraUpper;
+            }
+
+            let melhorCorrecao = palavra;
+            let menorDistancia = Infinity;
+
+            // Procura a palavra mais similar no dicionário
+            for (const palavraDicionario of dicionario) {
+                const distancia = levenshteinDistance(palavraUpper, palavraDicionario);
+                
+                // Se a distância for menor e a palavra tiver tamanho similar
+                if (distancia < menorDistancia && 
+                    distancia <= Math.max(2, Math.floor(palavraUpper.length / 3)) &&
+                    Math.abs(palavraUpper.length - palavraDicionario.length) <= 2) {
+                    menorDistancia = distancia;
+                    melhorCorrecao = palavraDicionario;
+                }
+            }
+
+            // Se não encontrou uma correção boa, retorna a palavra original
+            if (menorDistancia > Math.max(2, Math.floor(palavraUpper.length / 3))) {
+                return palavra;
+            }
+
+            return melhorCorrecao;
+        }
+
+        // Função para corrigir sequências de letras que podem formar palavras
+        function corrigirSequencias(texto) {
+            // Remove espaços e converte para maiúsculo
+            const textoLimpo = texto.replace(/\s+/g, '').toUpperCase();
+            let resultado = '';
+            let i = 0;
+
+            while (i < textoLimpo.length) {
+                let melhorPalavra = textoLimpo[i];
+                let melhorScore = 0;
+
+                // Tenta formar palavras de 2 a 8 caracteres
+                for (let tamanho = 2; tamanho <= Math.min(8, textoLimpo.length - i); tamanho++) {
+                    const subsequencia = textoLimpo.substring(i, i + tamanho);
+                    const correcao = encontrarMelhorCorrecao(subsequencia);
+                    
+                    // Calcula um score baseado na similaridade
+                    const distancia = levenshteinDistance(subsequencia, correcao);
+                    const score = (subsequencia.length - distancia) / subsequencia.length;
+                    
+                    if (score > melhorScore && score > 0.6) {
+                        melhorScore = score;
+                        melhorPalavra = correcao;
+                    }
+                }
+
+                // Se encontrou uma palavra boa, adiciona ela
+                if (melhorPalavra.length > 1) {
+                    resultado += melhorPalavra + ' ';
+                    i += melhorPalavra.length;
+                } else {
+                    resultado += textoLimpo[i] + ' ';
+                    i++;
+                }
+            }
+
+            return resultado.trim();
+        }
+
+        // Função para aplicar correções baseadas em padrões comuns
+        function aplicarCorrecoesPadrao(texto) {
+            let textoCorrigido = texto.toUpperCase();
+            
+            // Padrões comuns de confusão entre letras similares
+            const padroesCorrecao = {
+                // Letras que podem ser confundidas
+                '0': 'O', '1': 'I', '5': 'S', '8': 'B',
+                'I1': 'II', 'O0': 'OO', 'S5': 'SS', 'B8': 'BB',
+                
+                // Palavras comuns que podem ser mal reconhecidas
+                'TRADULIBRAS': 'TRADULIBRAS',
+                'LIBRAS': 'LIBRAS',
+                'OLA': 'OLA',
+                'OI': 'OI',
+                'BOM': 'BOM',
+                'DIA': 'DIA',
+                'NOITE': 'NOITE',
+                'OBRIGADO': 'OBRIGADO',
+                'POR': 'POR',
+                'FAVOR': 'FAVOR',
+                'SIM': 'SIM',
+                'NAO': 'NAO',
+                'EU': 'EU',
+                'VOCE': 'VOCE',
+                'ELE': 'ELE',
+                'ELA': 'ELA',
+                'AGUA': 'AGUA',
+                'CASA': 'CASA',
+                'FAMILIA': 'FAMILIA',
+                'AMIGO': 'AMIGO',
+                'AMIGA': 'AMIGA',
+                'CARRO': 'CARRO',
+                'VERMELHO': 'VERMELHO',
+                'AZUL': 'AZUL',
+                'VERDE': 'VERDE',
+                'AMARELO': 'AMARELO',
+                'PRETO': 'PRETO',
+                'BRANCO': 'BRANCO'
+            };
+
+            // Aplica correções de padrões
+            for (const [padrao, correcao] of Object.entries(padroesCorrecao)) {
+                const regex = new RegExp(padrao, 'gi');
+                textoCorrigido = textoCorrigido.replace(regex, correcao);
+            }
+
+            return textoCorrigido;
+        }
+
+        function corrigirTexto(texto) {
+            // Aplica a correção
+            if (!texto || texto.trim() === '') {
+                return '';
+            }
+
+            // Primeiro, aplica correções de padrões
+            const textoComPadroes = aplicarCorrecoesPadrao(texto);
+            
+            // Depois, tenta corrigir sequências de letras
+            const textoCorrigido = corrigirSequencias(textoComPadroes);
+            
+            // Se o resultado for muito diferente do original, retorna o original
+            if (textoCorrigido.length < texto.length * 0.3) {
+                return texto;
+            }
+
+            return textoCorrigido;
+        }
+
+        function testarCorrecao() {
+            const textoOriginal = document.getElementById('textoInput').value;
+            if (!textoOriginal) {
+                alert('Digite algum texto primeiro!');
+                return;
+            }
+            
+            const textoCorrigido = corrigirTexto(textoOriginal);
+            const resultadoDiv = document.getElementById('resultado');
+            
+            if (textoCorrigido !== textoOriginal) {
+                resultadoDiv.innerHTML = `
+                    <div class="result original">Original: ${textoOriginal}</div>
+                    <div class="result corrected">Corrigido: ${textoCorrigido}</div>
+                `;
+            } else {
+                resultadoDiv.innerHTML = `
+                    <div class="result no-change">Nenhuma correção necessária: ${textoOriginal}</div>
+                `;
+            }
+        }
+
+        function executarTestes() {
+            const testes = [
+                'O1A',
+                'B0M D1A',
+                'S1M',
+                'V0CE',
+                'CASA',
+                'TRADULIBRAS',
+                'O1A B0M D1A TARDE',
+                'EU S0U SEU AM1G0',
+                'C0M1DA E AGUA',
+                'VERMELH0 E AZUL'
+            ];
+
+            const resultadosDiv = document.getElementById('testesAutomaticos');
+            let html = '<h4>Resultados dos Testes:</h4>';
+
+            testes.forEach(teste => {
+                const corrigido = corrigirTexto(teste);
+                const status = corrigido !== teste ? '✅' : '➖';
+                html += `
+                    <div style="margin: 10px 0; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                        ${status} <strong>${teste}</strong> → <span style="color: #10b981;">${corrigido}</span>
+                    </div>
+                `;
+            });
+
+            resultadosDiv.innerHTML = html;
+        }
+    </script>
+</body>
+</html>
