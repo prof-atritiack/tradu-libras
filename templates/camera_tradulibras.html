@@ -68,6 +68,7 @@
             font-weight: 600;
             margin-left: 0.5rem;
             background: var(--bg-gradient);
+            background-clip: text;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
@@ -241,10 +242,69 @@
             animation: typing 0.5s ease-in-out;
         }
 
+        .letra-atual.detected {
+            animation: letterDetected 1.5s ease-in-out;
+        }
+
+        .letra-display.detected {
+            animation: containerDetected 1.5s ease-in-out;
+        }
+
         @keyframes typing {
             0% { transform: scale(0.8); opacity: 0; }
             50% { transform: scale(1.1); }
             100% { transform: scale(1); opacity: 1; }
+        }
+
+        @keyframes letterDetected {
+            0% { 
+                transform: scale(1); 
+                color: var(--primary);
+                text-shadow: 0 4px 8px rgba(99, 102, 241, 0.3);
+            }
+            25% { 
+                transform: scale(1.3); 
+                color: #10b981;
+                text-shadow: 0 8px 16px rgba(16, 185, 129, 0.6);
+            }
+            50% { 
+                transform: scale(1.2); 
+                color: #f59e0b;
+                text-shadow: 0 6px 12px rgba(245, 158, 11, 0.5);
+            }
+            75% { 
+                transform: scale(1.1); 
+                color: #ef4444;
+                text-shadow: 0 4px 8px rgba(239, 68, 68, 0.4);
+            }
+            100% { 
+                transform: scale(1); 
+                color: var(--primary);
+                text-shadow: 0 4px 8px rgba(99, 102, 241, 0.3);
+            }
+        }
+
+        @keyframes containerDetected {
+            0% { 
+                border-color: rgba(99, 102, 241, 0.3);
+                box-shadow: 0 8px 25px rgba(99, 102, 241, 0.3);
+            }
+            25% { 
+                border-color: rgba(16, 185, 129, 0.6);
+                box-shadow: 0 12px 30px rgba(16, 185, 129, 0.4);
+            }
+            50% { 
+                border-color: rgba(245, 158, 11, 0.6);
+                box-shadow: 0 10px 28px rgba(245, 158, 11, 0.4);
+            }
+            75% { 
+                border-color: rgba(239, 68, 68, 0.6);
+                box-shadow: 0 8px 25px rgba(239, 68, 68, 0.4);
+            }
+            100% { 
+                border-color: rgba(99, 102, 241, 0.3);
+                box-shadow: 0 8px 25px rgba(99, 102, 241, 0.3);
+            }
         }
 
         .text-display-group {
@@ -511,6 +571,118 @@
             50% { transform: scale(1.2); }
             100% { transform: scale(1); }
         }
+
+        @keyframes slideInFromLeft {
+            0% { transform: translateX(-100%); opacity: 0; }
+            100% { transform: translateX(0); opacity: 1; }
+        }
+
+        @keyframes slideInFromRight {
+            0% { transform: translateX(100%); opacity: 0; }
+            100% { transform: translateX(0); opacity: 1; }
+        }
+
+        @keyframes fadeInUp {
+            0% { transform: translateY(30px); opacity: 0; }
+            100% { transform: translateY(0); opacity: 1; }
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+
+        .camera-section {
+            animation: slideInFromLeft 0.8s ease-out;
+        }
+
+        .text-section {
+            animation: slideInFromRight 0.8s ease-out;
+        }
+
+        .letra-display, .text-item {
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        .button {
+            animation: fadeInUp 0.4s ease-out;
+        }
+
+        .button:hover {
+            animation: bounce 0.6s ease-in-out;
+        }
+
+        .status-indicator {
+            animation: fadeInUp 0.5s ease-out;
+        }
+
+        /* Efeito de ondas para a câmera */
+        .camera-section::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 100px;
+            height: 100px;
+            border: 2px solid rgba(99, 102, 241, 0.3);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            animation: ripple 2s infinite;
+            pointer-events: none;
+        }
+
+        @keyframes ripple {
+            0% {
+                width: 100px;
+                height: 100px;
+                opacity: 1;
+            }
+            100% {
+                width: 300px;
+                height: 300px;
+                opacity: 0;
+            }
+        }
+
+        /* Efeito de brilho pulsante */
+        .letra-display::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transform: translateX(-100%);
+            animation: shine 3s infinite;
+        }
+
+        @keyframes shine {
+            0% { transform: translateX(-100%); }
+            50% { transform: translateX(100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        /* Efeito de hover dinâmico para cards */
+        .text-item:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Animação de entrada escalonada */
+        .text-item:nth-child(1) { animation-delay: 0.1s; }
+        .text-item:nth-child(2) { animation-delay: 0.2s; }
+        .button:nth-child(1) { animation-delay: 0.1s; }
+        .button:nth-child(2) { animation-delay: 0.2s; }
+        .button:nth-child(3) { animation-delay: 0.3s; }
+        .button:nth-child(4) { animation-delay: 0.4s; }
 
         @media (max-width: 1024px) {
             .main-container {
@@ -877,14 +1049,31 @@
                     if (data.letra !== letraAtual) {
                         letraAtual = data.letra;
                         const letraElement = document.getElementById('letra');
+                        const letraDisplay = document.querySelector('.letra-display');
+                        
                         letraElement.textContent = letraAtual || '-';
                         
-                        // Adicionar animação de digitação
+                        // Adicionar animação de digitação e detecção
                         if (letraAtual && letraAtual !== '-') {
+                            // Animação de digitação
                             letraElement.classList.add('typing');
                             setTimeout(() => {
                                 letraElement.classList.remove('typing');
                             }, 500);
+                            
+                            // Animação de detecção
+                            if (data.detectada) {
+                                letraElement.classList.add('detected');
+                                letraDisplay.classList.add('detected');
+                                
+                                setTimeout(() => {
+                                    letraElement.classList.remove('detected');
+                                    letraDisplay.classList.remove('detected');
+                                }, 1500);
+                                
+                                // Reset da flag de detecção
+                                fetch('/reset_detection');
+                            }
                             
                             textoAcumulado += letraAtual;
                             document.getElementById('texto').textContent = textoAcumulado;
@@ -932,6 +1121,10 @@
             const textoCorrigido = document.getElementById('texto-corrigido').textContent;
             if (!textoCorrigido) return;
 
+            // Efeito visual do botão
+            const button = event.target.closest('.button');
+            button.style.animation = 'bounce 0.6s ease-in-out';
+
             fetch('/falar_texto', {
                 method: 'POST',
                 headers: {
@@ -958,11 +1151,20 @@
             })
             .catch(error => {
                 console.error('Erro ao obter áudio:', error);
+            })
+            .finally(() => {
+                setTimeout(() => {
+                    button.style.animation = '';
+                }, 600);
             });
         }
 
         function falarLetra() {
             if (!letraAtual) return;
+
+            // Efeito visual do botão
+            const button = event.target.closest('.button');
+            button.style.animation = 'bounce 0.6s ease-in-out';
 
             fetch('/falar_texto', {
                 method: 'POST',
@@ -990,6 +1192,11 @@
             })
             .catch(error => {
                 console.error('Erro ao obter áudio:', error);
+            })
+            .finally(() => {
+                setTimeout(() => {
+                    button.style.animation = '';
+                }, 600);
             });
         }
 
@@ -1025,6 +1232,13 @@
             
             const exemploAleatorio = exemplos[Math.floor(Math.random() * exemplos.length)];
             textoAcumulado = exemploAleatorio;
+            
+            // Efeito visual de simulação
+            const textoElement = document.getElementById('texto');
+            textoElement.style.animation = 'shake 0.5s ease-in-out';
+            setTimeout(() => {
+                textoElement.style.animation = '';
+            }, 500);
             
             document.getElementById('texto').textContent = textoAcumulado;
             

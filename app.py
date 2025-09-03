@@ -36,7 +36,8 @@ current_letter = ""
 formed_text = ""
 corrected_text = ""
 last_prediction_time = datetime.now()
-prediction_cooldown = 1.0  # seconds
+prediction_cooldown = 2.5  # seconds - aumentado para dar mais tempo entre detecções
+letter_detected = False  # Flag para indicar se uma letra foi detectada recentemente
 
 def process_landmarks(hand_landmarks):
     """Process hand landmarks and normalize relative to wrist (landmark 0)"""
@@ -83,13 +84,18 @@ def generate_frames():
                     # Update current letter with cooldown
                     current_time = datetime.now()
                     if (current_time - last_prediction_time).total_seconds() >= prediction_cooldown:
-                        current_letter = prediction[0]
-                        formed_text += current_letter
-                        corrected_text = formed_text  # Simple correction for now
-                        last_prediction_time = current_time
+                        # Só atualiza se a predição for válida e diferente da anterior
+                        predicted_letter = prediction[0]
+                        if predicted_letter and predicted_letter.strip() and predicted_letter != current_letter:
+                            current_letter = predicted_letter
+                            formed_text += current_letter
+                            corrected_text = formed_text  # Simple correction for now
+                            last_prediction_time = current_time
+                            letter_detected = True  # Marca que uma letra foi detectada
                 
                 # Draw prediction on frame
-                cv2.putText(frame, f"Letra: {current_letter}", (10, 50),
+                letra_display = current_letter if current_letter and current_letter.strip() else "-"
+                cv2.putText(frame, f"Letra: {letra_display}", (10, 50),
                            cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
         
         # Convert frame to jpg
@@ -127,23 +133,36 @@ def get_text():
 
 @app.route('/clear_text')
 def clear_text():
-    global formed_text, corrected_text, current_letter
+    global formed_text, corrected_text, current_letter, letter_detected
     formed_text = ""
     corrected_text = ""
-    current_letter = ""
+    current_letter = ""  # Reset para string vazia
+    letter_detected = False  # Reset da flag de detecção
     return jsonify({
         'status': 'success',
         'message': 'Texto limpo com sucesso',
         'formed_text': formed_text,
-        'corrected_text': corrected_text
+        'corrected_text': corrected_text,
+        'current_letter': current_letter
     })
+
+@app.route('/reset_detection')
+def reset_detection():
+    global letter_detected
+    letter_detected = False
+    return jsonify({'status': 'success', 'detectada': letter_detected})
 
 
 
 @app.route('/letra_atual')
 def letra_atual():
-    global current_letter
-    return jsonify({'letra': current_letter})
+    global current_letter, letter_detected
+    # Retorna hífen se não há letra detectada ou se está vazio
+    letra_para_retornar = current_letter if current_letter and current_letter.strip() else "-"
+    return jsonify({
+        'letra': letra_para_retornar,
+        'detectada': letter_detected
+    })
 
 @app.route('/falar_texto', methods=['POST'])
 def falar_texto():
