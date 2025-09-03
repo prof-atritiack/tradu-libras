@@ -22,8 +22,12 @@ hands = mp_hands.Hands(
 mp_draw = mp.solutions.drawing_utils
 
 # Load the trained model
-with open('modelo_libras.pkl', 'rb') as f:
+with open('modelos/modelo_libras.pkl', 'rb') as f:
     model = pickle.load(f)
+
+# Load model info
+with open('modelos/modelo_info.pkl', 'rb') as f:
+    model_info = pickle.load(f)
 
 # Global variables for text formation
 current_letter = ""
@@ -33,9 +37,15 @@ last_prediction_time = datetime.now()
 prediction_cooldown = 1.0  # seconds
 
 def process_landmarks(hand_landmarks):
+    """Process hand landmarks and normalize relative to wrist (landmark 0)"""
+    p0 = hand_landmarks.landmark[0]  # Wrist reference point
     points = []
     for landmark in hand_landmarks.landmark:
-        points.extend([landmark.x, landmark.y, landmark.z])
+        points.extend([
+            landmark.x - p0.x,
+            landmark.y - p0.y,
+            landmark.z - p0.z
+        ])
     return points
 
 def generate_frames():
@@ -63,14 +73,16 @@ def generate_frames():
                 
                 # Process landmarks and make prediction
                 points = process_landmarks(hand_landmarks)
-                prediction = model.predict([points])
-                
-                # Update current letter with cooldown
-                current_time = datetime.now()
-                if (current_time - last_prediction_time).total_seconds() >= prediction_cooldown:
-                    current_letter = prediction[0]
-                    formed_text += current_letter
-                    last_prediction_time = current_time
+                if len(points) == 63:  # Ensure we have the right number of features
+                    prediction = model.predict([points])
+                    
+                    # Update current letter with cooldown
+                    current_time = datetime.now()
+                    if (current_time - last_prediction_time).total_seconds() >= prediction_cooldown:
+                        current_letter = prediction[0]
+                        formed_text += current_letter
+                        corrected_text = formed_text  # Simple correction for now
+                        last_prediction_time = current_time
                 
                 # Draw prediction on frame
                 cv2.putText(frame, f"Letra: {current_letter}", (10, 50),
@@ -137,6 +149,41 @@ def text_to_speech():
             'status': 'success',
             'audio_path': temp_file
         })
+    except Exception as e:
+        return jsonify({'error': str(e)})
+
+@app.route('/letra_atual')
+def letra_atual():
+    global current_letter
+    return jsonify({'letra': current_letter})
+
+@app.route('/falar_texto', methods=['POST'])
+def falar_texto():
+    from flask import request
+    data = request.get_json()
+    texto = data.get('texto', '')
+    
+    if not texto:
+        return jsonify({'error': 'No text provided'})
+    
+    try:
+        tts = gTTS(text=texto, lang='pt-br')
+        
+        # Create a temporary file
+        temp_dir = tempfile.gettempdir()
+        temp_file = os.path.join(temp_dir, f'speech_{datetime.now().strftime("%Y%m%d_%H%M%S")}.mp3')
+        
+        # Save the audio file
+        tts.save(temp_file)
+        
+        # Return the audio file
+        with open(temp_file, 'rb') as f:
+            audio_data = f.read()
+        
+        # Clean up temp file
+        os.remove(temp_file)
+        
+        return Response(audio_data, mimetype='audio/mpeg')
     except Exception as e:
         return jsonify({'error': str(e)})
 
