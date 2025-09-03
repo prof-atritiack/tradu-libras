@@ -97,18 +97,26 @@
             background: rgba(99, 102, 241, 0.1);
         }
 
-        .camera-container {
-            background: var(--surface);
-            border-radius: 1.5rem;
-            padding: 2rem;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
-            max-width: 800px;
+        .main-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            max-width: 1400px;
             margin: 0 auto;
-            position: relative;
-            overflow: hidden;
+            padding: 0 1rem;
         }
 
-        .camera-container::before {
+        .camera-section {
+            background: var(--surface);
+            border-radius: 1.5rem;
+            padding: 1.5rem;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+            height: fit-content;
+        }
+
+        .camera-section::before {
             content: '';
             position: absolute;
             top: 0;
@@ -118,77 +126,205 @@
             background: var(--bg-gradient);
         }
 
+        .camera-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+            color: var(--text);
+            font-weight: 600;
+            font-size: 1.125rem;
+        }
+
+        .camera-header svg {
+            width: 1.5rem;
+            height: 1.5rem;
+            color: var(--primary);
+        }
+
         #camera-feed {
             width: 100%;
+            max-width: 400px;
             border-radius: 1rem;
-            margin-bottom: 1.5rem;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s;
+            transition: all 0.3s ease;
+            margin: 0 auto;
+            display: block;
         }
 
         #camera-feed:hover {
-            transform: scale(1.01);
+            transform: scale(1.02);
+            box-shadow: 0 8px 15px -3px rgba(0, 0, 0, 0.2);
         }
 
-        .letra-display, .text-display {
-            background: rgba(248, 250, 252, 0.8);
+        .text-section {
+            background: var(--surface);
+            border-radius: 1.5rem;
+            padding: 1.5rem;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .text-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--bg-gradient);
+        }
+
+        .letra-display {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(129, 140, 248, 0.1));
             backdrop-filter: blur(10px);
             padding: 1.5rem;
             border-radius: 1rem;
             margin-bottom: 1.5rem;
             text-align: center;
-            border: 1px solid rgba(99, 102, 241, 0.2);
-            transition: all 0.3s;
+            border: 2px solid rgba(99, 102, 241, 0.3);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
         }
 
-        .letra-display:hover, .text-display:hover {
+        .letra-display::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .letra-display:hover::before {
+            left: 100%;
+        }
+
+        .letra-display:hover {
             border-color: var(--primary);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.3);
         }
 
-        .letra-display h2, .text-display h2 {
+        .letra-display h2 {
             color: var(--text);
-            font-size: 1.25rem;
+            font-size: 1.125rem;
             margin-bottom: 1rem;
             font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .letra-display h2 svg {
+            width: 1.25rem;
+            height: 1.25rem;
+            color: var(--primary);
         }
 
         .letra-atual {
             color: var(--primary);
-            font-size: 3rem;
+            font-size: 4rem;
             font-weight: 700;
-            text-shadow: 0 2px 4px rgba(99, 102, 241, 0.2);
+            text-shadow: 0 4px 8px rgba(99, 102, 241, 0.3);
             animation: pulse 2s infinite;
+            position: relative;
+            z-index: 1;
+        }
+
+        .letra-atual.typing {
+            animation: typing 0.5s ease-in-out;
+        }
+
+        @keyframes typing {
+            0% { transform: scale(0.8); opacity: 0; }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .text-display-group {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .text-item {
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 1rem;
+            padding: 1.25rem;
+            border: 2px solid rgba(99, 102, 241, 0.1);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .text-item:hover {
+            border-color: rgba(99, 102, 241, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .text-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--bg-gradient);
+            transform: scaleY(0);
+            transition: transform 0.3s ease;
+        }
+
+        .text-item:hover::before {
+            transform: scaleY(1);
         }
 
         .texto-acumulado {
             color: var(--primary);
             font-size: 1.5rem;
             font-weight: 500;
-            min-height: 2rem;
-            line-height: 1.5;
-            padding: 1rem;
-            background: rgba(255, 255, 255, 0.5);
+            min-height: 2.5rem;
+            line-height: 1.6;
+            padding: 0.75rem;
+            background: rgba(99, 102, 241, 0.05);
             border-radius: 0.75rem;
+            border: 1px solid rgba(99, 102, 241, 0.1);
+            transition: all 0.3s ease;
         }
 
-        .text-display-group {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
+        .texto-acumulado:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
         }
 
         .text-corrected {
             color: #10b981;
             font-size: 1.5rem;
             font-weight: 500;
-            min-height: 2rem;
-            line-height: 1.5;
-            padding: 1rem;
-            background: rgba(16, 185, 129, 0.1);
+            min-height: 2.5rem;
+            line-height: 1.6;
+            padding: 0.75rem;
+            background: rgba(16, 185, 129, 0.05);
             border-radius: 0.75rem;
             border: 1px solid rgba(16, 185, 129, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .text-corrected.updated {
+            animation: highlight 0.6s ease-in-out;
+        }
+
+        @keyframes highlight {
+            0% { background: rgba(16, 185, 129, 0.1); }
+            50% { background: rgba(16, 185, 129, 0.2); }
+            100% { background: rgba(16, 185, 129, 0.05); }
         }
 
         .text-label {
@@ -198,11 +334,44 @@
             color: var(--text);
             font-size: 1rem;
             font-weight: 600;
+            margin-bottom: 0.75rem;
         }
 
         .text-label svg {
             width: 1.25rem;
             height: 1.25rem;
+            color: var(--primary);
+        }
+
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: rgba(16, 185, 129, 0.1);
+            color: #10b981;
+            border-radius: 2rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-bottom: 1rem;
+        }
+
+        .status-indicator::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background: #10b981;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        .status-indicator.offline {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+        }
+
+        .status-indicator.offline::before {
+            background: #ef4444;
         }
 
         .controls {
@@ -210,21 +379,32 @@
             gap: 1rem;
             justify-content: center;
             flex-wrap: wrap;
+            margin-top: 1.5rem;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 1.5rem;
         }
 
         .button {
-            padding: 0.75rem 2rem;
+            padding: 0.875rem 1.5rem;
             border-radius: 1rem;
             font-weight: 600;
             border: none;
             cursor: pointer;
-            font-size: 1rem;
-            transition: all 0.3s;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
             display: inline-flex;
             align-items: center;
-            gap: 0.75rem;
+            gap: 0.5rem;
             position: relative;
             overflow: hidden;
+            min-width: 140px;
+            justify-content: center;
         }
 
         .button::after {
@@ -250,8 +430,12 @@
         }
 
         .button-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
+        }
+
+        .button-primary:active {
+            transform: translateY(-1px);
         }
 
         .button-secondary {
@@ -262,25 +446,34 @@
 
         .button-secondary:hover {
             border-color: var(--primary);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.1);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(99, 102, 241, 0.15);
         }
 
-        .button-group {
-            display: flex;
-            gap: 1rem;
-            justify-content: center;
-            margin-top: 1.5rem;
+        .button-secondary:active {
+            transform: translateY(-1px);
         }
+
+        .button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+
 
         .button svg {
-            width: 1.5rem;
-            height: 1.5rem;
-            transition: transform 0.3s;
+            width: 1.25rem;
+            height: 1.25rem;
+            transition: transform 0.3s ease;
         }
 
         .button:hover svg {
             transform: scale(1.1);
+        }
+
+        .button:active svg {
+            transform: scale(0.95);
         }
 
         .footer {
@@ -319,6 +512,17 @@
             100% { transform: scale(1); }
         }
 
+        @media (max-width: 1024px) {
+            .main-container {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+            
+            #camera-feed {
+                max-width: 100%;
+            }
+        }
+
         @media (max-width: 640px) {
             .nav-content {
                 flex-direction: column;
@@ -329,13 +533,29 @@
                 margin-left: 0;
             }
 
-            .controls {
+            .controls, .button-group {
                 flex-direction: column;
             }
 
             .button {
                 width: 100%;
                 justify-content: center;
+            }
+
+            .main-container {
+                padding: 0 0.5rem;
+            }
+
+            .camera-section, .text-section {
+                padding: 1rem;
+            }
+
+            .letra-atual {
+                font-size: 3rem;
+            }
+
+            .texto-acumulado, .text-corrected {
+                font-size: 1.25rem;
             }
         }
     </style>
@@ -361,18 +581,53 @@
     </nav>
 
     <div class="container">
-        <div class="camera-container">
-            <img id="camera-feed" src="{{ url_for('video_feed') }}" alt="Camera Feed">
-            
-            <div class="letra-display">
-                <h2>Letra Atual</h2>
-                <div class="letra-atual" id="letra">-</div>
+        <div class="main-container">
+            <!-- Seção da Câmera -->
+            <div class="camera-section">
+                <div class="camera-header">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                    Câmera ao Vivo
+                </div>
+                <img id="camera-feed" src="{{ url_for('video_feed') }}" alt="Camera Feed">
+                
+                <div class="letra-display">
+                    <h2>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14" />
+                        </svg>
+                        Letra Detectada
+                    </h2>
+                    <div class="letra-atual" id="letra">-</div>
+                </div>
+
+                <div class="controls">
+                    <button class="button button-primary" onclick="falarLetra()">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                        </svg>
+                        Falar Letra
+                    </button>
+                </div>
             </div>
 
-            <div class="text-display">
-                <h2>Texto Formado</h2>
+            <!-- Seção de Texto -->
+            <div class="text-section">
+                <div class="status-indicator" id="status-indicator">
+                    Sistema Online
+                </div>
+                
+                <h2 style="color: var(--text); font-size: 1.25rem; margin-bottom: 1.5rem; font-weight: 600; display: flex; align-items: center; gap: 0.5rem;">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    Texto Formado
+                </h2>
+
                 <div class="text-display-group">
-                    <div>
+                    <div class="text-item">
                         <div class="text-label">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -381,7 +636,8 @@
                         </div>
                         <div class="texto-acumulado" id="texto"></div>
                     </div>
-                    <div>
+                    
+                    <div class="text-item">
                         <div class="text-label">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
@@ -391,29 +647,21 @@
                         <div class="text-corrected" id="texto-corrigido"></div>
                     </div>
                 </div>
+
                 <div class="button-group">
-                    <button class="button button-primary button-icon" onclick="falarTexto()">
+                    <button class="button button-primary" onclick="falarTexto()">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
                         </svg>
                         Reproduzir Texto
                     </button>
+                    <button class="button button-secondary" onclick="limparTexto()">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                        Limpar Texto
+                    </button>
                 </div>
-            </div>
-
-            <div class="controls">
-                <button class="button button-primary button-icon" onclick="falarLetra()">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
-                    </svg>
-                    Falar Letra
-                </button>
-                <button class="button button-secondary button-icon" onclick="limparTexto()">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                    </svg>
-                    Limpar Texto
-                </button>
             </div>
         </div>
     </div>
@@ -475,17 +723,45 @@
                 .then(data => {
                     if (data.letra !== letraAtual) {
                         letraAtual = data.letra;
-                        document.getElementById('letra').textContent = letraAtual || '-';
+                        const letraElement = document.getElementById('letra');
+                        letraElement.textContent = letraAtual || '-';
+                        
+                        // Adicionar animação de digitação
                         if (letraAtual && letraAtual !== '-') {
+                            letraElement.classList.add('typing');
+                            setTimeout(() => {
+                                letraElement.classList.remove('typing');
+                            }, 500);
+                            
                             textoAcumulado += letraAtual;
                             document.getElementById('texto').textContent = textoAcumulado;
-                            // Atualiza o texto corrigido
+                            
+                            // Atualiza o texto corrigido com animação
                             const textoCorrigido = corrigirTexto(textoAcumulado);
-                            document.getElementById('texto-corrigido').textContent = textoCorrigido;
+                            const textoCorrigidoElement = document.getElementById('texto-corrigido');
+                            textoCorrigidoElement.textContent = textoCorrigido;
+                            textoCorrigidoElement.classList.add('updated');
+                            setTimeout(() => {
+                                textoCorrigidoElement.classList.remove('updated');
+                            }, 600);
                         }
                     }
                 })
-                .catch(console.error);
+                .catch(error => {
+                    console.error('Erro ao atualizar letra:', error);
+                    updateStatusIndicator(false);
+                });
+        }
+
+        function updateStatusIndicator(isOnline) {
+            const statusElement = document.getElementById('status-indicator');
+            if (isOnline) {
+                statusElement.textContent = 'Sistema Online';
+                statusElement.className = 'status-indicator';
+            } else {
+                statusElement.textContent = 'Sistema Offline';
+                statusElement.className = 'status-indicator offline';
+            }
         }
 
         function falarTexto() {
@@ -499,13 +775,26 @@
                 },
                 body: JSON.stringify({ texto: textoCorrigido })
             })
-            .then(response => response.blob())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Erro na resposta do servidor');
+                }
+                return response.blob();
+            })
             .then(blob => {
                 const url = URL.createObjectURL(blob);
                 const audio = new Audio(url);
-                audio.play();
+                audio.play().catch(error => {
+                    console.error('Erro ao reproduzir áudio:', error);
+                });
+                // Limpar a URL após o áudio terminar
+                audio.onended = () => {
+                    URL.revokeObjectURL(url);
+                };
             })
-            .catch(console.error);
+            .catch(error => {
+                console.error('Erro ao obter áudio:', error);
+            });
         }
 
         function falarLetra() {
@@ -518,20 +807,63 @@
                 },
                 body: JSON.stringify({ texto: letraAtual })
             })
-            .then(response => response.blob())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Erro na resposta do servidor');
+                }
+                return response.blob();
+            })
             .then(blob => {
                 const url = URL.createObjectURL(blob);
                 const audio = new Audio(url);
-                audio.play();
+                audio.play().catch(error => {
+                    console.error('Erro ao reproduzir áudio:', error);
+                });
+                // Limpar a URL após o áudio terminar
+                audio.onended = () => {
+                    URL.revokeObjectURL(url);
+                };
             })
-            .catch(console.error);
+            .catch(error => {
+                console.error('Erro ao obter áudio:', error);
+            });
         }
 
         function limparTexto() {
             textoAcumulado = "";
             document.getElementById('texto').textContent = textoAcumulado;
             document.getElementById('texto-corrigido').textContent = "";
+            
+            // Adicionar animação de limpeza
+            const textElements = document.querySelectorAll('.texto-acumulado, .text-corrected');
+            textElements.forEach(element => {
+                element.style.opacity = '0.5';
+                setTimeout(() => {
+                    element.style.opacity = '1';
+                }, 200);
+            });
         }
+
+        // Verificar status do sistema
+        function checkSystemStatus() {
+            fetch('/status')
+                .then(response => response.json())
+                .then(data => {
+                    updateStatusIndicator(data.status === 'online');
+                })
+                .catch(() => {
+                    updateStatusIndicator(false);
+                });
+        }
+
+        // Inicializar
+        document.addEventListener('DOMContentLoaded', function() {
+            updateStatusIndicator(true);
+            checkSystemStatus();
+            
+            // Verificar status a cada 30 segundos
+            setInterval(checkSystemStatus, 30000);
+        });
 
         // Atualiza a letra a cada 100ms
         setInterval(atualizarLetra, 100);

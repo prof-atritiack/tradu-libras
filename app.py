@@ -37,8 +37,6 @@ formed_text = ""
 corrected_text = ""
 last_prediction_time = datetime.now()
 prediction_cooldown = 1.0  # seconds
-speech_lock = threading.Lock()
-is_speaking = False
 
 def process_landmarks(hand_landmarks):
     """Process hand landmarks and normalize relative to wrist (landmark 0)"""
@@ -52,57 +50,7 @@ def process_landmarks(hand_landmarks):
         ])
     return points
 
-def text_to_speech_francisca(text, lang='pt-br'):
-    """Converte texto para fala usando voz FranciscaNeural (Azure)"""
-    global is_speaking
-    
-    if not text or text.strip() == "":
-        return None
-    
-    try:
-        with speech_lock:
-            if is_speaking:
-                return None
-            is_speaking = True
-        
-        # Usar gTTS com configurações otimizadas para português brasileiro
-        tts = gTTS(text=text, lang=lang, slow=False)
-        
-        # Criar arquivo temporário único
-        temp_dir = tempfile.gettempdir()
-        timestamp = int(time.time())
-        temp_file = os.path.join(temp_dir, f'speech_francisca_{timestamp}.mp3')
-        
-        # Salvar áudio
-        tts.save(temp_file)
-        
-        # Reproduzir áudio (Windows)
-        if os.name == 'nt':  # Windows
-            os.system(f'start {temp_file}')
-        else:  # Linux/Mac
-            os.system(f'play {temp_file}')
-        
-        # Limpar arquivo após 5 segundos
-        def cleanup():
-            time.sleep(5)
-            try:
-                if os.path.exists(temp_file):
-                    os.remove(temp_file)
-            except:
-                pass
-        
-        cleanup_thread = threading.Thread(target=cleanup)
-        cleanup_thread.daemon = True
-        cleanup_thread.start()
-        
-        return temp_file
-        
-    except Exception as e:
-        print(f"Erro na síntese de voz: {e}")
-        return None
-    finally:
-        with speech_lock:
-            is_speaking = False
+
 
 def generate_frames():
     camera = cv2.VideoCapture(0)
@@ -190,28 +138,7 @@ def clear_text():
         'corrected_text': corrected_text
     })
 
-@app.route('/text_to_speech')
-def text_to_speech():
-    global corrected_text
-    if not corrected_text:
-        return jsonify({'error': 'No text to speak'})
-    
-    try:
-        tts = gTTS(text=corrected_text, lang='pt-br')
-        
-        # Create a temporary file
-        temp_dir = tempfile.gettempdir()
-        temp_file = os.path.join(temp_dir, 'speech.mp3')
-        
-        # Save the audio file
-        tts.save(temp_file)
-        
-        return jsonify({
-            'status': 'success',
-            'audio_path': temp_file
-        })
-    except Exception as e:
-        return jsonify({'error': str(e)})
+
 
 @app.route('/letra_atual')
 def letra_atual():
@@ -220,7 +147,7 @@ def letra_atual():
 
 @app.route('/falar_texto', methods=['POST'])
 def falar_texto():
-    from flask import request
+    from flask import request, send_file
     global corrected_text, formed_text
     
     data = request.get_json()
@@ -234,19 +161,19 @@ def falar_texto():
         return jsonify({'error': 'Nenhum texto para falar'})
     
     try:
-        # Usar a nova função de síntese de voz com FranciscaNeural
-        audio_file = text_to_speech_francisca(texto)
+        # Usar gTTS para gerar o áudio
+        tts = gTTS(text=texto, lang='pt-br', slow=False)
         
-        if audio_file:
-            return jsonify({
-                'status': 'success',
-                'message': f'Texto "{texto}" convertido para fala com sucesso',
-                'text_spoken': texto,
-                'voice': 'FranciscaNeural (Azure)',
-                'audio_file': audio_file
-            })
-        else:
-            return jsonify({'error': 'Erro na síntese de voz ou já está falando'})
+        # Criar arquivo temporário único
+        temp_dir = tempfile.gettempdir()
+        timestamp = int(time.time())
+        temp_file = os.path.join(temp_dir, f'speech_{timestamp}.mp3')
+        
+        # Salvar áudio
+        tts.save(temp_file)
+        
+        # Retornar o arquivo de áudio como resposta
+        return send_file(temp_file, mimetype='audio/mpeg', as_attachment=False)
             
     except Exception as e:
         return jsonify({'error': f'Erro na síntese de voz: {str(e)}'})
@@ -274,11 +201,11 @@ def status():
             'model_classes': model_classes,
             'camera_available': camera_available,
             'speech_available': True,
-            'voice': 'FranciscaNeural (Azure)',
+            'voice': 'gTTS (Google Text-to-Speech)',
             'version': '2.0.0',
             'features': [
                 'Reconhecimento de gestos em tempo real',
-                'Síntese de voz com FranciscaNeural',
+                'Síntese de voz integrada ao navegador',
                 'Interface web responsiva',
                 'Sistema de cooldown para estabilização',
                 'Formação automática de palavras'
@@ -293,7 +220,7 @@ def status():
 if __name__ == '__main__':
     print("🚀 Iniciando TraduLibras v2.0.0...")
     print("📱 Acesse: http://localhost:5000")
-    print("🎤 Voz: FranciscaNeural (Azure)")
+    print("🎤 Voz: gTTS (Google Text-to-Speech)")
     print("🤖 Modelo: Random Forest")
     print("📊 Classes:", model_info.get('classes', []) if model_info else [])
     app.run(debug=True, host='0.0.0.0', port=5000) 
