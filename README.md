@@ -267,7 +267,6 @@ Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para ma
 ## 👥 **Equipe**
 
 - **Prof. Atritiack** - Desenvolvimento e Coordenação
-- **Equipe TraduLibras** - Desenvolvimento e Testes
 
 ## 📞 **Suporte**
 
@@ -277,4 +276,4 @@ Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para ma
 
 ---
 
-**Desenvolvido com ❤️ pela equipe TraduLibras para promover a inclusão e acessibilidade!**
+**Projeto em teste - Professor André Tritiack**
