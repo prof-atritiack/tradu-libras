@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configurações - LibrasJS</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .config-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .navbar {
+            margin-bottom: 30px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="/">LibrasJS</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">Início</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/camera">Câmera</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/tutorial">Tutorial</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/configuracoes">Configurações</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="config-container">
+            <h2 class="mb-4">Configurações de Voz</h2>
+            
+            <form id="configForm">
+                <div class="form-group">
+                    <label for="voice">Idioma da Voz:</label>
+                    <select class="form-control" id="voice" name="voice">
+                        <option value="pt-br">Português (Brasil)</option>
+                        <option value="en">Inglês</option>
+                        <option value="es">Espanhol</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <div class="form-check">
+                        <input type="checkbox" class="form-check-input" id="slow" name="slow">
+                        <label class="form-check-label" for="slow">Falar mais devagar</label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <button type="button" class="btn btn-primary" onclick="testarVoz()">
+                        Testar Configurações
+                    </button>
+                    <button type="button" class="btn btn-success" onclick="salvarConfiguracoes()">
+                        Salvar Configurações
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Carrega as configurações ao iniciar
+        window.onload = function() {
+            fetch('/carregar_configuracoes')
+                .then(response => response.json())
+                .then(config => {
+                    document.getElementById('voice').value = config.voice;
+                    document.getElementById('slow').checked = config.slow;
+                })
+                .catch(console.error);
+        };
+
+        function getConfiguracoes() {
+            return {
+                voice: document.getElementById('voice').value,
+                slow: document.getElementById('slow').checked
+            };
+        }
+
+        function testarVoz() {
+            const config = getConfiguracoes();
+            fetch('/testar_voz', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(config)
+            })
+            .then(response => response.blob())
+            .then(blob => {
+                const url = URL.createObjectURL(blob);
+                const audio = new Audio(url);
+                audio.play();
+            })
+            .catch(console.error);
+        }
+
+        function salvarConfiguracoes() {
+            const config = getConfiguracoes();
+            fetch('/salvar_configuracoes', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(config)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'ok') {
+                    alert('Configurações salvas com sucesso!');
+                }
+            })
+            .catch(console.error);
+        }
+    </script>
+</body>
+</html> 

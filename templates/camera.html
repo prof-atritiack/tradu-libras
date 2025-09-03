@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TraduLibras - Reconhecimento</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --bg-gradient: linear-gradient(135deg, #6366f1, #818cf8);
+            --surface: #ffffff;
+            --text: #1e293b;
+            --text-secondary: #64748b;
+            --border: #e2e8f0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f8fafc;
+            min-height: 100vh;
+        }
+
+        .navbar {
+            padding: 1rem 0;
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            margin-bottom: 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .nav-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            transition: transform 0.2s;
+        }
+
+        .logo-container:hover {
+            transform: scale(1.05);
+        }
+
+        .logo-text {
+            color: var(--primary);
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-left: 0.5rem;
+            background: var(--bg-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-links {
+            margin-left: 3rem;
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav-link {
+            text-decoration: none;
+            color: var(--text-secondary);
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            transition: all 0.2s;
+        }
+
+        .nav-link:hover {
+            background: rgba(99, 102, 241, 0.1);
+            color: var(--primary);
+        }
+
+        .nav-link.active {
+            color: var(--primary);
+            background: rgba(99, 102, 241, 0.1);
+        }
+
+        .camera-container {
+            background: var(--surface);
+            border-radius: 1.5rem;
+            padding: 2rem;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+            max-width: 800px;
+            margin: 0 auto;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .camera-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--bg-gradient);
+        }
+
+        #camera-feed {
+            width: 100%;
+            border-radius: 1rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s;
+        }
+
+        #camera-feed:hover {
+            transform: scale(1.01);
+        }
+
+        .letra-display, .text-display {
+            background: rgba(248, 250, 252, 0.8);
+            backdrop-filter: blur(10px);
+            padding: 1.5rem;
+            border-radius: 1rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            transition: all 0.3s;
+        }
+
+        .letra-display:hover, .text-display:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+        }
+
+        .letra-display h2, .text-display h2 {
+            color: var(--text);
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        .letra-atual {
+            color: var(--primary);
+            font-size: 3rem;
+            font-weight: 700;
+            text-shadow: 0 2px 4px rgba(99, 102, 241, 0.2);
+            animation: pulse 2s infinite;
+        }
+
+        .texto-acumulado {
+            color: var(--primary);
+            font-size: 1.5rem;
+            font-weight: 500;
+            min-height: 2rem;
+            line-height: 1.5;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 0.75rem;
+        }
+
+        .text-display-group {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .text-corrected {
+            color: #10b981;
+            font-size: 1.5rem;
+            font-weight: 500;
+            min-height: 2rem;
+            line-height: 1.5;
+            padding: 1rem;
+            background: rgba(16, 185, 129, 0.1);
+            border-radius: 0.75rem;
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .text-label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text);
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        .text-label svg {
+            width: 1.25rem;
+            height: 1.25rem;
+        }
+
+        .controls {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .button {
+            padding: 0.75rem 2rem;
+            border-radius: 1rem;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .button::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.1);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .button:hover::after {
+            opacity: 1;
+        }
+
+        .button-primary {
+            background: var(--bg-gradient);
+            color: white;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+        }
+
+        .button-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+        }
+
+        .button-secondary {
+            background: white;
+            color: var(--primary);
+            border: 2px solid var(--border);
+        }
+
+        .button-secondary:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.1);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 1.5rem;
+        }
+
+        .button svg {
+            width: 1.5rem;
+            height: 1.5rem;
+            transition: transform 0.3s;
+        }
+
+        .button:hover svg {
+            transform: scale(1.1);
+        }
+
+        .footer {
+            text-align: center;
+            padding: 2rem 0;
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            margin-top: 2rem;
+        }
+
+        .footer span {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            background: var(--surface);
+            border-radius: 2rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .heart {
+            color: #ef4444;
+            font-size: 1.25rem;
+            animation: heartbeat 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+
+        @keyframes heartbeat {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        @media (max-width: 640px) {
+            .nav-content {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .nav-links {
+                margin-left: 0;
+            }
+
+            .controls {
+                flex-direction: column;
+            }
+
+            .button {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-content">
+                <a href="/" class="logo-container">
+                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="#6366f1" stroke-width="2"/>
+                        <path d="M7 11.5V14.5C7 15.8807 8.11929 17 9.5 17C10.8807 17 12 15.8807 12 14.5V11.5M12 11.5V7.5C12 6.11929 13.1193 5 14.5 5C15.8807 5 17 6.11929 17 7.5V11.5M12 11.5V14.5C12 15.8807 13.1193 17 14.5 17C15.8807 17 17 15.8807 17 14.5V11.5M17 11.5V7.5" stroke="#6366f1" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    <span class="logo-text">TraduLibras</span>
+                </a>
+                <div class="nav-links">
+                    <a href="/" class="nav-link">Início</a>
+                    <a href="/camera" class="nav-link active">Câmera</a>
+                    <a href="/tutorial" class="nav-link">Tutorial</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="camera-container">
+            <img id="camera-feed" src="{{ url_for('video_feed') }}" alt="Camera Feed">
+            
+            <div class="letra-display">
+                <h2>Letra Atual</h2>
+                <div class="letra-atual" id="letra">-</div>
+            </div>
+
+            <div class="text-display">
+                <h2>Texto Formado</h2>
+                <div class="text-display-group">
+                    <div>
+                        <div class="text-label">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            Texto Original
+                        </div>
+                        <div class="texto-acumulado" id="texto"></div>
+                    </div>
+                    <div>
+                        <div class="text-label">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                            </svg>
+                            Texto Corrigido
+                        </div>
+                        <div class="text-corrected" id="texto-corrigido"></div>
+                    </div>
+                </div>
+                <div class="button-group">
+                    <button class="button button-primary button-icon" onclick="falarTexto()">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+                        </svg>
+                        Reproduzir Texto
+                    </button>
+                </div>
+            </div>
+
+            <div class="controls">
+                <button class="button button-primary button-icon" onclick="falarLetra()">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                    </svg>
+                    Falar Letra
+                </button>
+                <button class="button button-secondary button-icon" onclick="limparTexto()">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                    Limpar Texto
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        let letraAtual = "";
+        let textoAcumulado = "";
+
+        function corrigirTexto(texto) {
+            // Função para calcular a distância de Levenshtein entre duas strings
+            function levenshteinDistance(a, b) {
+                if (a.length === 0) return b.length;
+                if (b.length === 0) return a.length;
+
+                const matrix = [];
+
+                for (let i = 0; i <= b.length; i++) {
+                    matrix[i] = [i];
+                }
+
+                for (let j = 0; j <= a.length; j++) {
+                    matrix[0][j] = j;
+                }
+
+                for (let i = 1; i <= b.length; i++) {
+                    for (let j = 1; j <= a.length; j++) {
+                        if (b.charAt(i - 1) === a.charAt(j - 1)) {
+                            matrix[i][j] = matrix[i - 1][j - 1];
+                        } else {
+                            matrix[i][j] = Math.min(
+                                matrix[i - 1][j - 1] + 1,
+                                matrix[i][j - 1] + 1,
+                                matrix[i - 1][j] + 1
+                            );
+                        }
+                    }
+                }
+
+                return matrix[b.length][a.length];
+            }
+
+            // Divide o texto em palavras
+            const palavras = texto.split(' ');
+            const palavrasCorrigidas = palavras.map(palavra => {
+                // Se a palavra for similar a "TRADULIBRAS" (distância de Levenshtein <= 3)
+                if (levenshteinDistance(palavra.toUpperCase(), "TRADULIBRAS") <= 3) {
+                    return "TRADULIBRAS";
+                }
+                return palavra;
+            });
+
+            return palavrasCorrigidas.join(' ');
+        }
+
+        function atualizarLetra() {
+            fetch('/letra_atual')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.letra !== letraAtual) {
+                        letraAtual = data.letra;
+                        document.getElementById('letra').textContent = letraAtual || '-';
+                        if (letraAtual && letraAtual !== '-') {
+                            textoAcumulado += letraAtual;
+                            document.getElementById('texto').textContent = textoAcumulado;
+                            // Atualiza o texto corrigido
+                            const textoCorrigido = corrigirTexto(textoAcumulado);
+                            document.getElementById('texto-corrigido').textContent = textoCorrigido;
+                        }
+                    }
+                })
+                .catch(console.error);
+        }
+
+        function falarTexto() {
+            const textoCorrigido = document.getElementById('texto-corrigido').textContent;
+            if (!textoCorrigido) return;
+
+            fetch('/falar_texto', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ texto: textoCorrigido })
+            })
+            .then(response => response.blob())
+            .then(blob => {
+                const url = URL.createObjectURL(blob);
+                const audio = new Audio(url);
+                audio.play();
+            })
+            .catch(console.error);
+        }
+
+        function falarLetra() {
+            if (!letraAtual) return;
+
+            fetch('/falar_texto', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ texto: letraAtual })
+            })
+            .then(response => response.blob())
+            .then(blob => {
+                const url = URL.createObjectURL(blob);
+                const audio = new Audio(url);
+                audio.play();
+            })
+            .catch(console.error);
+        }
+
+        function limparTexto() {
+            textoAcumulado = "";
+            document.getElementById('texto').textContent = textoAcumulado;
+            document.getElementById('texto-corrigido').textContent = "";
+        }
+
+        // Atualiza a letra a cada 100ms
+        setInterval(atualizarLetra, 100);
+    </script>
+
+    <footer class="footer">
+        <span>Desenvolvido com <span class="heart">❤️</span> pela equipe TraduLibras</span>
+    </footer>
+</body>
+</html> 
