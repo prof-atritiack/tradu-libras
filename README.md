@@ -30,14 +30,99 @@ Sistema completo de reconhecimento de Língua Brasileira de Sinais (LIBRAS) usan
 - 🌐 **Internet** para instalação inicial
 - 💾 **2GB de espaço livre** no disco
 
-#### Software:
+#### Software (Escolha uma opção):
+
+##### 🐳 **Opção 1: Docker (Recomendado para Iniciantes)**
+- 🐳 **Docker Desktop** ([Download aqui](https://www.docker.com/products/docker-desktop/))
+- 🔧 **Git** ([Download aqui](https://git-scm.com/downloads)) - Para clonar o projeto
+
+##### 🐍 **Opção 2: Python Nativo**
 - 🐍 **Python 3.10 ou superior** ([Download aqui](https://www.python.org/downloads/))
 - 📝 **Cursor AI** ([Download aqui](https://cursor.sh/)) - Editor de código com IA
 - 🔧 **Git** ([Download aqui](https://git-scm.com/downloads)) - Para clonar o projeto
 
 ### 🛠️ Instalação Passo a Passo
 
-#### Passo 1: Instalar Python
+## 🐳 **MÉTODO 1: Docker (Mais Fácil para Iniciantes)**
+
+### Passo 1: Instalar Docker Desktop
+1. Acesse [docker.com](https://www.docker.com/products/docker-desktop/)
+2. Baixe o Docker Desktop para seu sistema operacional
+3. Instale e inicie o Docker Desktop
+4. Verifique a instalação abrindo o terminal e digitando:
+   ```bash
+   docker --version
+   docker-compose --version
+   ```
+
+### Passo 2: Clonar o Projeto
+```bash
+git clone https://github.com/prof-atritiack/libras-js.git
+cd libras-js
+```
+
+### Passo 3: Executar com Docker
+```bash
+# Windows
+docker-run.bat start
+
+# Linux/Mac
+./docker-run.sh start
+```
+
+**🎉 Pronto! O TraduLibras estará rodando em http://localhost:5000**
+
+### 🎯 **Vantagens do Docker:**
+- ✅ **Instalação em 1 comando** - sem configurar Python, dependências, etc.
+- ✅ **Funciona em qualquer sistema** - Windows, Mac, Linux
+- ✅ **Ambiente isolado** - não interfere com outros projetos
+- ✅ **Fácil de remover** - delete o container e pronto
+- ✅ **Mesmo ambiente** - funciona igual para todos
+- ✅ **Atualizações automáticas** - sempre usa as versões corretas
+
+### Comandos Docker Úteis:
+```bash
+# Iniciar
+docker-run.bat start          # Windows
+./docker-run.sh start         # Linux/Mac
+
+# Treinar modelo
+docker-run.bat train          # Windows
+./docker-run.sh train         # Linux/Mac
+
+# Ver logs
+docker-run.bat logs           # Windows
+./docker-run.sh logs          # Linux/Mac
+
+# Parar
+docker-run.bat stop           # Windows
+./docker-run.sh stop          # Linux/Mac
+
+# Limpar tudo
+docker-run.bat clean          # Windows
+./docker-run.sh clean         # Linux/Mac
+```
+
+### 🛠️ **Para Desenvolvedores:**
+```bash
+# Modo desenvolvimento (com hot reload)
+docker-compose -f docker-compose.dev.yml up
+
+# Construir imagem personalizada
+docker build -t tradulibras-custom .
+
+# Executar comando personalizado
+docker-compose run --rm tradulibras python seu_script.py
+
+# Acessar shell do container
+docker-compose exec tradulibras bash
+```
+
+---
+
+## 🐍 **MÉTODO 2: Python Nativo**
+
+### Passo 1: Instalar Python
 1. Acesse [python.org](https://www.python.org/downloads/)
 2. Baixe a versão mais recente (3.10+)
 3. **IMPORTANTE**: Durante a instalação, marque "Add Python to PATH"
@@ -349,6 +434,21 @@ Desenvolvido com ❤️ pela equipe TraduLibras para promover **acessibilidade**
 
 ## 🎯 Resumo Rápido para Começar
 
+### 🐳 **Com Docker (Recomendado):**
+```bash
+# 1. Clone o projeto
+git clone https://github.com/prof-atritiack/libras-js.git
+cd libras-js
+
+# 2. Execute com Docker
+docker-run.bat start          # Windows
+./docker-run.sh start         # Linux/Mac
+
+# 3. Acesse no navegador
+# http://localhost:5000
+```
+
+### 🐍 **Com Python Nativo:**
 ```bash
 # 1. Clone o projeto
 git clone https://github.com/prof-atritiack/libras-js.git

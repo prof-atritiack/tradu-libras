@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  tradulibras-prod:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    container_name: tradulibras-prod
+    ports:
+      - "80:5000"  # Mapear para porta 80 (HTTP padrão)
+    environment:
+      - FLASK_ENV=production
+      - PYTHONUNBUFFERED=1
+    volumes:
+      # Montar apenas modelos e dados (não código fonte)
+      - ./modelos:/app/modelos:ro
+      - ./gestos_libras.csv:/app/gestos_libras.csv:ro
+    networks:
+      - tradulibras-prod-network
+    restart: always
+    # Configurações de recursos para produção
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+          cpus: '2.0'
+        reservations:
+          memory: 2G
+          cpus: '1.0'
+    # Health check mais rigoroso
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/status"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    # Logging
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+networks:
+  tradulibras-prod-network:
+    driver: bridge

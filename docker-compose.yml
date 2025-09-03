@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  tradulibras:
+    build: .
+    container_name: tradulibras-app
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_ENV=production
+      - PYTHONUNBUFFERED=1
+    volumes:
+      # Montar modelos para persistência
+      - ./modelos:/app/modelos
+      # Montar dados para persistência
+      - ./gestos_libras.csv:/app/gestos_libras.csv
+    networks:
+      - tradulibras-network
+    restart: unless-stopped
+    # Configurações de recursos
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: '1.0'
+        reservations:
+          memory: 512M
+          cpus: '0.5'
+    # Health check
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/status"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+networks:
+  tradulibras-network:
+    driver: bridge
