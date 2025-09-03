@@ -1,440 +1,379 @@
+# 🤟 TraduLibras - Sistema de Reconhecimento de LIBRAS com IA
+
 <p align="center">
   <img src="https://img.shields.io/badge/python-3.10-blue?logo=python" />
   <img src="https://img.shields.io/badge/mediapipe-informational?logo=google" />
   <img src="https://img.shields.io/badge/opencv-4.x-green?logo=opencv" />
   <img src="https://img.shields.io/badge/scikit--learn-ML-orange?logo=scikit-learn" />
-   <img src="https://img.shields.io/badge/status-em%20desenvolvimento-lightgrey" />
+  <img src="https://img.shields.io/badge/cursor-ai-purple?logo=cursor" />
+  <img src="https://img.shields.io/badge/status-produção-brightgreen" />
 </p>
 
-# TraduLibras
+Sistema completo de reconhecimento de Língua Brasileira de Sinais (LIBRAS) usando **visão computacional**, **machine learning** e **síntese de voz**. Este projeto é ideal para desenvolvedores iniciantes que querem aprender sobre IA, acessibilidade e inclusão digital.
 
-Sistema de reconhecimento de Língua Brasileira de Sinais (LIBRAS) usando visão computacional.
+## 🎯 O que este projeto faz?
 
-## 📋 Pré-requisitos
+- **Reconhece gestos de LIBRAS** em tempo real usando sua webcam
+- **Converte gestos em texto** usando inteligência artificial
+- **Fala o texto reconhecido** usando síntese de voz
+- **Corrige automaticamente** erros de reconhecimento
+- **Interface web moderna** e responsiva
+- **Animações visuais** para feedback do usuário
 
-- Python 3.10 ou superior
-- Webcam funcionando
-- Sistema operacional: Windows, Linux ou macOS
-- Conexão com a internet (para a primeira instalação)
+## 🚀 Guia Completo para Iniciantes
 
-## 🚀 Instalação
+### 📋 Pré-requisitos (O que você precisa)
 
-1. Clone o repositório:
+#### Hardware:
+- 💻 **Computador** com Windows, Mac ou Linux
+- 📹 **Webcam** funcionando (qualquer resolução)
+- 🌐 **Internet** para instalação inicial
+- 💾 **2GB de espaço livre** no disco
+
+#### Software:
+- 🐍 **Python 3.10 ou superior** ([Download aqui](https://www.python.org/downloads/))
+- 📝 **Cursor AI** ([Download aqui](https://cursor.sh/)) - Editor de código com IA
+- 🔧 **Git** ([Download aqui](https://git-scm.com/downloads)) - Para clonar o projeto
+
+### 🛠️ Instalação Passo a Passo
+
+#### Passo 1: Instalar Python
+1. Acesse [python.org](https://www.python.org/downloads/)
+2. Baixe a versão mais recente (3.10+)
+3. **IMPORTANTE**: Durante a instalação, marque "Add Python to PATH"
+4. Verifique a instalação abrindo o terminal e digitando:
+   ```bash
+   python --version
+   ```
+
+#### Passo 2: Instalar Cursor AI
+1. Acesse [cursor.sh](https://cursor.sh/)
+2. Baixe e instale o Cursor AI
+3. Crie uma conta gratuita
+4. O Cursor AI é um editor de código com IA integrada que vai te ajudar muito!
+
+#### Passo 3: Clonar o Projeto
+1. Abra o terminal (PowerShell no Windows, Terminal no Mac/Linux)
+2. Navegue até a pasta onde quer salvar o projeto:
+   ```bash
+   cd Desktop  # ou qualquer pasta de sua escolha
+   ```
+3. Clone o projeto:
+   ```bash
+   git clone https://github.com/prof-atritiack/libras-js.git
+   cd libras-js
+   ```
+
+#### Passo 4: Configurar Ambiente Virtual
 ```bash
-git clone https://github.com/prof-atritiack/libras-js.git
-cd libras-js
+# Criar ambiente virtual
+python -m venv venv
+
+# Ativar ambiente virtual
+# No Windows:
+venv\Scripts\activate
+
+# No Mac/Linux:
+source venv/bin/activate
 ```
 
-2. Crie um ambiente virtual Python:
-```bash
-# Windows
-python -m venv .venv
-.venv\Scripts\activate
-
-# Linux/macOS
-python3 -m venv .venv
-source .venv/bin/activate
-```
-
-3. Instale as dependências:
+#### Passo 5: Instalar Dependências
 ```bash
 pip install -r requirements.txt
 ```
 
-## 🎯 Treinamento do Modelo de Reconhecimento
+### 🎓 Usando o Cursor AI para Desenvolvimento
 
-### 📝 Passo 1: Coleta de Dados de Gestos
+#### O que é o Cursor AI?
+O Cursor AI é um editor de código que tem **inteligência artificial integrada**. Ele pode:
+- ✨ **Explicar código** que você não entende
+- 🔧 **Corrigir erros** automaticamente
+- 📝 **Escrever código** baseado em suas descrições
+- 🐛 **Debugar problemas** e sugerir soluções
+- 📚 **Ensinar conceitos** de programação
 
-Para treinar o modelo, você precisa coletar dados dos gestos em LIBRAS:
+#### Como usar o Cursor AI neste projeto:
 
-1. **Execute o script de coleta:**
+1. **Abra o projeto no Cursor AI:**
+   ```bash
+   # No terminal, dentro da pasta do projeto:
+   cursor .
+   ```
+
+2. **Comandos úteis do Cursor AI:**
+   - `Ctrl+K` (Windows) ou `Cmd+K` (Mac): Abre o chat com IA
+   - `Ctrl+L` (Windows) ou `Cmd+L` (Mac): Abre chat lateral
+   - `Ctrl+I` (Windows) ou `Cmd+I` (Mac): Edição inline com IA
+
+3. **Exemplos de perguntas para fazer ao Cursor AI:**
+   ```
+   "Explique como funciona o arquivo app.py"
+   "Por que o MediaPipe é usado neste projeto?"
+   "Como posso melhorar a precisão do reconhecimento?"
+   "Me ajude a entender o código de machine learning"
+   ```
+
+4. **Dicas para usar o Cursor AI:**
+   - Seja específico nas suas perguntas
+   - Peça para explicar código linha por linha
+   - Use para corrigir erros que aparecerem
+   - Peça sugestões de melhorias
+
+### 🎯 Treinamento do Modelo (Coleta de Dados)
+
+#### Passo 1: Executar Coleta de Dados
 ```bash
-# Ative o ambiente virtual primeiro
-.venv\Scripts\activate  # Windows
-# ou
-source .venv/bin/activate  # Linux/macOS
-
-# Execute o script de treinamento
+# Certifique-se que o ambiente virtual está ativo
 python treinar_letras_simples.py
 ```
 
-2. **Processo de coleta:**
-   - A câmera será ativada automaticamente
-   - Para cada letra (A, B, C, L, Y), você verá:
-     - Nome da letra na tela
-     - Contador de amostras coletadas
-     - Pontos de referência da mão desenhados
-   
-3. **Como coletar amostras:**
+#### Passo 2: Processo de Coleta
+1. **A câmera será ativada automaticamente**
+2. **Para cada letra (A, B, C, L, Y):**
+   - Você verá o nome da letra na tela
    - Posicione sua mão no centro da câmera
    - Faça o gesto da letra correspondente
    - Pressione **ESPAÇO** para capturar uma amostra
    - Pressione **ESC** para pular uma letra
-   - **Recomendado:** 30-50 amostras por letra
 
-4. **Dicas para melhor coleta:**
-   - Varie a posição e ângulo da mão
-   - Mantenha boa iluminação
-   - Evite movimentos bruscos
-   - Certifique-se de que a mão está bem visível
+3. **Dicas importantes:**
+   - 📸 **Colete 30-50 amostras por letra**
+   - 🌞 **Use boa iluminação**
+   - 📏 **Mantenha a mão a ~50cm da câmera**
+   - 🔄 **Varie posições e ângulos**
+   - ⏸️ **Evite movimentos durante a captura**
 
-### 🤖 Passo 2: Treinamento Automático
-
+#### Passo 3: Treinamento Automático
 Após coletar os dados, o modelo será treinado automaticamente:
+- ✅ Divisão dos dados (80% treino, 20% teste)
+- ✅ Treinamento do modelo Random Forest
+- ✅ Avaliação da acurácia
+- ✅ Salvamento do modelo em `modelos/modelo_libras.pkl`
 
-1. **O que acontece automaticamente:**
-   - Divisão dos dados em treino (80%) e teste (20%)
-   - Treinamento do modelo Random Forest
-   - Avaliação da acurácia
-   - Salvamento do modelo em `modelos/modelo_libras.pkl`
+### 🚀 Executando o Projeto
 
-2. **Resultados esperados:**
-   - Acurácia no treinamento: ~100%
-   - Acurácia no teste: ~95-100%
-   - Modelo salvo e pronto para uso
-
-### 🔧 Passo 3: Verificação do Modelo
-
-Para verificar se o modelo foi treinado corretamente:
-
-```bash
-python -c "
-import pickle
-import pandas as pd
-
-# Carregar modelo
-model = pickle.load(open('modelos/modelo_libras.pkl', 'rb'))
-print('✅ Modelo carregado com sucesso!')
-print(f'📊 Tipo: {type(model)}')
-print(f'🔤 Classes: {model.classes_}')
-
-# Verificar dados
-df = pd.read_csv('gestos_libras.csv')
-print(f'📁 Amostras: {len(df)}')
-print(f'🏷️  Classes: {sorted(df[\"label\"].unique())}')
-"
-```
-
-## 💻 Executando o projeto
-
-1. **Ative o ambiente virtual:**
+#### Passo 1: Ativar Ambiente Virtual
 ```bash
 # Windows
-.venv\Scripts\activate
+venv\Scripts\activate
 
-# Linux/macOS
-source .venv/bin/activate
+# Mac/Linux
+source venv/bin/activate
 ```
 
-2. **Execute a aplicação:**
+#### Passo 2: Executar Aplicação
 ```bash
 python app.py
 ```
 
-3. **Acesse no navegador:**
+#### Passo 3: Acessar no Navegador
 ```
 http://localhost:5000
 ```
 
-## ⚡ Comandos Rápidos
+### 🎮 Como Usar o Sistema
 
-### 🚀 Iniciar o projeto:
-```bash
-# Ativar ambiente virtual
-.venv\Scripts\activate  # Windows
-source .venv/bin/activate  # Linux/macOS
+1. **Acesse a página da câmera**
+2. **Permita acesso à webcam** quando solicitado
+3. **Posicione sua mão** no centro da câmera
+4. **Faça gestos de LIBRAS** para as letras A, B, C, L, Y
+5. **Veja o texto sendo formado** em tempo real
+6. **Use o botão "Falar"** para ouvir o texto
+7. **Use "Limpar"** para recomeçar
 
-# Executar aplicação
-python app.py
-```
+### 🔧 Solução de Problemas Comuns
 
-### 🎯 Treinar modelo:
-```bash
-# Coletar dados e treinar
-python treinar_letras_simples.py
+#### ❌ Problema: "python não é reconhecido"
+**Solução:**
+1. Reinstale o Python marcando "Add to PATH"
+2. Ou use `python3` em vez de `python`
 
-# Verificar modelo
-python -c "import pickle; model=pickle.load(open('modelos/modelo_libras.pkl','rb')); print(f'Classes: {model.classes_}')"
-```
-
-### 🔧 Comandos úteis:
-```bash
-# Verificar dependências
-pip list | findstr -i "flask opencv mediapipe scikit"
-
-# Limpar cache Python
-python -m pip cache purge
-
-# Reinstalar dependências
-pip uninstall -r requirements.txt -y && pip install -r requirements.txt
-```
-
-## 📱 Usando o TraduLibras
-
-1. Na página inicial, clique em "Começar Agora" ou acesse a seção "Câmera"
-2. Permita o acesso à sua webcam quando solicitado
-3. Posicione sua mão no centro da câmera
-4. Faça os sinais das letras em LIBRAS
-5. O sistema reconhecerá as letras e formará palavras
-6. Use o botão "Falar" para ouvir o texto reconhecido
-7. Use "Limpar" para recomeçar
-
-## 🔍 Funcionalidades
-
-- Reconhecimento em tempo real de letras em LIBRAS
-- Interface web moderna e responsiva
-- Conversão de texto para fala
-- Tutorial interativo
-- Feedback visual em tempo real
-
-## 🛠️ Tecnologias Utilizadas
-
-- **Flask** - Framework web para a interface
-- **OpenCV** - Processamento de imagem e captura de vídeo
-- **MediaPipe** - Detecção e rastreamento de mãos
-- **Scikit-learn** - Modelo de machine learning (Random Forest)
-- **gTTS** - Conversão de texto para fala em português
-- **HTML/CSS/JavaScript** - Interface do usuário responsiva
-
-## 📁 Estrutura do Projeto
-
-```
-tradu-libras/
-├── app.py                          # Aplicação Flask principal
-├── treinar_letras_simples.py       # Script de coleta e treinamento
-├── gestos_libras.csv               # Dataset de gestos coletados
-├── modelo_libras.pkl               # Modelo treinado (raiz)
-├── modelos/                        # Diretório de modelos
-│   ├── modelo_libras.pkl           # Modelo treinado (atual)
-│   └── modelo_info.pkl             # Informações do modelo
-├── requirements.txt                # Dependências Python
-├── templates/                      # Templates HTML
-│   ├── index.html                  # Página inicial
-│   ├── camera.html                 # Interface de reconhecimento
-│   ├── tutorial.html               # Tutorial do sistema
-│   └── configuracoes.html          # Configurações
-├── static/                         # Arquivos estáticos
-│   ├── css/                        # Estilos CSS
-│   └── images/                     # Imagens e ícones
-└── README.md                       # Documentação
-```
-
-## 🔄 Fluxo de Trabalho
-
-### 1. **Coleta de Dados** (`treinar_letras_simples.py`)
-- Captura gestos via webcam
-- Normaliza coordenadas relativas ao pulso
-- Salva dados em `gestos_libras.csv`
-
-### 2. **Treinamento** (automático)
-- Carrega dados do CSV
-- Divide em treino/teste (80/20)
-- Treina modelo Random Forest
-- Salva modelo em `modelos/`
-
-### 3. **Reconhecimento** (`app.py`)
-- Carrega modelo treinado
-- Processa vídeo em tempo real
-- Detecta gestos com MediaPipe
-- Classifica com modelo treinado
-- Exibe resultados na interface web
-
-## ⚠️ Requisitos do Sistema
-
-### Requisitos Mínimos:
-- Processador: Dual Core 2GHz
-- Memória RAM: 4GB
-- Webcam: 720p
-- Espaço em disco: 500MB
-
-### Requisitos Recomendados:
-- Processador: Quad Core 2.5GHz
-- Memória RAM: 8GB
-- Webcam: 1080p
-- Espaço em disco: 1GB
-
-## 🔧 Solução de Problemas
-
-### A webcam não inicia:
-1. Verifique se sua webcam está conectada
-2. Certifique-se de que nenhum outro programa está usando a câmera
+#### ❌ Problema: Webcam não funciona
+**Solução:**
+1. Verifique se a webcam está conectada
+2. Feche outros programas que usam a câmera
 3. Recarregue a página
 4. Reinicie a aplicação
 
-### Reconhecimento impreciso:
-1. Verifique a iluminação do ambiente
-2. Mantenha sua mão a aproximadamente 50cm da câmera
-3. Evite movimentos bruscos
-4. Certifique-se de que não há objetos ou pessoas no fundo
-5. **Retreine o modelo** com mais amostras se necessário
-
-### Erro ao instalar dependências:
-1. Verifique sua conexão com a internet
-2. Atualize o pip: `python -m pip install --upgrade pip`
-3. Tente instalar as dependências uma a uma
-
-### Erro no modelo:
-1. Verifique se o arquivo `modelos/modelo_libras.pkl` existe
-2. Execute novamente o treinamento: `python treinar_letras_simples.py`
-3. Certifique-se de que coletou dados suficientes (mínimo 20 amostras por letra)
-
-## 🆕 Adicionando Novas Letras
-
-Para adicionar novas letras ao reconhecimento:
-
-1. **Edite o arquivo `treinar_letras_simples.py`:**
-```python
-# Modifique a lista FRASES para incluir suas novas letras
-FRASES = [
-    "Oi Conselho Britanico",
-    "TraduLibras",
-    "SUA NOVA FRASE AQUI"  # Adicione aqui
-]
-```
-
-2. **Execute o treinamento novamente:**
+#### ❌ Problema: Erro ao instalar dependências
+**Solução:**
 ```bash
-python treinar_letras_simples.py
+# Atualize o pip
+python -m pip install --upgrade pip
+
+# Instale uma dependência por vez
+pip install flask
+pip install opencv-python
+pip install mediapipe
+pip install scikit-learn
+pip install gtts
 ```
 
-3. **Coleta de dados:**
-   - O sistema mostrará automaticamente as novas letras
-   - Colete 30-50 amostras para cada nova letra
-   - Siga as mesmas dicas de coleta
+#### ❌ Problema: Reconhecimento impreciso
+**Solução:**
+1. **Retreine o modelo** com mais amostras
+2. **Melhore a iluminação**
+3. **Mantenha gestos consistentes**
+4. **Evite movimentos bruscos**
 
-4. **Verificação:**
-   - O modelo será retreinado com todas as letras
-   - Verifique a acurácia no final do treinamento
+### 🎨 Funcionalidades Avançadas
 
-## 📊 Melhorando a Precisão
+#### ✨ Efeitos Visuais
+- **Animações de detecção** com mudança de cores
+- **Feedback visual** quando letras são reconhecidas
+- **Interface responsiva** que funciona em mobile
+- **Efeitos de hover** e transições suaves
 
-### Para melhorar a precisão do reconhecimento:
+#### 🧠 Correção Automática de Texto
+- **Dicionário inteligente** com palavras comuns
+- **Correção de erros** usando distância de Levenshtein
+- **Contador de correções** aplicadas
+- **Tooltips** mostrando texto original
 
-1. **Mais dados de treinamento:**
-   - Colete 50-100 amostras por letra
-   - Varie posições, ângulos e iluminação
-   - Inclua diferentes pessoas se possível
+#### 🔊 Síntese de Voz
+- **Reprodução direta no navegador** (sem abrir aplicativos externos)
+- **Voz em português brasileiro** usando gTTS
+- **Controle de áudio** integrado
 
-2. **Qualidade dos dados:**
-   - Mantenha gestos consistentes
-   - Evite movimentos durante a captura
-   - Use boa iluminação uniforme
+### 📁 Estrutura do Projeto
 
-3. **Parâmetros do modelo:**
-   - Edite `treinar_letras_simples.py` para ajustar:
-     - `n_estimators`: número de árvores (padrão: 100)
-     - `max_depth`: profundidade máxima (padrão: 10)
-     - `min_samples_split`: amostras mínimas para divisão (padrão: 5)
+```
+tradu-libras/
+├── 📄 app.py                          # Aplicação Flask principal
+├── 🎯 treinar_letras_simples.py       # Script de coleta e treinamento
+├── 📊 gestos_libras.csv               # Dataset de gestos coletados
+├── 🤖 modelo_libras.pkl               # Modelo treinado (raiz)
+├── 📁 modelos/                        # Diretório de modelos
+│   ├── 🤖 modelo_libras.pkl           # Modelo treinado (atual)
+│   └── ℹ️ modelo_info.pkl             # Informações do modelo
+├── 📋 requirements.txt                # Dependências Python
+├── 📁 templates/                      # Templates HTML
+│   ├── 🏠 index.html                  # Página inicial
+│   ├── 📹 camera_tradulibras.html     # Interface principal
+│   ├── 📚 tutorial.html               # Tutorial do sistema
+│   └── ⚙️ configuracoes.html          # Configurações
+├── 📁 static/                         # Arquivos estáticos
+│   ├── 🎨 css/                        # Estilos CSS
+│   └── 🖼️ images/                     # Imagens e ícones
+└── 📖 README.md                       # Esta documentação
+```
 
-4. **Validação cruzada:**
-   - Execute o treinamento várias vezes
-   - Compare as acurácias obtidas
-   - Use o modelo com melhor performance
+### 🛠️ Tecnologias Utilizadas
 
-## 📄 Licença
+| Tecnologia | Função | Por que usar? |
+|------------|--------|---------------|
+| **Flask** | Framework web | Simples e poderoso para iniciantes |
+| **OpenCV** | Processamento de imagem | Padrão da indústria para visão computacional |
+| **MediaPipe** | Detecção de mãos | Desenvolvido pelo Google, muito preciso |
+| **Scikit-learn** | Machine Learning | Biblioteca mais popular para ML em Python |
+| **gTTS** | Síntese de voz | Gratuito e de alta qualidade |
+| **HTML/CSS/JS** | Interface | Tecnologias web padrão |
+
+### 🎓 Conceitos de IA que você vai aprender
+
+#### 1. **Visão Computacional**
+- Como câmeras capturam imagens
+- Processamento de imagens em tempo real
+- Detecção de objetos (mãos)
+
+#### 2. **Machine Learning**
+- O que são features (características)
+- Como treinar modelos
+- Validação e teste de modelos
+- Algoritmo Random Forest
+
+#### 3. **Processamento de Dados**
+- Normalização de dados
+- Divisão treino/teste
+- Métricas de avaliação (acurácia)
+
+#### 4. **Desenvolvimento Web**
+- APIs REST
+- Comunicação frontend/backend
+- Streaming de vídeo
+- Síntese de voz
+
+### 🚀 Próximos Passos (Para Aprender Mais)
+
+#### Nível Iniciante:
+1. **Modifique as letras reconhecidas** - adicione novas letras
+2. **Mude as cores da interface** - personalize o visual
+3. **Adicione novos efeitos visuais** - crie animações
+
+#### Nível Intermediário:
+1. **Implemente reconhecimento de palavras completas**
+2. **Adicione mais gestos** (números, sinais básicos)
+3. **Melhore a precisão** com mais dados de treinamento
+
+#### Nível Avançado:
+1. **Use redes neurais** (TensorFlow/PyTorch)
+2. **Implemente reconhecimento de frases**
+3. **Adicione tradução para outras línguas de sinais**
+
+### 🤝 Como Contribuir
+
+#### Para Iniciantes:
+1. **Teste o projeto** e reporte bugs
+2. **Melhore a documentação** com suas descobertas
+3. **Adicione exemplos** de uso
+
+#### Para Desenvolvedores:
+1. **Fork o projeto**
+2. **Crie uma branch** para sua feature
+3. **Faça commit** das mudanças
+4. **Abra um Pull Request**
+
+### 📞 Suporte e Comunidade
+
+#### Se você tiver dúvidas:
+1. **Use o Cursor AI** - ele pode explicar qualquer parte do código
+2. **Leia a documentação** - este README tem tudo que você precisa
+3. **Procure por issues** no GitHub
+4. **Crie uma nova issue** se não encontrar a solução
+
+#### Recursos de Aprendizado:
+- 📚 [Documentação do Python](https://docs.python.org/)
+- 🎥 [Tutoriais de OpenCV](https://opencv.org/tutorials/)
+- 🤖 [Guia de Scikit-learn](https://scikit-learn.org/stable/user_guide.html)
+- 🌐 [Documentação do Flask](https://flask.palletsprojects.com/)
+
+### 📄 Licença
 
 Este projeto está sob a licença MIT - veja o arquivo [LICENSE](LICENSE) para detalhes.
 
-## ✨ Contribuindo
+### 👥 Equipe
 
-1. Faça um Fork do projeto
-2. Crie uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
-3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
-4. Push para a branch (`git push origin feature/AmazingFeature`)
-5. Abra um Pull Request
-
-## 👥 Equipe
-
-Desenvolvido com ❤️ pela equipe TraduLibras
-
-## Tradutor de Libras com IA usando MediaPipe + Scikit-learn
-
-Um projeto educacional que integra **visão computacional**, **machine learning** e **síntese de voz** para traduzir gestos da Língua Brasileira de Sinais (Libras) em letras, palavras e frases. Ideal para demonstrações de acessibilidade, inclusão digital e ensino técnico.
+Desenvolvido com ❤️ pela equipe TraduLibras para promover **acessibilidade** e **inclusão digital**.
 
 ---
 
-## 🚀 Funcionalidades já implementadas
-
-✅ Coleta de gestos com webcam e rotulagem manual  
-✅ Detecção de mãos com **MediaPipe**  
-✅ Normalização dos dados baseada no punho  
-✅ Treinamento de modelo com **Random Forest** (scikit-learn)  
-✅ Reconhecimento em tempo real de letras com estabilização  
-✅ Estrutura inicial para acúmulo de letras → palavras
-
----
-
-## 2️⃣ Como rodar o projeto
-
-### ▶️ Etapa 1 – Coletar os dados dos gestos
+## 🎯 Resumo Rápido para Começar
 
 ```bash
-python coletar_gestos.py
+# 1. Clone o projeto
+git clone https://github.com/prof-atritiack/libras-js.git
+cd libras-js
+
+# 2. Crie ambiente virtual
+python -m venv venv
+venv\Scripts\activate  # Windows
+# source venv/bin/activate  # Mac/Linux
+
+# 3. Instale dependências
+pip install -r requirements.txt
+
+# 4. Treine o modelo
+python treinar_letras_simples.py
+
+# 5. Execute a aplicação
+python app.py
+
+# 6. Acesse no navegador
+# http://localhost:5000
 ```
 
-- A câmera será ativada.
-- Posicione a mão com o gesto correspondente à letra desejada.
-- Pressione a tecla da letra (`A`, `B`, etc.).
-- O dado será salvo automaticamente em `gestos_libras.csv`.
-
-📌 Recomendado: coletar entre **30 a 50 amostras por letra** com variação de posição e ângulo.
+**🎉 Pronto! Você tem um sistema de reconhecimento de LIBRAS funcionando!**
 
 ---
 
-### 🧠 Etapa 2 – Treinar o modelo
-
-```bash
-python treinar_modelo.py
-```
-
-- Aplica balanceamento entre as letras.
-- Treina um modelo com scikit-learn.
-- Salva como `modelo_libras.pkl`.
-
----
-
-### 🔴 Etapa 3 – Reconhecimento em tempo real
-
-```bash
-python reconhecer_em_tempo_real.py
-```
-
-- Reconhece a mão com MediaPipe.
-- Identifica e exibe a letra.
-- Usa verificação de estabilidade para reduzir ruído.
-
----
-
-## 📁 Estrutura do projeto
-
-```bash
-tradutor-libras/
-├── coletar_gestos.py              # Coleta e rotulagem dos gestos
-├── treinar_modelo.py              # Treinamento do modelo de IA
-├── reconhecer_em_tempo_real.py    # Reconhecimento com webcam
-├── modelo_libras.pkl              # Modelo treinado (Random Forest)
-├── gestos_libras.csv              # Dataset dos gestos (normalizado)
-├── requirements.txt               # [pendente] Lista de dependências
-├── streamlit_app.py               # [pendente] Interface web
-├── audio_output.py                # [pendente] Geração de áudio com gTTS
-├── frase_mapping.py               # [pendente] Mapeamento de palavras para frases
-└── README.md                      # Documentação do projeto
-```
-
----
-
-## 🧱 Arquitetura do Projeto
-
-```mermaid
-graph LR
-    CAM[Webcam + MediaPipe] --> COLETA[Coleta de Dados]
-    COLETA --> CSV[Arquivo CSV]
-    CSV --> TREINAMENTO[Modelo Random Forest]
-    TREINAMENTO --> PKL[modelo_libras.pkl]
-    PKL --> RECOGNITION[Reconhecimento em tempo real]
-    RECOGNITION --> LETRA[Letra reconhecida]
-    LETRA --> PALAVRA[Formação de palavra]
-    PALAVRA --> FRASE[Frase mapeada]
-    FRASE --> AUDIO[gTTS: voz]
-
-
+*Este projeto foi criado para ser acessível a desenvolvedores de todos os níveis. Se você é iniciante, não se preocupe - use o Cursor AI para tirar dúvidas e aprender no processo!*
