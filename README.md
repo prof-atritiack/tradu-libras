@@ -86,6 +86,10 @@ docker-run.bat start
 docker-run.bat start          # Windows
 ./docker-run.sh start         # Linux/Mac
 
+# Atualizar projeto
+docker-run.bat update         # Windows
+./docker-run.sh update        # Linux/Mac
+
 # Treinar modelo
 docker-run.bat train          # Windows
 ./docker-run.sh train         # Linux/Mac
@@ -116,6 +120,54 @@ docker-compose run --rm tradulibras python seu_script.py
 
 # Acessar shell do container
 docker-compose exec tradulibras bash
+```
+
+---
+
+## 🔄 **Como Atualizar o Projeto**
+
+### 🐳 **Com Docker (Recomendado):**
+```bash
+# Atualizar automaticamente
+docker-run.bat update         # Windows
+./docker-run.sh update        # Linux/Mac
+```
+
+**O que o comando `update` faz:**
+- ✅ **Backup automático** dos modelos treinados
+- ✅ **Baixa atualizações** do GitHub
+- ✅ **Reconstrói a imagem** Docker
+- ✅ **Reinicia containers** com nova versão
+- ✅ **Mantém seus dados** (modelos, configurações)
+
+### 🐍 **Com Python Nativo:**
+```bash
+# Atualizar automaticamente
+update-project.bat            # Windows
+python update-project.py      # Linux/Mac
+```
+
+**O que o script de atualização faz:**
+- ✅ **Backup automático** dos modelos e dados
+- ✅ **Atualiza código** do GitHub
+- ✅ **Atualiza dependências** Python
+- ✅ **Pergunta se quer retreinar** o modelo
+- ✅ **Mantém ambiente virtual** intacto
+
+### 📋 **Atualização Manual (se necessário):**
+```bash
+# 1. Fazer backup
+cp -r modelos backup/modelos_$(date +%Y%m%d)
+cp gestos_libras.csv backup/gestos_libras_$(date +%Y%m%d).csv
+
+# 2. Atualizar código
+git pull origin main
+
+# 3. Atualizar dependências
+pip install -r requirements.txt
+
+# 4. Retreinar modelo (opcional)
+python treinar_letras_simples.py
 ```
 
 ---
@@ -446,6 +498,10 @@ docker-run.bat start          # Windows
 
 # 3. Acesse no navegador
 # http://localhost:5000
+
+# 4. Para atualizar (quando houver novas versões)
+docker-run.bat update         # Windows
+./docker-run.sh update        # Linux/Mac
 ```
 
 ### 🐍 **Com Python Nativo:**
@@ -470,6 +526,10 @@ python app.py
 
 # 6. Acesse no navegador
 # http://localhost:5000
+
+# 7. Para atualizar (quando houver novas versões)
+update-project.bat            # Windows
+python update-project.py      # Linux/Mac
 ```
 
 **🎉 Pronto! Você tem um sistema de reconhecimento de LIBRAS funcionando!**

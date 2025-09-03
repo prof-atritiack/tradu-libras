@@ -65,6 +65,7 @@ if "%action%"=="train" goto :train
 if "%action%"=="logs" goto :logs
 if "%action%"=="status" goto :status
 if "%action%"=="clean" goto :clean
+if "%action%"=="update" goto :update
 if "%action%"=="help" goto :help
 goto :help
 
@@ -157,6 +158,101 @@ if "!response!"=="y" if "!response!"=="Y" (
 )
 goto :end
 
+:update
+echo [TraduLibras] Atualizando projeto TraduLibras...
+echo.
+
+REM Verificar se é um repositório Git
+git status >nul 2>&1
+if errorlevel 1 (
+    echo [AVISO] Este não é um repositório Git.
+    echo [INFO] Para atualizações automáticas, clone o projeto do GitHub:
+    echo [INFO] git clone https://github.com/prof-atritiack/libras-js.git
+    echo.
+    echo [INFO] Ou baixe manualmente as atualizações do GitHub.
+    pause
+    goto :end
+)
+
+REM Fazer backup dos modelos
+echo [INFO] Fazendo backup dos modelos...
+if exist "modelos\modelo_libras.pkl" (
+    if not exist "backup" mkdir backup
+    copy "modelos\modelo_libras.pkl" "backup\modelo_libras_backup_%date:~-4,4%%date:~-10,2%%date:~-7,2%.pkl" >nul
+    echo [INFO] Backup do modelo salvo em backup\
+)
+
+REM Parar containers se estiverem rodando
+echo [INFO] Parando containers...
+docker-compose down >nul 2>&1
+
+REM Atualizar código do repositório
+echo [INFO] Baixando atualizações do GitHub...
+git fetch origin
+if errorlevel 1 (
+    echo [ERRO] Erro ao buscar atualizações!
+    pause
+    goto :end
+)
+
+REM Verificar se há atualizações
+git status -uno | findstr "behind" >nul
+if errorlevel 1 (
+    echo [INFO] Projeto já está atualizado! ✅
+    echo [INFO] Reiniciando containers...
+    docker-compose up -d
+    call :show_access_info
+    goto :end
+)
+
+echo [INFO] Atualizações encontradas! Aplicando...
+git pull origin main
+if errorlevel 1 (
+    echo [ERRO] Erro ao aplicar atualizações!
+    echo [INFO] Verifique se há conflitos ou se o repositório está limpo.
+    pause
+    goto :end
+)
+
+echo [INFO] Atualizações aplicadas com sucesso! ✅
+
+REM Reconstruir imagem Docker
+echo [INFO] Reconstruindo imagem Docker...
+docker-compose build --no-cache
+if errorlevel 1 (
+    echo [ERRO] Erro ao reconstruir a imagem!
+    pause
+    goto :end
+)
+
+REM Iniciar containers
+echo [INFO] Iniciando containers atualizados...
+docker-compose up -d
+if errorlevel 1 (
+    echo [ERRO] Erro ao iniciar containers!
+    pause
+    goto :end
+)
+
+echo [INFO] Aguardando containers estarem prontos...
+timeout /t 15 /nobreak >nul
+
+REM Verificar se está rodando
+docker-compose ps | findstr "Up" >nul
+if errorlevel 1 (
+    echo [ERRO] Erro ao iniciar containers atualizados!
+    echo [INFO] Verifique os logs: docker-compose logs
+    pause
+    goto :end
+)
+
+echo.
+echo [TraduLibras] Atualização concluída com sucesso! 🎉
+echo [INFO] Versão atualizada do TraduLibras está rodando!
+echo.
+call :show_access_info
+goto :end
+
 :help
 echo [INFO] Uso: %0 [OPÇÃO]
 echo.
@@ -168,6 +264,7 @@ echo   build        Construir a imagem Docker
 echo   train        Treinar o modelo de reconhecimento
 echo   logs         Mostrar logs do container
 echo   status       Mostrar status do container
+echo   update       Atualizar projeto do GitHub
 echo   clean        Limpar containers e imagens
 echo   help, h      Mostrar esta ajuda
 echo.

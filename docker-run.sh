@@ -135,6 +135,7 @@ show_help() {
     echo "  train        Treinar o modelo de reconhecimento"
     echo "  logs         Mostrar logs do container"
     echo "  status       Mostrar status do container"
+    echo "  update       Atualizar projeto do GitHub"
     echo "  clean        Limpar containers e imagens"
     echo "  help, h      Mostrar esta ajuda"
     echo ""
@@ -156,6 +157,89 @@ clean_docker() {
         print_message "Limpeza concluída! ✅"
     else
         print_info "Operação cancelada."
+    fi
+}
+
+# Função para atualizar o projeto
+update_project() {
+    print_message "Atualizando projeto TraduLibras..."
+    echo
+    
+    # Verificar se é um repositório Git
+    if ! git status &> /dev/null; then
+        print_warning "Este não é um repositório Git."
+        print_info "Para atualizações automáticas, clone o projeto do GitHub:"
+        print_info "git clone https://github.com/prof-atritiack/libras-js.git"
+        echo
+        print_info "Ou baixe manualmente as atualizações do GitHub."
+        return 1
+    fi
+    
+    # Fazer backup dos modelos
+    print_info "Fazendo backup dos modelos..."
+    if [ -f "modelos/modelo_libras.pkl" ]; then
+        mkdir -p backup
+        cp "modelos/modelo_libras.pkl" "backup/modelo_libras_backup_$(date +%Y%m%d_%H%M%S).pkl"
+        print_info "Backup do modelo salvo em backup/"
+    fi
+    
+    # Parar containers se estiverem rodando
+    print_info "Parando containers..."
+    docker-compose down &> /dev/null
+    
+    # Atualizar código do repositório
+    print_info "Baixando atualizações do GitHub..."
+    if ! git fetch origin; then
+        print_error "Erro ao buscar atualizações!"
+        return 1
+    fi
+    
+    # Verificar se há atualizações
+    if ! git status -uno | grep -q "behind"; then
+        print_info "Projeto já está atualizado! ✅"
+        print_info "Reiniciando containers..."
+        docker-compose up -d
+        show_access_info
+        return 0
+    fi
+    
+    print_info "Atualizações encontradas! Aplicando..."
+    if ! git pull origin main; then
+        print_error "Erro ao aplicar atualizações!"
+        print_info "Verifique se há conflitos ou se o repositório está limpo."
+        return 1
+    fi
+    
+    print_message "Atualizações aplicadas com sucesso! ✅"
+    
+    # Reconstruir imagem Docker
+    print_info "Reconstruindo imagem Docker..."
+    if ! docker-compose build --no-cache; then
+        print_error "Erro ao reconstruir a imagem!"
+        return 1
+    fi
+    
+    # Iniciar containers
+    print_info "Iniciando containers atualizados..."
+    if ! docker-compose up -d; then
+        print_error "Erro ao iniciar containers!"
+        return 1
+    fi
+    
+    print_info "Aguardando containers estarem prontos..."
+    sleep 15
+    
+    # Verificar se está rodando
+    if docker-compose ps | grep -q "Up"; then
+        echo
+        print_message "Atualização concluída com sucesso! 🎉"
+        print_info "Versão atualizada do TraduLibras está rodando!"
+        echo
+        show_access_info
+    else
+        print_error "Erro ao iniciar containers atualizados!"
+        print_info "Verifique os logs: docker-compose logs"
+        return 1
     fi
 }
 
@@ -192,6 +276,10 @@ case "${1:-start}" in
             print_info "Verifique os logs: docker-compose logs"
             exit 1
         fi
+        ;;
+        
+    "update")
+        update_project
         ;;
         
     "stop")
