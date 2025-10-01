@@ -67,7 +67,7 @@ gesture_stable_start_time = None
 # Sistema de detecção sequencial (sem sair da mão)
 sequential_detection_enabled = True  # Permitir detecção sequencial
 last_gesture_change_time = None
-gesture_change_cooldown = 2.0  # segundos entre mudanças de gesto
+gesture_change_cooldown = 3.0  # segundos entre mudanças de gesto (aumentado para mais estabilidade)
 
 def process_landmarks(hand_landmarks):
     """Process hand landmarks and normalize relative to wrist (landmark 0) - Enhanced version"""
@@ -131,16 +131,16 @@ def smart_postprocessing(predicted_letter):
         'time': current_time
     })
     
-    # Manter apenas as últimas 8 predições para análise mais robusta
-    if len(gesture_predictions) > 8:
+    # Manter apenas as últimas 10 predições para análise mais robusta
+    if len(gesture_predictions) > 10:
         gesture_predictions.pop(0)
     
-    # Verificar se temos predições suficientes
-    if len(gesture_predictions) < 5:
+    # Verificar se temos predições suficientes (aumentado para mais estabilidade)
+    if len(gesture_predictions) < 7:
         return None
     
-    # Análise inteligente das últimas predições
-    recent_predictions = [p['letter'] for p in gesture_predictions[-5:]]
+    # Análise inteligente das últimas predições (janela maior)
+    recent_predictions = [p['letter'] for p in gesture_predictions[-7:]]
     
     # Contar frequência de cada letra
     from collections import Counter
@@ -148,8 +148,8 @@ def smart_postprocessing(predicted_letter):
     most_common_letter = letter_counts.most_common(1)[0][0]
     most_common_count = letter_counts.most_common(1)[0][1]
     
-    # Só aceitar se a letra mais comum aparecer pelo menos 3 vezes nas últimas 5 predições
-    if most_common_count >= 3:
+    # Só aceitar se a letra mais comum aparecer pelo menos 5 vezes nas últimas 7 predições (mais rigoroso)
+    if most_common_count >= 5:
         # Verificar se é diferente da letra atual
         if most_common_letter != current_letter:
             # Validação adicional para letras problemáticas
@@ -166,18 +166,18 @@ def smart_postprocessing(predicted_letter):
     return None
 
 def validate_problematic_letters(letter, recent_predictions):
-    """Validação específica para letras problemáticas com análise de contexto"""
+    """Validação específica para letras problemáticas com análise de contexto mais rigorosa"""
     # Para A/E: verificar se há confusão
     if letter in ['A', 'E']:
         # Se detectou A, verificar se não há muitos E nas predições
         if letter == 'A':
             e_count = recent_predictions.count('E')
-            if e_count >= 2:  # Se há muitos E, pode ser erro
+            if e_count >= 1:  # Mais rigoroso - qualquer E é suspeito
                 return False
         # Se detectou E, verificar se não há muitos A nas predições
         elif letter == 'E':
             a_count = recent_predictions.count('A')
-            if a_count >= 2:  # Se há muitos A, pode ser erro
+            if a_count >= 1:  # Mais rigoroso - qualquer A é suspeito
                 return False
     
     # Para C/D: verificar se há confusão
@@ -185,12 +185,12 @@ def validate_problematic_letters(letter, recent_predictions):
         # Se detectou C, verificar se não há muitos D nas predições
         if letter == 'C':
             d_count = recent_predictions.count('D')
-            if d_count >= 2:  # Se há muitos D, pode ser erro
+            if d_count >= 1:  # Mais rigoroso - qualquer D é suspeito
                 return False
         # Se detectou D, verificar se não há muitos C nas predições
         elif letter == 'D':
             c_count = recent_predictions.count('C')
-            if c_count >= 2:  # Se há muitos C, pode ser erro
+            if c_count >= 1:  # Mais rigoroso - qualquer C é suspeito
                 return False
     
     # Para C/O: verificar se há confusão
@@ -198,12 +198,12 @@ def validate_problematic_letters(letter, recent_predictions):
         # Se detectou C, verificar se não há muitos O nas predições
         if letter == 'C':
             o_count = recent_predictions.count('O')
-            if o_count >= 2:  # Se há muitos O, pode ser erro
+            if o_count >= 1:  # Mais rigoroso - qualquer O é suspeito
                 return False
         # Se detectou O, verificar se não há muitos C nas predições
         elif letter == 'O':
             c_count = recent_predictions.count('C')
-            if c_count >= 2:  # Se há muitos C, pode ser erro
+            if c_count >= 1:  # Mais rigoroso - qualquer C é suspeito
                 return False
     
     return True
@@ -213,12 +213,12 @@ def enhance_prediction_confidence(predicted_letter, recent_predictions):
     # Contar ocorrências da letra nas últimas predições
     letter_count = recent_predictions.count(predicted_letter)
     total_predictions = len(recent_predictions)
-    
+
     # Calcular confiança baseada na frequência
     confidence = letter_count / total_predictions
-    
-    # Só aceitar se confiança >= 60%
-    return confidence >= 0.6
+
+    # Só aceitar se confiança >= 70% (mais rigoroso para estabilidade)
+    return confidence >= 0.7
 
 
 
