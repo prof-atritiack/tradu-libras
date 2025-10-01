@@ -40,16 +40,39 @@ hands = mp_hands.Hands(
 )
 mp_draw = mp.solutions.drawing_utils
 
-# Load the trained model (using enhanced model with all letters)
-with open('modelos/modelo_aprimorado_20251001_115726.pkl', 'rb') as f:
-    model = pickle.load(f)
+# Verificar se existe modelo novo
+modelo_files = [f for f in os.listdir('modelos/') if f.startswith('modelo_') and f.endswith('.pkl')]
+scaler_files = [f for f in os.listdir('modelos/') if f.startswith('scaler_') and f.endswith('.pkl')]
+info_files = [f for f in os.listdir('modelos/') if f.startswith('modelo_info_') and f.endswith('.pkl')]
 
-# Load model info
-with open('modelos/modelo_info_aprimorado_20251001_115726.pkl', 'rb') as f:
-    model_info = pickle.load(f)
+if modelo_files and scaler_files and info_files:
+    # Usar o modelo mais recente
+    modelo_file = sorted(modelo_files)[-1]
+    scaler_file = sorted(scaler_files)[-1]
+    info_file = sorted(info_files)[-1]
+    
+    print(f"📁 Carregando modelo: {modelo_file}")
+    
+    # Load the trained model
+    with open(f'modelos/{modelo_file}', 'rb') as f:
+        model = pickle.load(f)
+    
+    # Load scaler for normalization
+    with open(f'modelos/{scaler_file}', 'rb') as f:
+        scaler = pickle.load(f)
+    
+    # Load model info
+    with open(f'modelos/{info_file}', 'rb') as f:
+        model_info = pickle.load(f)
+else:
+    print("❌ Nenhum modelo encontrado!")
+    print("💡 Execute primeiro o coletor_dados_novo.py e treinador_modelo_novo.py")
+    model = None
+    scaler = None
+    model_info = {'classes': [], 'accuracy': 0}
 
 # Global variables for text formation
-current_letter = ""
+current_letter = ""  # Iniciar vazio para não mostrar letra inicial
 formed_text = ""
 corrected_text = ""
 last_prediction_time = datetime.now()
@@ -67,7 +90,12 @@ gesture_stable_start_time = None
 # Sistema de detecção sequencial (sem sair da mão)
 sequential_detection_enabled = True  # Permitir detecção sequencial
 last_gesture_change_time = None
-gesture_change_cooldown = 3.0  # segundos entre mudanças de gesto (aumentado para mais estabilidade)
+gesture_change_cooldown = 2.0  # segundos entre mudanças de gesto (reduzido para melhor responsividade)
+
+# Sistema de estabilização otimizada
+stability_buffer_size = 8  # Buffer menor para resposta mais rápida
+min_confidence_threshold = 0.6  # Threshold mais baixo para detectar mais gestos
+consecutive_required = 4  # Menos detecções consecutivas necessárias
 
 def process_landmarks(hand_landmarks):
     """Process hand landmarks and normalize relative to wrist (landmark 0) - Enhanced version"""
@@ -131,16 +159,16 @@ def smart_postprocessing(predicted_letter):
         'time': current_time
     })
     
-    # Manter apenas as últimas 10 predições para análise mais robusta
-    if len(gesture_predictions) > 10:
+    # Manter buffer maior para análise mais robusta
+    if len(gesture_predictions) > stability_buffer_size:
         gesture_predictions.pop(0)
     
-    # Verificar se temos predições suficientes (aumentado para mais estabilidade)
-    if len(gesture_predictions) < 7:
+    # Verificar se temos predições suficientes (muito mais rigoroso)
+    if len(gesture_predictions) < consecutive_required:
         return None
     
-    # Análise inteligente das últimas predições (janela maior)
-    recent_predictions = [p['letter'] for p in gesture_predictions[-7:]]
+    # Análise ultra-robusta das últimas predições
+    recent_predictions = [p['letter'] for p in gesture_predictions[-consecutive_required:]]
     
     # Contar frequência de cada letra
     from collections import Counter
@@ -148,8 +176,9 @@ def smart_postprocessing(predicted_letter):
     most_common_letter = letter_counts.most_common(1)[0][0]
     most_common_count = letter_counts.most_common(1)[0][1]
     
-    # Só aceitar se a letra mais comum aparecer pelo menos 5 vezes nas últimas 7 predições (mais rigoroso)
-    if most_common_count >= 5:
+    # Requerer 60% de consistência (mais permissivo)
+    required_count = int(consecutive_required * 0.6)
+    if most_common_count >= required_count:
         # Verificar se é diferente da letra atual
         if most_common_letter != current_letter:
             # Validação adicional para letras problemáticas
@@ -161,64 +190,65 @@ def smart_postprocessing(predicted_letter):
                     current_gesture_candidate = None
                     gesture_stable_start_time = None
                     last_gesture_change_time = current_time
+                    print(f"✅ Letra detectada: {most_common_letter} (confiança: {most_common_count}/{consecutive_required})")
                     return most_common_letter
     
     return None
 
 def validate_problematic_letters(letter, recent_predictions):
-    """Validação específica para letras problemáticas com análise de contexto mais rigorosa"""
-    # Para A/E: verificar se há confusão
+    """Validação simplificada para letras problemáticas"""
+    # Para A/E: verificar se há muita confusão
     if letter in ['A', 'E']:
         # Se detectou A, verificar se não há muitos E nas predições
         if letter == 'A':
             e_count = recent_predictions.count('E')
-            if e_count >= 1:  # Mais rigoroso - qualquer E é suspeito
+            if e_count >= 2:  # Só rejeitar se houver muitos E
                 return False
         # Se detectou E, verificar se não há muitos A nas predições
         elif letter == 'E':
             a_count = recent_predictions.count('A')
-            if a_count >= 1:  # Mais rigoroso - qualquer A é suspeito
+            if a_count >= 2:  # Só rejeitar se houver muitos A
                 return False
     
-    # Para C/D: verificar se há confusão
+    # Para C/D: verificar se há muita confusão
     if letter in ['C', 'D']:
         # Se detectou C, verificar se não há muitos D nas predições
         if letter == 'C':
             d_count = recent_predictions.count('D')
-            if d_count >= 1:  # Mais rigoroso - qualquer D é suspeito
+            if d_count >= 2:  # Só rejeitar se houver muitos D
                 return False
         # Se detectou D, verificar se não há muitos C nas predições
         elif letter == 'D':
             c_count = recent_predictions.count('C')
-            if c_count >= 1:  # Mais rigoroso - qualquer C é suspeito
+            if c_count >= 2:  # Só rejeitar se houver muitos C
                 return False
     
-    # Para C/O: verificar se há confusão
+    # Para C/O: verificar se há muita confusão
     if letter in ['C', 'O']:
         # Se detectou C, verificar se não há muitos O nas predições
         if letter == 'C':
             o_count = recent_predictions.count('O')
-            if o_count >= 1:  # Mais rigoroso - qualquer O é suspeito
+            if o_count >= 2:  # Só rejeitar se houver muitos O
                 return False
         # Se detectou O, verificar se não há muitos C nas predições
         elif letter == 'O':
             c_count = recent_predictions.count('C')
-            if c_count >= 1:  # Mais rigoroso - qualquer C é suspeito
+            if c_count >= 2:  # Só rejeitar se houver muitos C
                 return False
     
     return True
 
 def enhance_prediction_confidence(predicted_letter, recent_predictions):
-    """Melhora a confiança da predição usando análise temporal"""
+    """Melhora a confiança da predição usando análise temporal otimizada"""
     # Contar ocorrências da letra nas últimas predições
     letter_count = recent_predictions.count(predicted_letter)
     total_predictions = len(recent_predictions)
-
+    
     # Calcular confiança baseada na frequência
     confidence = letter_count / total_predictions
-
-    # Só aceitar se confiança >= 70% (mais rigoroso para estabilidade)
-    return confidence >= 0.7
+    
+    # Aceitar se confiança >= 60% (mais permissivo para melhor detecção)
+    return confidence >= min_confidence_threshold
 
 
 
@@ -290,26 +320,36 @@ def generate_frames():
                     
                     # Process landmarks and make prediction
                     points = process_landmarks(hand_landmarks)
-                    if points and len(points) == 51:  # Ensure we have the right number of features (51 for enhanced model)
-                        try:
-                            prediction = model.predict([points])
-                            predicted_letter = prediction[0]
+                if points and len(points) == 51:  # Ensure we have the right number of features (51 for enhanced model)
+                    try:
+                        if model is None or scaler is None:
+                            print("❌ Modelo não carregado")
+                            continue
+                        
+                        # Normalizar features com scaler
+                        points_normalized = scaler.transform([points])
+                        prediction = model.predict(points_normalized)
+                        predicted_letter = prediction[0]
+                        
+                        # Usar pós-processamento inteligente
+                        validated_letter = smart_postprocessing(predicted_letter)
+                        
+                        if validated_letter:
+                            current_letter = validated_letter
                             
-                            # Usar pós-processamento inteligente
-                            validated_letter = smart_postprocessing(predicted_letter)
+                            # Se for ESPAÇO, adicionar espaço ao texto
+                            if validated_letter == 'ESPACO':
+                                formed_text += ' '
+                            else:
+                                formed_text += validated_letter
                             
-                            if validated_letter:
-                                current_letter = validated_letter
-                                
-                                # Se for ESPAÇO, adicionar espaço ao texto
-                                if validated_letter == 'ESPACO':
-                                    formed_text += ' '
-                                else:
-                                    formed_text += validated_letter
-                                
-                                corrected_text = formed_text
-                                letter_detected = True
-                                print(f"✅ Letra validada detectada: {validated_letter}")
+                            corrected_text = formed_text
+                            letter_detected = True
+                            print(f"✅ Letra validada detectada: {validated_letter}")
+                            
+                            # Iniciar timer para limpeza automática
+                            global last_letter_clear_time
+                            last_letter_clear_time = datetime.now()
                             
                         except Exception as e:
                             print(f"❌ Erro na predição: {e}")
@@ -740,8 +780,10 @@ if __name__ == '__main__':
     print("   3. Exemplo: http://192.168.1.100:5000")
     print("=" * 50)
     print("🎤 Voz: gTTS (Google Text-to-Speech)")
-    print("🤖 Modelo: Random Forest")
-    print("📊 Classes:", model_info.get('classes', []) if model_info else [])
+    print("🤖 Modelo: Ensemble (Random Forest + SVM + KNN)")
+    print("📊 Classes:", model_info.get('classes', []))
+    print("🔧 Scaler: StandardScaler")
     print("=" * 50)
     
-    app.run(debug=True, host='0.0.0.0', port=5000) 
+    # Executar aplicação
+    app.run(host='0.0.0.0', port=5000, debug=True)
