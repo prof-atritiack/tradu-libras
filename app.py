@@ -40,12 +40,12 @@ hands = mp_hands.Hands(
 )
 mp_draw = mp.solutions.drawing_utils
 
-# Load the trained model
-with open('modelos/modelo_libras.pkl', 'rb') as f:
+# Load the trained model (using enhanced model with all letters)
+with open('modelos/modelo_aprimorado_20251001_115726.pkl', 'rb') as f:
     model = pickle.load(f)
 
 # Load model info
-with open('modelos/modelo_info.pkl', 'rb') as f:
+with open('modelos/modelo_info_aprimorado_20251001_115726.pkl', 'rb') as f:
     model_info = pickle.load(f)
 
 # Global variables for text formation
@@ -53,74 +53,282 @@ current_letter = ""
 formed_text = ""
 corrected_text = ""
 last_prediction_time = datetime.now()
-prediction_cooldown = 2.5  # seconds - aumentado para dar mais tempo entre detecções
+prediction_cooldown = 1.0  # seconds - tempo entre impressões de letras
 letter_detected = False  # Flag para indicar se uma letra foi detectada recentemente
 
+# Sistema de estabilização de gestos
+gesture_stabilization_time = 1.5  # segundos para estabilizar gesto
+gesture_validation_count = 3  # número de detecções consecutivas necessárias
+last_hand_detection_time = None
+gesture_predictions = []  # Lista para armazenar predições recentes
+current_gesture_candidate = None
+gesture_stable_start_time = None
+
+# Sistema de detecção sequencial (sem sair da mão)
+sequential_detection_enabled = True  # Permitir detecção sequencial
+last_gesture_change_time = None
+gesture_change_cooldown = 2.0  # segundos entre mudanças de gesto
+
 def process_landmarks(hand_landmarks):
-    """Process hand landmarks and normalize relative to wrist (landmark 0)"""
-    p0 = hand_landmarks.landmark[0]  # Wrist reference point
-    points = []
+    """Process hand landmarks and normalize relative to wrist (landmark 0) - Enhanced version"""
+    if not hand_landmarks:
+        return None
+
+    # Ponto de referência (pulso)
+    wrist = hand_landmarks.landmark[0]
+
+    # Extrair coordenadas x,y relativas ao pulso (42 features)
+    features = []
     for landmark in hand_landmarks.landmark:
-        points.extend([
-            landmark.x - p0.x,
-            landmark.y - p0.y,
-            landmark.z - p0.z
+        features.extend([
+            landmark.x - wrist.x,
+            landmark.y - wrist.y
         ])
-    return points
+
+    # Adicionar features extras para melhorar precisão
+    # Distâncias entre pontos importantes
+    thumb_tip = hand_landmarks.landmark[4]
+    index_tip = hand_landmarks.landmark[8]
+    middle_tip = hand_landmarks.landmark[12]
+    ring_tip = hand_landmarks.landmark[16]
+    pinky_tip = hand_landmarks.landmark[20]
+
+    # Distâncias entre dedos e pulso
+    features.extend([
+        abs(thumb_tip.x - wrist.x) + abs(thumb_tip.y - wrist.y),
+        abs(index_tip.x - wrist.x) + abs(index_tip.y - wrist.y),
+        abs(middle_tip.x - wrist.x) + abs(middle_tip.y - wrist.y),
+        abs(ring_tip.x - wrist.x) + abs(ring_tip.y - wrist.y),
+        abs(pinky_tip.x - wrist.x) + abs(pinky_tip.y - wrist.y)
+    ])
+
+    # Distâncias entre dedos
+    features.extend([
+        abs(thumb_tip.x - index_tip.x) + abs(thumb_tip.y - index_tip.y),
+        abs(index_tip.x - middle_tip.x) + abs(index_tip.y - middle_tip.y),
+        abs(middle_tip.x - ring_tip.x) + abs(middle_tip.y - ring_tip.y),
+        abs(ring_tip.x - pinky_tip.x) + abs(ring_tip.y - pinky_tip.y)
+    ])
+
+    return features  # Total: 42 + 5 + 4 = 51 features
+
+def smart_postprocessing(predicted_letter):
+    """Pós-processamento inteligente para reduzir erros"""
+    global gesture_predictions, current_gesture_candidate, gesture_stable_start_time
+    global last_gesture_change_time, current_letter
+    
+    current_time = datetime.now()
+    
+    # Verificar cooldown entre mudanças de gesto
+    if last_gesture_change_time is not None:
+        time_since_change = (current_time - last_gesture_change_time).total_seconds()
+        if time_since_change < gesture_change_cooldown:
+            return None
+    
+    # Adicionar predição à lista
+    gesture_predictions.append({
+        'letter': predicted_letter,
+        'time': current_time
+    })
+    
+    # Manter apenas as últimas 8 predições para análise mais robusta
+    if len(gesture_predictions) > 8:
+        gesture_predictions.pop(0)
+    
+    # Verificar se temos predições suficientes
+    if len(gesture_predictions) < 5:
+        return None
+    
+    # Análise inteligente das últimas predições
+    recent_predictions = [p['letter'] for p in gesture_predictions[-5:]]
+    
+    # Contar frequência de cada letra
+    from collections import Counter
+    letter_counts = Counter(recent_predictions)
+    most_common_letter = letter_counts.most_common(1)[0][0]
+    most_common_count = letter_counts.most_common(1)[0][1]
+    
+    # Só aceitar se a letra mais comum aparecer pelo menos 3 vezes nas últimas 5 predições
+    if most_common_count >= 3:
+        # Verificar se é diferente da letra atual
+        if most_common_letter != current_letter:
+            # Validação adicional para letras problemáticas
+            if validate_problematic_letters(most_common_letter, recent_predictions):
+                # Verificar confiança da predição
+                if enhance_prediction_confidence(most_common_letter, recent_predictions):
+                    # Reset para próxima detecção
+                    gesture_predictions.clear()
+                    current_gesture_candidate = None
+                    gesture_stable_start_time = None
+                    last_gesture_change_time = current_time
+                    return most_common_letter
+    
+    return None
+
+def validate_problematic_letters(letter, recent_predictions):
+    """Validação específica para letras problemáticas com análise de contexto"""
+    # Para A/E: verificar se há confusão
+    if letter in ['A', 'E']:
+        # Se detectou A, verificar se não há muitos E nas predições
+        if letter == 'A':
+            e_count = recent_predictions.count('E')
+            if e_count >= 2:  # Se há muitos E, pode ser erro
+                return False
+        # Se detectou E, verificar se não há muitos A nas predições
+        elif letter == 'E':
+            a_count = recent_predictions.count('A')
+            if a_count >= 2:  # Se há muitos A, pode ser erro
+                return False
+    
+    # Para C/D: verificar se há confusão
+    if letter in ['C', 'D']:
+        # Se detectou C, verificar se não há muitos D nas predições
+        if letter == 'C':
+            d_count = recent_predictions.count('D')
+            if d_count >= 2:  # Se há muitos D, pode ser erro
+                return False
+        # Se detectou D, verificar se não há muitos C nas predições
+        elif letter == 'D':
+            c_count = recent_predictions.count('C')
+            if c_count >= 2:  # Se há muitos C, pode ser erro
+                return False
+    
+    # Para C/O: verificar se há confusão
+    if letter in ['C', 'O']:
+        # Se detectou C, verificar se não há muitos O nas predições
+        if letter == 'C':
+            o_count = recent_predictions.count('O')
+            if o_count >= 2:  # Se há muitos O, pode ser erro
+                return False
+        # Se detectou O, verificar se não há muitos C nas predições
+        elif letter == 'O':
+            c_count = recent_predictions.count('C')
+            if c_count >= 2:  # Se há muitos C, pode ser erro
+                return False
+    
+    return True
+
+def enhance_prediction_confidence(predicted_letter, recent_predictions):
+    """Melhora a confiança da predição usando análise temporal"""
+    # Contar ocorrências da letra nas últimas predições
+    letter_count = recent_predictions.count(predicted_letter)
+    total_predictions = len(recent_predictions)
+    
+    # Calcular confiança baseada na frequência
+    confidence = letter_count / total_predictions
+    
+    # Só aceitar se confiança >= 60%
+    return confidence >= 0.6
 
 
 
 def generate_frames():
-    camera = cv2.VideoCapture(0)
+    # Tentar inicializar a câmera com diferentes índices
+    camera = None
+    camera_index = 0
+    
+    try:
+        for camera_index in [0, 1, 2]:
+            try:
+                camera = cv2.VideoCapture(camera_index)
+                if camera.isOpened():
+                    # Testar se consegue ler um frame
+                    ret, test_frame = camera.read()
+                    if ret and test_frame is not None:
+                        print(f"✅ Câmera inicializada com índice {camera_index}")
+                        break
+                    else:
+                        camera.release()
+                        camera = None
+            except Exception as e:
+                print(f"❌ Erro ao inicializar câmera {camera_index}: {e}")
+                if camera:
+                    camera.release()
+                camera = None
+        
+        if camera is None:
+            print("❌ Nenhuma câmera disponível!")
+            # Retornar frame de erro
+            error_frame = np.zeros((480, 640, 3), dtype=np.uint8)
+            cv2.putText(error_frame, "CAMERA NAO DISPONIVEL", (50, 240), 
+                       cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
+            ret, buffer = cv2.imencode('.jpg', error_frame)
+            frame = buffer.tobytes()
+            yield (b'--frame\r\n'
+                   b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+            return
+    except Exception as e:
+        print(f"❌ Erro crítico na inicialização da câmera: {e}")
+        return
+    
     global current_letter, formed_text, corrected_text, last_prediction_time
     
-    while True:
-        success, frame = camera.read()
-        if not success:
-            break
-        
-        # Flip the frame horizontally for a later selfie-view display
-        frame = cv2.flip(frame, 1)
-        
-        # Convert BGR to RGB
-        rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        
-        # Process the frame and detect hands
-        results = hands.process(rgb_frame)
-        
-        if results.multi_hand_landmarks:
-            for hand_landmarks in results.multi_hand_landmarks:
-                # Draw hand landmarks
-                mp_draw.draw_landmarks(frame, hand_landmarks, mp_hands.HAND_CONNECTIONS)
+    try:
+        while True:
+            success, frame = camera.read()
+            if not success:
+                print("❌ Erro ao ler frame da câmera")
+                break
+            
+            # Flip the frame horizontally for a later selfie-view display
+            frame = cv2.flip(frame, 1)
+            
+            # Convert BGR to RGB
+            rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            
+            # Process the frame and detect hands
+            results = hands.process(rgb_frame)
+            
+            if results.multi_hand_landmarks:
+                global last_hand_detection_time
+                last_hand_detection_time = datetime.now()
                 
-                # Process landmarks and make prediction
-                points = process_landmarks(hand_landmarks)
-                if len(points) == 63:  # Ensure we have the right number of features
-                    prediction = model.predict([points])
+                # Detecção sequencial - sempre processar quando mão detectada
+                for hand_landmarks in results.multi_hand_landmarks:
+                    # Draw hand landmarks
+                    mp_draw.draw_landmarks(frame, hand_landmarks, mp_hands.HAND_CONNECTIONS)
                     
-                    # Update current letter with cooldown
-                    current_time = datetime.now()
-                    if (current_time - last_prediction_time).total_seconds() >= prediction_cooldown:
-                        # Só atualiza se a predição for válida e diferente da anterior
-                        predicted_letter = prediction[0]
-                        if predicted_letter and predicted_letter.strip() and predicted_letter != current_letter:
-                            current_letter = predicted_letter
-                            formed_text += current_letter
-                            corrected_text = formed_text  # Simple correction for now
-                            last_prediction_time = current_time
-                            letter_detected = True  # Marca que uma letra foi detectada
-                
-                # Draw prediction on frame
-                letra_display = current_letter if current_letter and current_letter.strip() else "-"
-                cv2.putText(frame, f"Letra: {letra_display}", (10, 50),
-                           cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
-        
-        # Convert frame to jpg
-        ret, buffer = cv2.imencode('.jpg', frame)
-        frame = buffer.tobytes()
-        
-        yield (b'--frame\r\n'
-               b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+                    # Process landmarks and make prediction
+                    points = process_landmarks(hand_landmarks)
+                    if points and len(points) == 51:  # Ensure we have the right number of features (51 for enhanced model)
+                        try:
+                            prediction = model.predict([points])
+                            predicted_letter = prediction[0]
+                            
+                            # Usar pós-processamento inteligente
+                            validated_letter = smart_postprocessing(predicted_letter)
+                            
+                            if validated_letter:
+                                current_letter = validated_letter
+                                
+                                # Se for ESPAÇO, adicionar espaço ao texto
+                                if validated_letter == 'ESPACO':
+                                    formed_text += ' '
+                                else:
+                                    formed_text += validated_letter
+                                
+                                corrected_text = formed_text
+                                letter_detected = True
+                                print(f"✅ Letra validada detectada: {validated_letter}")
+                            
+                        except Exception as e:
+                            print(f"❌ Erro na predição: {e}")
+                            # Continue processing frames even if prediction fails
+            
+            # Convert frame to jpg
+            ret, buffer = cv2.imencode('.jpg', frame)
+            frame = buffer.tobytes()
+            
+            yield (b'--frame\r\n'
+                   b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+    
+    except Exception as e:
+        print(f"❌ Erro no processamento de frames: {e}")
+    finally:
+        # Fechar câmera quando sair do loop
+        if camera:
+            camera.release()
+            print("📷 Câmera liberada")
 
 # Rotas de Autenticação
 @app.route('/login', methods=['GET', 'POST'])
