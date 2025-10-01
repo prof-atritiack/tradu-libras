@@ -51,7 +51,7 @@ if modelo_files and scaler_files and info_files:
     scaler_file = sorted(scaler_files)[-1]
     info_file = sorted(info_files)[-1]
     
-    print(f"📁 Carregando modelo: {modelo_file}")
+    print(f"Carregando modelo: {modelo_file}")
     
     # Load the trained model
     with open(f'modelos/{modelo_file}', 'rb') as f:
@@ -65,8 +65,8 @@ if modelo_files and scaler_files and info_files:
     with open(f'modelos/{info_file}', 'rb') as f:
         model_info = pickle.load(f)
 else:
-    print("❌ Nenhum modelo encontrado!")
-    print("💡 Execute primeiro o coletor_dados_novo.py e treinador_modelo_novo.py")
+    print("ERRO: Nenhum modelo encontrado!")
+    print("DICA: Execute primeiro o coletor_dados_novo.py e treinador_modelo_novo.py")
     model = None
     scaler = None
     model_info = {'classes': [], 'accuracy': 0}
@@ -190,7 +190,7 @@ def smart_postprocessing(predicted_letter):
                     current_gesture_candidate = None
                     gesture_stable_start_time = None
                     last_gesture_change_time = current_time
-                    print(f"✅ Letra detectada: {most_common_letter} (confiança: {most_common_count}/{consecutive_required})")
+                    print(f"Letra detectada: {most_common_letter} (confianca: {most_common_count}/{consecutive_required})")
                     return most_common_letter
     
     return None
@@ -265,19 +265,19 @@ def generate_frames():
                     # Testar se consegue ler um frame
                     ret, test_frame = camera.read()
                     if ret and test_frame is not None:
-                        print(f"✅ Câmera inicializada com índice {camera_index}")
+                        print(f"Camera inicializada com indice {camera_index}")
                         break
                     else:
                         camera.release()
                         camera = None
             except Exception as e:
-                print(f"❌ Erro ao inicializar câmera {camera_index}: {e}")
+                print(f"ERRO ao inicializar camera {camera_index}: {e}")
                 if camera:
                     camera.release()
                 camera = None
         
         if camera is None:
-            print("❌ Nenhuma câmera disponível!")
+            print("ERRO: Nenhuma camera disponivel!")
             # Retornar frame de erro
             error_frame = np.zeros((480, 640, 3), dtype=np.uint8)
             cv2.putText(error_frame, "CAMERA NAO DISPONIVEL", (50, 240), 
@@ -288,7 +288,7 @@ def generate_frames():
                    b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
             return
     except Exception as e:
-        print(f"❌ Erro crítico na inicialização da câmera: {e}")
+        print(f"ERRO critico na inicializacao da camera: {e}")
         return
     
     global current_letter, formed_text, corrected_text, last_prediction_time
@@ -297,7 +297,7 @@ def generate_frames():
         while True:
             success, frame = camera.read()
             if not success:
-                print("❌ Erro ao ler frame da câmera")
+                print("ERRO ao ler frame da camera")
                 break
             
             # Flip the frame horizontally for a later selfie-view display
@@ -323,7 +323,7 @@ def generate_frames():
                 if points and len(points) == 51:  # Ensure we have the right number of features (51 for enhanced model)
                     try:
                         if model is None or scaler is None:
-                            print("❌ Modelo não carregado")
+                            print("ERRO: Modelo nao carregado")
                             continue
                         
                         # Normalizar features com scaler
@@ -345,15 +345,15 @@ def generate_frames():
                             
                             corrected_text = formed_text
                             letter_detected = True
-                            print(f"✅ Letra validada detectada: {validated_letter}")
+                            print(f"Letra validada detectada: {validated_letter}")
                             
                             # Iniciar timer para limpeza automática
                             global last_letter_clear_time
                             last_letter_clear_time = datetime.now()
-                            
-                        except Exception as e:
-                            print(f"❌ Erro na predição: {e}")
-                            # Continue processing frames even if prediction fails
+                        
+                    except Exception as e:
+                        print(f"ERRO na predicao: {e}")
+                        # Continue processing frames even if prediction fails
             
             # Convert frame to jpg
             ret, buffer = cv2.imencode('.jpg', frame)
@@ -363,12 +363,12 @@ def generate_frames():
                    b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
     
     except Exception as e:
-        print(f"❌ Erro no processamento de frames: {e}")
+        print(f"ERRO no processamento de frames: {e}")
     finally:
         # Fechar câmera quando sair do loop
         if camera:
             camera.release()
-            print("📷 Câmera liberada")
+            print("Camera liberada")
 
 # Rotas de Autenticação
 @app.route('/login', methods=['GET', 'POST'])
@@ -765,24 +765,24 @@ if __name__ == '__main__':
     
     local_ip = get_local_ip()
     
-    print("🚀 Iniciando TraduLibras v2.0.0...")
+    print("Iniciando TraduLibras v2.0.0...")
     print("=" * 50)
-    print("📱 ACESSO LOCAL:")
+    print("ACESSO LOCAL:")
     print(f"   http://localhost:5000")
     print(f"   http://127.0.0.1:5000")
     print("=" * 50)
-    print("🌐 ACESSO NA REDE LOCAL:")
+    print("ACESSO NA REDE LOCAL:")
     print(f"   http://{local_ip}:5000")
     print("=" * 50)
-    print("📱 Para acessar de outros dispositivos:")
-    print("   1. Certifique-se que estão na mesma rede Wi-Fi")
-    print("   2. Use o endereço acima no navegador")
+    print("Para acessar de outros dispositivos:")
+    print("   1. Certifique-se que estao na mesma rede Wi-Fi")
+    print("   2. Use o endereco acima no navegador")
     print("   3. Exemplo: http://192.168.1.100:5000")
     print("=" * 50)
-    print("🎤 Voz: gTTS (Google Text-to-Speech)")
-    print("🤖 Modelo: Ensemble (Random Forest + SVM + KNN)")
-    print("📊 Classes:", model_info.get('classes', []))
-    print("🔧 Scaler: StandardScaler")
+    print("Voz: gTTS (Google Text-to-Speech)")
+    print("Modelo: Ensemble (Random Forest + SVM + KNN)")
+    print("Classes:", model_info.get('classes', []))
+    print("Scaler: StandardScaler")
     print("=" * 50)
     
     # Executar aplicação

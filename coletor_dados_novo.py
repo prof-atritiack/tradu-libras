@@ -349,24 +349,30 @@ class ColetorDadosLIBRAS:
         if not self.inicializar_camera():
             return
         
-        while True:
-            self.mostrar_menu()
-            escolha = input("\nEscolha uma opção: ").strip()
-            
-            if escolha == '1':
-                self.coletar_todos_gestos()
-            elif escolha == '2':
-                self.ver_estatisticas()
-            elif escolha == '3':
-                self.salvar_dados()
-            elif escolha == '4':
-                self.carregar_dados()
-            elif escolha == '5':
-                self.limpar_dados()
-            elif escolha == '6':
+        print("\n🚀 MODO RÁPIDO - COLETA DIRETA")
+        print("=" * 40)
+        print("Vamos coletar dados para alguns gestos básicos:")
+        print("A, B, C, D, E, F, G, I, L, M, N, O, P, Q, R, S, T, U, V, W, Y")
+        print("\nPressione ENTER para começar...")
+        input()
+        
+        # Coletar gestos básicos automaticamente
+        gestos_basicos = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'I', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'Y']
+        
+        for gesto in gestos_basicos:
+            print(f"\n🎯 Coletando dados para: {gesto}")
+            continuar = input("Continuar? (s/n): ").strip().lower()
+            if continuar != 's':
                 break
-            else:
-                print("❌ Opção inválida")
+            
+            self.coletar_dados_gesto(gesto)
+        
+        # Salvar dados automaticamente
+        if self.dados_coletados:
+            self.salvar_dados()
+            print(f"\n✅ Coleta finalizada! {len(self.dados_coletados)} amostras coletadas")
+        else:
+            print("\n❌ Nenhum dado coletado")
         
         # Limpar recursos
         if self.camera:
