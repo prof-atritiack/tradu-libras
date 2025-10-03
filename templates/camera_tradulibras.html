@@ -552,6 +552,23 @@
             transform: translateY(-1px);
         }
 
+        .button-accent {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+            border: 2px solid #f59e0b;
+        }
+
+        .button-accent:hover {
+            background: linear-gradient(135deg, #d97706, #b45309);
+            border-color: #d97706;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(245, 158, 11, 0.3);
+        }
+
+        .button-accent:active {
+            transform: translateY(-1px);
+        }
+
         .button-info {
             background: linear-gradient(135deg, #3b82f6, #1d4ed8);
             color: white;
@@ -840,23 +857,13 @@
                 <div class="letra-atual" id="letra">-</div>
             </div>
 
-                <div class="controls">
-                    <button class="button button-primary" onclick="falarLetra()">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
-                        </svg>
-                        Falar Letra
-                    </button>
-                </div>
+                <!-- Controles removidos - interface limpa -->
             </div>
 
             <!-- Seção de Texto -->
             <div class="text-section">
                 <div class="status-indicator" id="status-indicator">
-                    Sistema Online
-                </div>
-                <div class="status-indicator" id="correcoes-indicator" style="background: rgba(59, 130, 246, 0.1); color: #3b82f6; margin-left: 1rem;">
-                    Correções: <span id="contador-correcoes">0</span>
+                    Sistema Ativo
                 </div>
                 
                 <h2 style="color: var(--text); font-size: 1.25rem; margin-bottom: 1.5rem; font-weight: 600;">
@@ -874,15 +881,7 @@
                         <div class="texto-acumulado" id="texto"></div>
                     </div>
                     
-                    <div class="text-item">
-                        <div class="text-label">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                            </svg>
-                            Texto Corrigido
-                        </div>
-                        <div class="text-corrected" id="texto-corrigido"></div>
-                    </div>
+                    <!-- Campo de correção removido - interface simplificada -->
                 </div>
 
                 <div class="button-group">
@@ -892,29 +891,17 @@
                         </svg>
                         Reproduzir Texto
                     </button>
-                    <button class="button button-secondary" onclick="simularTexto()">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                    </svg>
-                        Simular Texto
-                </button>
-                    <button class="button button-secondary" onclick="testarCorrecao()">
+                    <button class="button button-accent" onclick="limparUltimaLetra()">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
-                        Testar Correção
+                        Limpar Última Letra
                     </button>
                     <button class="button button-secondary" onclick="limparTexto()">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                    </svg>
-                    Limpar Texto
-                </button>
-                    <button class="button button-info" onclick="mostrarInfoRede()">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9v-9m0-9v9m0 9c-5 0-9-4-9-9s4-9 9-9" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                         </svg>
-                        Info Rede
+                        Limpar Texto
                     </button>
                 </div>
             </div>
@@ -1122,6 +1109,10 @@
                     const letraParaMostrar = (data.letra && data.letra.trim() !== '') ? data.letra : '-';
                     letraElement.textContent = letraParaMostrar;
                     
+                    // Sempre atualiza o texto do servidor
+                    textoAcumulado = data.texto || '';
+                    document.getElementById('texto').textContent = textoAcumulado;
+                    
                     // Só processa animações se a letra realmente mudou
                     if (data.letra !== letraAtual) {
                         letraAtual = data.letra;
@@ -1147,9 +1138,6 @@
                                 // Reset da flag de detecção
                                 fetch('/reset_detection');
                             }
-                            
-                            textoAcumulado += letraAtual;
-                            document.getElementById('texto').textContent = textoAcumulado;
                             
                             // Atualiza o texto corrigido com animação
                             const textoCorrigido = corrigirTexto(textoAcumulado);
@@ -1191,39 +1179,49 @@
         }
 
         function falarTexto() {
-            const textoCorrigido = document.getElementById('texto-corrigido').textContent;
-            if (!textoCorrigido) return;
+            const textoAtual = document.getElementById('texto').textContent;
+            if (!textoAtual || textoAtual.trim() === '') {
+                alert('Não há texto para reproduzir!');
+                return;
+            }
 
             // Efeito visual do botão
             const button = event.target.closest('.button');
             button.style.animation = 'bounce 0.6s ease-in-out';
 
             fetch('/falar_texto', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ texto: textoCorrigido })
+                method: 'GET'
             })
             .then(response => {
-                if (!response.ok) {
-                    throw new Error('Erro na resposta do servidor');
+                if (response.ok) {
+                    return response.blob();
+                } else {
+                    throw new Error('Erro na requisição');
                 }
-                return response.blob();
             })
-            .then(blob => {
-                const url = URL.createObjectURL(blob);
-                const audio = new Audio(url);
-                audio.play().catch(error => {
-                    console.error('Erro ao reproduzir áudio:', error);
-                });
-                // Limpar a URL após o áudio terminar
+            .then(audioBlob => {
+                // Criar URL do áudio
+                const audioUrl = URL.createObjectURL(audioBlob);
+                
+                // Criar e reproduzir áudio
+                const audio = new Audio(audioUrl);
+                audio.play();
+                
+                // Limpar URL após reprodução
                 audio.onended = () => {
-                    URL.revokeObjectURL(url);
+                    URL.revokeObjectURL(audioUrl);
+                    console.log('✅ Áudio reproduzido com sucesso');
+                };
+                
+                // Tratar erros de áudio
+                audio.onerror = () => {
+                    URL.revokeObjectURL(audioUrl);
+                    console.error('❌ Erro na reprodução do áudio');
                 };
             })
             .catch(error => {
-                console.error('Erro ao obter áudio:', error);
+                console.error('❌ Erro na requisição:', error);
+                alert('Erro ao reproduzir áudio!');
             })
             .finally(() => {
                 setTimeout(() => {
@@ -1232,63 +1230,22 @@
             });
         }
 
-        function falarLetra() {
-            if (!letraAtual) return;
-
-            // Efeito visual do botão
-            const button = event.target.closest('.button');
-            button.style.animation = 'bounce 0.6s ease-in-out';
-
-            fetch('/falar_texto', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ texto: letraAtual })
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Erro na resposta do servidor');
-                }
-                return response.blob();
-            })
-            .then(blob => {
-                const url = URL.createObjectURL(blob);
-                const audio = new Audio(url);
-                audio.play().catch(error => {
-                    console.error('Erro ao reproduzir áudio:', error);
-                });
-                // Limpar a URL após o áudio terminar
-                audio.onended = () => {
-                    URL.revokeObjectURL(url);
-                };
-            })
-            .catch(error => {
-                console.error('Erro ao obter áudio:', error);
-            })
-            .finally(() => {
-                setTimeout(() => {
-                    button.style.animation = '';
-                }, 600);
-            });
-        }
+        // Função falarLetra removida - interface simplificada
 
         function limparTexto() {
             // Limpar no servidor
-            fetch('/clear_text')
+            fetch('/limpar_texto')
                 .then(response => response.json())
                 .then(data => {
                     if (data.status === 'success') {
                         // Limpar variáveis locais
                         textoAcumulado = "";
                         letraAtual = "";
-                        contadorCorrecoes = 0;
                         
                         // Limpar elementos da interface
                         document.getElementById('texto').textContent = textoAcumulado;
                         document.getElementById('texto-corrigido').textContent = "";
                         document.getElementById('texto-corrigido').title = '';
-                        document.getElementById('contador-correcoes').textContent = '0';
                         
                         // Limpar a letra detectada
                         const letraElement = document.getElementById('letra');
@@ -1326,119 +1283,55 @@
                 });
         }
 
-        function simularTexto() {
-            const exemplos = [
-                'O1A',
-                'B0M D1A',
-                'S1M',
-                'V0CE',
-                'CASA',
-                'TRADULIBRAS',
-                'O1A B0M D1A TARDE',
-                'EU S0U SEU AM1G0'
-            ];
-            
-            const exemploAleatorio = exemplos[Math.floor(Math.random() * exemplos.length)];
-            textoAcumulado = exemploAleatorio;
-            
-            // Efeito visual de simulação
-            const textoElement = document.getElementById('texto');
-            textoElement.style.animation = 'shake 0.5s ease-in-out';
-            setTimeout(() => {
-                textoElement.style.animation = '';
-            }, 500);
-            
-            document.getElementById('texto').textContent = textoAcumulado;
-            
-            // Aplicar correção
-            const textoCorrigido = corrigirTexto(textoAcumulado);
-            const textoCorrigidoElement = document.getElementById('texto-corrigido');
-            
-            if (textoCorrigido !== textoAcumulado) {
-                textoCorrigidoElement.innerHTML = `<span style="color: #10b981; font-weight: 600;">${textoCorrigido}</span>`;
-                textoCorrigidoElement.title = `Corrigido de: ${textoAcumulado}`;
-                contadorCorrecoes++;
-                document.getElementById('contador-correcoes').textContent = contadorCorrecoes;
-            } else {
-                textoCorrigidoElement.textContent = textoCorrigido;
-                textoCorrigidoElement.title = 'Texto sem correções necessárias';
-            }
-            
-            textoCorrigidoElement.classList.add('updated');
-            setTimeout(() => {
-                textoCorrigidoElement.classList.remove('updated');
-            }, 600);
-        }
-
-        function testarCorrecao() {
-            const textoOriginal = document.getElementById('texto').textContent;
-            console.log('Texto original:', textoOriginal);
-            
-            if (!textoOriginal) {
-                // Teste com texto de exemplo
-                const textoExemplo = 'O1A B0M D1A';
-                console.log('Testando com exemplo:', textoExemplo);
-                const textoCorrigido = corrigirTexto(textoExemplo);
-                console.log('Resultado da correção:', textoCorrigido);
-                
-                alert(`Teste de correção:\n\nOriginal: ${textoExemplo}\nCorrigido: ${textoCorrigido}`);
+        function limparUltimaLetra() {
+            if (!textoAcumulado || textoAcumulado.length === 0) {
+                alert('Não há texto para limpar!');
                 return;
             }
-            
-            const textoCorrigido = corrigirTexto(textoOriginal);
-            console.log('Texto corrigido:', textoCorrigido);
-            const textoCorrigidoElement = document.getElementById('texto-corrigido');
-            
-            if (textoCorrigido !== textoOriginal) {
-                textoCorrigidoElement.innerHTML = `<span style="color: #10b981; font-weight: 600;">${textoCorrigido}</span>`;
-                textoCorrigidoElement.title = `Corrigido de: ${textoOriginal}`;
-                alert(`Texto corrigido!\n\nOriginal: ${textoOriginal}\nCorrigido: ${textoCorrigido}`);
-            } else {
-                textoCorrigidoElement.textContent = textoCorrigido;
-                textoCorrigidoElement.title = 'Texto sem correções necessárias';
-                alert('Nenhuma correção foi necessária para este texto.');
-            }
+
+            fetch('/limpar_ultima_letra', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    textoAcumulado = data.texto;
+                    letraAtual = "";
+                    
+                    // Atualizar interface
+                    document.getElementById('texto').textContent = textoAcumulado;
+                    document.getElementById('letra').textContent = '-';
+                    
+                    // Efeito visual
+                    const textoElement = document.getElementById('texto');
+                    textoElement.style.animation = 'shake 0.5s ease-in-out';
+                    setTimeout(() => {
+                        textoElement.style.animation = '';
+                    }, 500);
+                    
+                    console.log('Última letra removida com sucesso');
+                } else {
+                    alert('Erro: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Erro ao limpar última letra:', error);
+                // Fallback: limpar apenas no frontend
+                if (textoAcumulado.length > 0) {
+                    textoAcumulado = textoAcumulado.slice(0, -1);
+                    letraAtual = "";
+                    document.getElementById('texto').textContent = textoAcumulado;
+                    document.getElementById('letra').textContent = '-';
+                }
+            });
         }
 
-        function mostrarInfoRede() {
-            fetch('/network-info')
-                .then(response => response.json())
-                .then(data => {
-                    if (data.error) {
-                        alert('Erro ao obter informações de rede: ' + data.error);
-                        return;
-                    }
-                    
-                    const mensagem = `
-🌐 INFORMAÇÕES DE REDE
+        // Função de correção removida - interface simplificada
 
-📱 Para acessar de outros dispositivos:
-
-📱 Celular/Tablet:
-   ${data.access_urls.network}
-
-💻 Outro computador:
-   ${data.access_urls.network}
-
-📋 Requisitos:
-   • Todos os dispositivos devem estar na mesma rede Wi-Fi
-   • Firewall deve permitir conexões na porta 5000
-   • Use o endereço IP mostrado acima
-
-🔗 URLs de acesso:
-   • Local: ${data.access_urls.local}
-   • Rede: ${data.access_urls.network}
-
-💡 Dica: Copie o endereço da rede e cole no navegador de outros dispositivos!
-                    `;
-                    
-                    alert(mensagem);
-                })
-                .catch(error => {
-                    console.error('Erro ao obter informações de rede:', error);
-                    alert('Erro ao obter informações de rede. Verifique a conexão.');
-                });
-        }
+        // Funções desnecessárias removidas - interface simplificada
 
         // Verificar status do sistema
         function checkSystemStatus() {

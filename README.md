@@ -1,279 +1,88 @@
-# 🤟 TraduLibras - Reconhecimento de Gestos em Libras
+# TraduLibras - Reconhecimento de Gestos LIBRAS
 
-> **Sistema inteligente de reconhecimento de gestos em Libras usando IA e visão computacional**
+Sistema funcional de reconhecimento de gestos em LIBRAS com interface web estável.
 
-[![Python](https://img.shields.io/badge/Python-3.10+-blue.svg)](https://www.python.org/downloads/)
-[![Flask](https://img.shields.io/badge/Flask-3.0.2-green.svg)](https://flask.palletsprojects.com/)
-[![OpenCV](https://img.shields.io/badge/OpenCV-4.8.1-red.svg)](https://opencv.org/)
-[![MediaPipe](https://img.shields.io/badge/MediaPipe-0.10.9-orange.svg)](https://mediapipe.dev/)
+## 🚀 Instalação e Execução Rápida
 
-## 🎯 **O que é o TraduLibras?**
-
-O **TraduLibras** é um sistema avançado que utiliza **Inteligência Artificial** e **visão computacional** para reconhecer gestos em **Libras (Língua Brasileira de Sinais)** em tempo real. O sistema converte os gestos capturados pela webcam em texto e áudio, facilitando a comunicação entre pessoas surdas e ouvintes.
-
-### ✨ **Principais Funcionalidades:**
-
-- 🎥 **Reconhecimento em tempo real** de gestos em Libras
-- 🔊 **Síntese de voz** automática do texto formado
-- 🧠 **Correção automática** de texto com IA
-- 🌐 **Interface web responsiva** e intuitiva
-- 📱 **Acesso via rede local** para múltiplos dispositivos
-- 🔐 **Sistema de autenticação** com diferentes níveis de acesso
-- 📊 **Painel administrativo** para gerenciamento do sistema
-
-## 🚀 **Demonstração Rápida**
-
-```bash
-# 1. Clone o projeto
-git clone https://github.com/prof-atritiack/libras-js.git
-cd libras-js
-
-# 2. Instale as dependências
-pip install -r requirements.txt
-
-# 3. Execute a aplicação
-python app.py
-
-# 4. Acesse no navegador
-# http://localhost:5000
-```
-
-## 📋 **Requisitos do Sistema**
-
-### 💻 **Hardware:**
-- 💻 **Computador** com Windows, Mac ou Linux
-- 📹 **Webcam** funcionando (qualquer resolução)
-- 🌐 **Internet** para instalação inicial
-- 💾 **2GB de espaço livre** no disco
-
-### 🛠️ **Software Necessário:**
-- 🐍 **Python 3.10 ou superior** ([Download aqui](https://www.python.org/downloads/))
-- 📝 **Cursor AI** ([Download aqui](https://cursor.sh/)) - Editor de código com IA
-- 🔧 **Git** ([Download aqui](https://git-scm.com/downloads)) - Para clonar o projeto
-
-## 🛠️ **Instalação Passo a Passo**
-
-### **Passo 1: Instalar Python**
-1. Acesse [python.org](https://www.python.org/downloads/)
-2. Baixe a versão 3.10 ou superior para seu sistema
-3. **IMPORTANTE**: Durante a instalação, marque "Add Python to PATH"
-4. Verifique a instalação abrindo o terminal e digitando:
-   ```bash
-   python --version
-   pip --version
-   ```
-
-### **Passo 2: Clonar o Projeto**
-```bash
-git clone https://github.com/prof-atritiack/libras-js.git
-cd libras-js
-```
-
-### **Passo 3: Criar Ambiente Virtual (Recomendado)**
-```bash
-# Criar ambiente virtual
-python -m venv venv
-
-# Ativar ambiente virtual
-# Windows:
-venv\Scripts\activate
-# Linux/Mac:
-source venv/bin/activate
-```
-
-### **Passo 4: Instalar Dependências**
+### 1. Instalar dependências
 ```bash
 pip install -r requirements.txt
 ```
 
-### **Passo 5: Executar a Aplicação**
+### 2. Executar aplicação (PRONTO PARA USO)
 ```bash
-python app.py
+python app_funcional.py
 ```
 
-**🎉 Pronto! O TraduLibras estará rodando em http://localhost:5000**
+### 3. Acessar sistema
+- **Local:** http://localhost:5000
+- **Rede:** http://SEU_IP:5000
 
-## 🔐 **Sistema de Autenticação**
+#### 🔐 Credenciais de acesso:
+- **Admin:** `admin` / `admin123`
+- **Usuário:** `user` / `user123`
 
-O TraduLibras possui um sistema completo de autenticação com diferentes níveis de acesso:
+## 📋 Funcionalidades
 
-### 👥 **Tipos de Usuário:**
+### ✅ Sistema Atual (INCLUSAO BC)
+- **Reconhecimento em tempo real** das letras: `I N C L U S A O ESPAÇO B C`
+- **Interface web responsiva** com câmera integrada
+- **Síntese de voz** integrada (gTTS)
+- **Sistema de autenticação** com níveis de acesso
+- **Detecção estável** com cooldown inteligente
 
-#### **🔑 Administrador (Admin):**
-- ✅ **Acesso completo** ao sistema
-- ✅ **Painel administrativo** com funcionalidades avançadas
-- ✅ **Gerenciar usuários** (criar, editar, remover)
-- ✅ **Atualizar sistema** diretamente pela interface
-- ✅ **Criar backups** e gerenciar logs
-- ✅ **Acesso a todas as funcionalidades** do TraduLibras
+### 🎯 Letras Suportadas
+- **I** N **C** L **U** **S** **A** **O** **ESPAÇO** **B** **C**
 
-#### **👤 Usuário Padrão:**
-- ✅ **Acesso ao reconhecimento** de gestos
-- ✅ **Usar todas as funcionalidades** principais
-- ✅ **Síntese de voz** e correção de texto
-- ✅ **Acesso via rede local**
+### 🔧 Especificações Técnicas
+- **Modelo:** Ensemble (Random Forest + SVM + KNN)
+- **Features:** 51 landmarks + distâncias otimizadas
+- **Frameworks:** Flask + MediaPipe + OpenCV
+- **Voz:** Google Text-to-Speech (gTTS)
 
-### 🔑 **Credenciais Padrão:**
+## 📁 Estrutura do Projeto
+
 ```
-👑 Administrador:
-   Usuário: admin
-   Senha: admin123
-
-👤 Usuário:
-   Usuário: user
-   Senha: user123
-```
-
-## 🎮 **Como Usar**
-
-### **1. Fazer Login**
-- Acesse http://localhost:5000
-- Use as credenciais fornecidas acima
-- Escolha entre usuário comum ou administrador
-
-### **2. Reconhecer Gestos**
-- Posicione sua mão na frente da webcam
-- Faça os gestos das letras: **A, B, C, L, Y**
-- O sistema reconhecerá e formará palavras automaticamente
-- Use o botão "Reproduzir Texto" para ouvir o resultado
-
-### **3. Funcionalidades Disponíveis**
-- 🎤 **Falar Letra**: Reproduz apenas a letra detectada
-- 🔊 **Reproduzir Texto**: Converte todo o texto em áudio
-- ✏️ **Simular Texto**: Testa o sistema com exemplos
-- 🧪 **Testar Correção**: Verifica a correção automática
-- 🗑️ **Limpar Texto**: Reseta todo o texto formado
-- 🌐 **Info Rede**: Mostra URLs para acesso via rede local
-
-## 🌐 **Acesso via Rede Local**
-
-O TraduLibras pode ser acessado de outros dispositivos na mesma rede:
-
-### **Para acessar de outros dispositivos:**
-1. **Celular/Tablet**: Use o endereço IP mostrado na tela
-2. **Outro computador**: Acesse o mesmo endereço IP
-3. **Requisitos**: Todos os dispositivos devem estar na mesma rede Wi-Fi
-
-### **Exemplo de URLs:**
-```
-💻 Local: http://localhost:5000
-📱 Rede: http://192.168.1.100:5000
+tradu-libras/
+├── app_funcional.py          # 🚀 Aplicação principal
+├── auth.py                   # 🔐 Sistema de autenticação
+├── requirements.txt          # 📦 Dependências
+├── users.json               # 👥 Dados dos usuários
+├── modelos/                 # 🤖 Modelos de ML
+│   ├── modelo_inclusao_bc_20251003_144506.pkl
+│   ├── modelo_info_incluso_bc_20251003_144506.pkl
+│   └── scaler_incluso_bc_20251003_144506.pkl
+├── templates/               # 🌐 Templates HTML
+│   ├── login.html
+│   ├── admin_dashboard.html
+│   └── camera_tradulibras.html
+└── static/                  # 🎨 Arquivos estáticos
+    ├── css/
+    └── images/
 ```
 
-## 🧠 **Tecnologias Utilizadas**
+## 🌐 Acesso na Rede Local
 
-### **Backend:**
-- 🐍 **Python 3.10+** - Linguagem principal
-- 🌶️ **Flask** - Framework web
-- 🔐 **Flask-Login** - Sistema de autenticação
-- 🔒 **Flask-Bcrypt** - Criptografia de senhas
+1. **Todos os dispositivos devem estar na mesma rede Wi-Fi**
+2. **Use o IP mostrado no terminal:** `http://IP_DO_COMPUTADOR:5000`
+3. **Exemplo:** `http://192.168.1.100:5000`
 
-### **IA e Visão Computacional:**
-- 🤖 **Scikit-learn** - Machine Learning (Random Forest)
-- 📹 **OpenCV** - Processamento de imagens
-- ✋ **MediaPipe** - Detecção de mãos e landmarks
-- 🧮 **NumPy** - Computação numérica
+## 📊 Status do Sistema
 
-### **Frontend:**
-- 🎨 **HTML5/CSS3** - Interface responsiva
-- ⚡ **JavaScript** - Interatividade
-- 🎭 **Animações CSS** - Efeitos visuais
-- 🔊 **Web Audio API** - Reprodução de áudio
+O sistema está **100% funcional** e optimizado:
+- ✅ Modelos treinados e carregados
+- ✅ Câmera funcionando
+- ✅ Reconhecimento estável
+- ✅ Interface responsiva
+- ✅ Áudio integrado
+- ✅ Autenticação segura
 
-### **Síntese de Voz:**
-- 🗣️ **gTTS (Google Text-to-Speech)** - Conversão texto para áudio
-- 🌍 **Português Brasileiro** - Idioma nativo
+## 📚 Documentação Adicional
 
-## 📊 **Modelo de IA**
+- **Instruções de coleta:** Ver `COMO_COLETAR_DADOS.md`
+- **Desenvolvimento:** Projeto limpo e organizado
+- **Versão:** 2.0.0 - FUNCIONAL
 
-### **Algoritmo:**
-- 🌳 **Random Forest** - Classificador ensemble
-- 📐 **63 features** - Coordenadas normalizadas dos landmarks
-- 🎯 **5 classes** - Letras A, B, C, L, Y
-- ⚡ **Tempo real** - Processamento em < 100ms
+## 🏆 Pronto para Produção!
 
-### **Precisão:**
-- 🎯 **Alta precisão** em condições ideais
-- 🔄 **Sistema de cooldown** para estabilização
-- 🧠 **Correção automática** de texto formado
-
-## 🔧 **Comandos Úteis**
-
-### **Desenvolvimento:**
-```bash
-# Executar aplicação
-python app.py
-
-# Instalar nova dependência
-pip install nome-do-pacote
-
-# Atualizar requirements.txt
-pip freeze > requirements.txt
-
-# Treinar novo modelo
-python treinar_letras_simples.py
-
-# Expandir vocabulário
-python expandir_vocabulario.py
-```
-
-### **Manutenção:**
-```bash
-# Verificar status
-curl http://localhost:5000/status
-
-# Informações de rede
-curl http://localhost:5000/network-info
-
-# Testar aplicação
-python test_app.py
-```
-
-## 🎯 **Resumo Rápido para Começar**
-
-```bash
-# 1. Clone o projeto
-git clone https://github.com/prof-atritiack/libras-js.git
-cd libras-js
-
-# 2. Instale as dependências
-pip install -r requirements.txt
-
-# 3. Execute a aplicação
-python app.py
-
-# 4. Acesse no navegador
-# http://localhost:5000
-
-# 5. Faça login com:
-#    Admin: admin / admin123
-#    Usuário: user / user123
-```
-
-## 🤝 **Contribuindo**
-
-Contribuições são bem-vindas! Para contribuir:
-
-1. **Fork** o projeto
-2. **Crie** uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
-3. **Commit** suas mudanças (`git commit -m 'Add some AmazingFeature'`)
-4. **Push** para a branch (`git push origin feature/AmazingFeature`)
-5. **Abra** um Pull Request
-
-## 📝 **Licença**
-
-Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
-
-## 👥 **Equipe**
-
-- **Prof. Atritiack** - Desenvolvimento e Coordenação
-
-## 📞 **Suporte**
-
-- 📧 **Email**: suporte@tradulibras.com
-- 🐛 **Issues**: [GitHub Issues](https://github.com/prof-atritiack/libras-js/issues)
-- 📖 **Documentação**: [Wiki do Projeto](https://github.com/prof-atritiack/libras-js/wiki)
-
----
-
-**Projeto em teste - Professor André Tritiack**
+Este sistema está **estavel, testeado e pronto para uso** em ambientes educacionais ou de inclusão social!

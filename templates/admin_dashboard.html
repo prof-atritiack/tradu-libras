@@ -373,9 +373,9 @@
                 <div class="card-content">
                     <p>Gerencie usuários e permissões do sistema.</p>
                     <div style="margin-top: 15px;">
-                        <a href="{{ url_for('manage_users') }}" class="btn">
+                        <button class="btn" onclick="alert('Funcionalidade em desenvolvimento')">
                             Gerenciar Usuários
-                        </a>
+                        </button>
                         <button class="btn btn-success" onclick="createUser()">
                             Novo Usuário
                         </button>
@@ -396,7 +396,7 @@
                     </p>
                     <p style="margin-top: 10px;">
                         <strong>Versão:</strong> 2.0.0<br>
-                        <strong>Última Atualização:</strong> {{ user_stats.last_updated[:10] }}
+                        <strong>Última Atualização:</strong> Hoje
                     </p>
                 </div>
             </div>
@@ -410,7 +410,7 @@
                 <div class="card-content">
                     <p>Acesse rapidamente as principais funcionalidades.</p>
                     <div style="margin-top: 15px;">
-                        <a href="{{ url_for('camera') }}" class="btn">
+                        <a href="{{ url_for('camera_tradulibras') }}" class="btn">
                             Reconhecimento LIBRAS
                         </a>
                         <button class="btn btn-info" onclick="showNetworkInfo()">
