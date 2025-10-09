@@ -238,7 +238,10 @@ def generate_frames():
 @app.route('/')
 def index():
     if current_user.is_authenticated:
-        return redirect(url_for('admin_dashboard'))
+        if current_user.is_admin():
+            return redirect(url_for('admin_dashboard'))
+        else:
+            return redirect(url_for('camera_tradulibras'))  # 👈 Usuários normais vão direto para a câmera
     return redirect(url_for('login'))
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -250,7 +253,11 @@ def login():
         
         if user:
             login_user(user)
-            return redirect(url_for('admin_dashboard'))
+            # 👇 Redireciona baseado no tipo de usuário
+            if user.is_admin():
+                return redirect(url_for('admin_dashboard'))
+            else:
+                return redirect(url_for('camera_tradulibras'))  # 👈 Usuários normais vão direto para a câmera
         else:
             flash('Usuário ou senha incorretos!')
     
@@ -266,6 +273,11 @@ def logout():
 @app.route('/admin')
 @login_required
 def admin_dashboard():
+    # 👇 Protege acesso apenas para admins
+    if not current_user.is_admin():
+        flash('Acesso restrito a administradores!', 'error')
+        return redirect(url_for('camera_tradulibras'))  # 👈 Redireciona para a câmera
+    
     user_stats = user_manager.get_stats()
     return render_template('admin_dashboard.html', user_stats=user_stats)
 
