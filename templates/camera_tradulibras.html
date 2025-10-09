@@ -1057,9 +1057,19 @@ grid-column: 1 / -1;
                 border-radius: 0.75rem;
                 font-size: 0.875rem;
             " disabled>
-            <button id="btn-send-custom" class="button button-info" style="padding: 0.5rem 1rem;" disabled>
-                Enviar
-            </button>
+            <button id="btn-send-custom" class="button button-info" style="
+            padding: 0.4rem 0.8rem;
+            min-height: auto;
+            height: 38px;
+            white-space: nowrap;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 80px;
+        " disabled>
+            Enviar
+        </button>
         </div>
         <div style="font-size: 0.75rem; color: var(--text-secondary);">
             Envia palavras customizadas
@@ -1179,8 +1189,121 @@ grid-column: 1 / -1;
             <!-- Lista de câmeras será preenchida aqui -->
         </div>
     </div>
+    <!-- Seção de Fala Automática -->
+<div class="card mt-4">
+    <div class="card-header bg-warning text-dark">
+        <h5 class="mb-0">🎯 Comando Ponto Automático</h5>
+    </div>
+    <div class="card-body">
+        <div class="alert alert-info">
+            <h6>✨ Nova Funcionalidade</h6>
+            <p class="mb-2">
+                <strong>Detecte o sinal de PONTO (.)</strong> para:<br>
+                <span class="text-success">✅ Falar o texto automaticamente</span><br>
+                <span class="text-success">✅ Limpar a tela automaticamente</span>
+            </p>
+            <small class="text-muted">Funciona como um "enter" para falar e começar nova frase</small>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="autoSpeakToggle" checked>
+                    <label class="form-check-label" for="autoSpeakToggle">
+                        Fala Automática ao Detectar Ponto
+                    </label>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div id="auto-speak-status" class="badge bg-success">
+                    ✅ Ativada
+                </div>
+            </div>
+        </div>
+        
+        <div class="mt-3 p-3 border rounded bg-light">
+            <h6>📝 Como Usar:</h6>
+            <ol class="small mb-0">
+                <li>Faça os sinais das letras normalmente</li>
+                <li>Quando quiser falar, faça o sinal de <strong>PONTO (.)</strong></li>
+                <li>O sistema vai <strong>falar automaticamente</strong> e <strong>limpar a tela</strong></li>
+                <li>Comece uma nova frase!</li>
+            </ol>
+        </div>
+    </div>
 </div>
 </div>
+</div>
+<script>
+    // Controle da Fala Automática
+    function setupAutoSpeak() {
+        const toggle = document.getElementById('autoSpeakToggle');
+        
+        // Carregar status atual
+        fetch('/auto_speak/status')
+            .then(response => response.json())
+            .then(data => {
+                toggle.checked = data.auto_speak_enabled;
+                updateAutoSpeakStatus(data.auto_speak_enabled);
+            });
+        
+        // Evento de toggle
+        toggle.addEventListener('change', function() {
+            fetch('/auto_speak/toggle', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ enabled: this.checked })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    updateAutoSpeakStatus(data.auto_speak_enabled);
+                    showNotification(data.message, 'success');
+                }
+            })
+            .catch(error => {
+                console.error('Erro ao alterar fala automática:', error);
+            });
+        });
+    }
+    
+    function updateAutoSpeakStatus(enabled) {
+        const statusElement = document.getElementById('auto-speak-status');
+        if (enabled) {
+            statusElement.textContent = '✅ Ativada';
+            statusElement.className = 'badge bg-success';
+        } else {
+            statusElement.textContent = '❌ Desativada';
+            statusElement.className = 'badge bg-secondary';
+        }
+    }
+    
+    function showNotification(message, type) {
+        // Criar notificação simples
+        const alert = document.createElement('div');
+        alert.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
+        alert.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+        alert.innerHTML = `
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        document.body.appendChild(alert);
+        
+        // Remover após 3 segundos
+        setTimeout(() => {
+            if (alert.parentNode) {
+                alert.parentNode.removeChild(alert);
+            }
+        }, 3000);
+    }
+    
+    // Inicializar quando a página carregar
+    document.addEventListener('DOMContentLoaded', function() {
+        setupAutoSpeak();
+    });
+    </script>
 <script>
     // Controle de Câmeras
     function listCameras() {

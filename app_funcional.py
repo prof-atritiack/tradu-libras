@@ -88,9 +88,10 @@ current_letter = ""
 formed_text = ""
 corrected_text = ""
 last_prediction_time = datetime.now()
-prediction_cooldown = 2.5  # Tempo entre detecções (reduzido)
+prediction_cooldown = 2.5
 hand_detected_time = None
-min_hand_time = 1.5  # 1.5 segundos após detectar mão (reduzido)
+min_hand_time = 1.5
+auto_speak_enabled = True  # 👈 NOVA VARIÁVEL
 
 def process_landmarks(hand_landmarks):
     """Processar landmarks da mão"""
@@ -282,6 +283,27 @@ def generate_frames():
                                 current_letter = '[ESPAÇO]'
                                 formed_text += ' '
                                 corrected_text = formed_text
+                            elif predicted_letter == '.':  # 👈 COMANDO PONTO CORRIGIDO
+                                current_letter = '[PONTO]'
+                                print("🎯 PONTO DETECTADO - Falando e limpando texto...")
+                                
+                                # Salvar o texto atual antes de limpar
+                                texto_para_falar = formed_text.strip()
+                                print(f"🎯 DEBUG: Texto para falar: '{texto_para_falar}'")
+                                
+                                # Limpar o texto primeiro
+                                formed_text = ""
+                                corrected_text = ""
+                                print("🎯 DEBUG: Texto limpo")
+                                
+                                # Falar o texto salvo se não estiver vazio E se a fala automática estiver habilitada
+                                if texto_para_falar and auto_speak_enabled:
+                                    print("🎯 DEBUG: Iniciando thread de fala...")
+                                    threading.Thread(target=falar_texto_automatico, args=(texto_para_falar,), daemon=True).start()
+                                elif texto_para_falar and not auto_speak_enabled:
+                                    print("🔇 Fala automática desativada - texto não falado")
+                                else:
+                                    print("🎯 DEBUG: Texto vazio - nada para falar")
                             else:
                                 current_letter = predicted_letter
                                 formed_text += predicted_letter
@@ -312,6 +334,125 @@ def generate_frames():
     # Liberar câmera ao sair
     camera.release()
     print(f"🔴 Webcam {selected_camera_index} desconectada")
+
+# ==================== FUNÇÃO DE FALA AUTOMÁTICA ====================
+def falar_texto_automatico(texto_para_falar):
+    """Fala o texto automaticamente usando PYGAME em segundo plano"""
+    try:
+        print(f"🎯 FALANDO COM PYGAME: '{texto_para_falar}'")
+        
+        if not texto_para_falar or not texto_para_falar.strip():
+            print("⚠️  Texto vazio")
+            return
+            
+        texto_limpo = texto_para_falar.strip()
+        
+        # Criar arquivo de áudio temporário
+        tts = gTTS(text=texto_limpo, lang='pt-br')
+        temp_file = os.path.join(tempfile.gettempdir(), f'pygame_fala_{int(time.time())}.mp3')
+        tts.save(temp_file)
+        
+        print(f"📁 Áudio salvo: {temp_file}")
+        
+        # Reproduzir com pygame EM SEGUNDO PLANO
+        try:
+            import pygame
+            
+            # Inicializar pygame mixer (sem display)
+            pygame.mixer.init(frequency=22050, size=-16, channels=2, buffer=512)
+            
+            # Carregar e reproduzir o áudio
+            pygame.mixer.music.load(temp_file)
+            pygame.mixer.music.play()
+            
+            print("🔊 Reproduzindo áudio em segundo plano...")
+            
+            # Esperar terminar de tocar (sem bloquear a thread principal)
+            start_time = time.time()
+            while pygame.mixer.music.get_busy():
+                if time.time() - start_time > 30:  # Timeout de 30 segundos
+                    print("⏰ Timeout - parando áudio")
+                    pygame.mixer.music.stop()
+                    break
+                time.sleep(0.1)
+                
+            print("✅ Áudio reproduzido com sucesso!")
+            
+            # Limpar recursos do pygame
+            pygame.mixer.quit()
+            
+        except Exception as pygame_error:
+            print(f"❌ Erro no pygame: {pygame_error}")
+            # Fallback: método simples do sistema
+            try:
+                os.startfile(temp_file)
+                print("🔄 Usando fallback do sistema")
+            except Exception as fallback_error:
+                print(f"❌ Fallback também falhou: {fallback_error}")
+        
+        # Limpar arquivo temporário
+        threading.Thread(target=limpar_arquivo_temporario, args=(temp_file, 10)).start()
+        
+    except Exception as e:
+        print(f"💥 ERRO na fala automática: {e}")
+        import traceback
+        traceback.print_exc()
+
+def limpar_arquivo_temporario(arquivo, segundos):
+    """Limpa arquivo temporário após um tempo"""
+    time.sleep(segundos)
+    try:
+        if os.path.exists(arquivo):
+            os.remove(arquivo)
+            print(f"🧹 Arquivo temporário removido: {arquivo}")
+    except Exception as e:
+        print(f"❌ Erro ao remover arquivo temporário: {e}")
+
+# ==================== ROTAS PARA TESTE DE FALA ====================
+@app.route('/teste_fala/<texto>')
+def teste_fala(texto):
+    """Rota para testar a fala manualmente"""
+    try:
+        print(f"🎯 TESTE MANUAL: '{texto}'")
+        threading.Thread(target=falar_texto_automatico, args=(texto,), daemon=True).start()
+        return jsonify({"status": "teste_iniciado", "texto": texto})
+    except Exception as e:
+        return jsonify({"status": "erro", "error": str(e)})
+
+@app.route('/teste_fala_direto/<texto>')
+def teste_fala_direto(texto):
+    """Teste direto sem thread"""
+    try:
+        print(f"🎯 TESTE DIRETO: '{texto}'")
+        falar_texto_automatico(texto)
+        return jsonify({"status": "sucesso", "mensagem": f"Texto processado: {texto}"})
+    except Exception as e:
+        return jsonify({"status": "erro", "mensagem": str(e)})
+
+# ==================== ROTAS PARA CONTROLE DE FALA AUTOMÁTICA ====================
+@app.route('/auto_speak/toggle', methods=['POST'])
+@login_required
+def toggle_auto_speak():
+    """Ativa/desativa a fala automática"""
+    global auto_speak_enabled
+    
+    data = request.get_json()
+    if 'enabled' in data:
+        auto_speak_enabled = data['enabled']
+    
+    return jsonify({
+        'success': True,
+        'auto_speak_enabled': auto_speak_enabled,
+        'message': f'Fala automática {"ativada" if auto_speak_enabled else "desativada"}'
+    })
+
+@app.route('/auto_speak/status')
+@login_required
+def get_auto_speak_status():
+    """Retorna status da fala automática"""
+    return jsonify({
+        'auto_speak_enabled': auto_speak_enabled
+    })
 
 # ==================== DIAGNÓSTICO SERIAL ====================
 try:
@@ -646,16 +787,30 @@ def limpar_ultima_letra():
 @app.route('/falar_texto', methods=['GET', 'POST'])
 @login_required
 def falar_texto():
+    """Fala o texto atual (manual)"""
     global formed_text
     
     if formed_text.strip():
         try:
+            # Usar gTTS para gerar o áudio
             tts = gTTS(text=formed_text, lang='pt-br', slow=False)
+            
+            # Criar arquivo temporário único
             temp_dir = tempfile.gettempdir()
             timestamp = int(time.time())
-            temp_file = os.path.join(temp_dir, f'speech_{timestamp}.mp3')
+            temp_file = os.path.join(temp_dir, f'manual_speech_{timestamp}.mp3')
+            
+            # Salvar áudio
             tts.save(temp_file)
-            return send_file(temp_file, mimetype='audio/mpeg', as_attachment=False)
+            
+            # Retornar o arquivo de áudio como resposta via send_file
+            response = send_file(temp_file, mimetype='audio/mpeg', as_attachment=False)
+            
+            # Limpar arquivo após enviar (em thread separada)
+            threading.Thread(target=limpar_arquivo_temporario, args=(temp_file, 30)).start()
+            
+            return response
+            
         except Exception as e:
             return jsonify({"success": False, "error": str(e)})
     
