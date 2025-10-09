@@ -905,6 +905,281 @@
                     </button>
                 </div>
             </div>
+            <!-- ==================== SEÇÃO DA MÃO ROBÓTICA ==================== -->
+<div class="robot-section" style="
+background: var(--surface);
+border-radius: 1.5rem;
+padding: 1.5rem;
+box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+margin-top: 2rem;
+position: relative;
+overflow: hidden;
+grid-column: 1 / -1;
+">
+<div style="
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: var(--bg-gradient);
+"></div>
+
+<div class="camera-header" style="margin-bottom: 1.5rem;">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="width: 1.5rem; height: 1.5rem;">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+    </svg>
+    Controle da Mão Robótica
+</div>
+
+<!-- Status da Conexão -->
+<div class="connection-status" style="
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 1rem;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background: rgba(99, 102, 241, 0.05);
+    border-radius: 1rem;
+    border: 2px solid rgba(99, 102, 241, 0.1);
+">
+    <div>
+        <div id="serial-status" style="
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+            color: #f59e0b;
+        ">
+            <div style="
+                width: 10px;
+                height: 10px;
+                background: #f59e0b;
+                border-radius: 50%;
+                animation: pulse 2s infinite;
+            "></div>
+            🔌 Aguardando conexão...
+        </div>
+        <div id="serial-port-info" style="
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-top: 0.25rem;
+        ">
+            Selecione uma porta serial para conectar
+        </div>
+    </div>
+    
+    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+        <select id="serial-port" style="
+            padding: 0.5rem 1rem;
+            border: 2px solid var(--border);
+            border-radius: 0.75rem;
+            background: white;
+            color: var(--text);
+            font-size: 0.875rem;
+            min-width: 200px;
+        ">
+            <option value="">Selecione a porta...</option>
+        </select>
+        
+        <button id="btn-refresh-ports" class="button button-secondary" style="padding: 0.5rem;">
+            🔄
+        </button>
+        
+        <button id="btn-connect" class="button button-primary" style="padding: 0.5rem 1rem;">
+            Conectar
+        </button>
+        
+        <button id="btn-disconnect" class="button" style="
+            padding: 0.5rem 1rem;
+            background: #ef4444;
+            color: white;
+            border: none;
+            border-radius: 0.75rem;
+            cursor: pointer;
+            display: none;
+        ">
+            Desconectar
+        </button>
+    </div>
+</div>
+
+<!-- Controles da Mão Robótica -->
+<div class="robot-controls" style="
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+">
+    <!-- Envio Automático -->
+    <div style="
+        background: rgba(16, 185, 129, 0.05);
+        padding: 1.25rem;
+        border-radius: 1rem;
+        border: 2px solid rgba(16, 185, 129, 0.2);
+    ">
+        <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem;">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="width: 1.25rem; height: 1.25rem; color: #10b981;">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+            <span style="font-weight: 600; color: var(--text);">Envio Automático</span>
+        </div>
+        <button id="btn-send-text" class="button button-primary" style="width: 100%;" disabled>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="width: 1.25rem; height: 1.25rem;">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+            </svg>
+            Enviar Texto Detectado
+        </button>
+        <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.5rem;">
+            Envia o texto formado pelo tradutor
+        </div>
+    </div>
+
+    <!-- Controle Manual -->
+    <div style="
+        background: rgba(59, 130, 246, 0.05);
+        padding: 1.25rem;
+        border-radius: 1rem;
+        border: 2px solid rgba(59, 130, 246, 0.2);
+    ">
+        <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem;">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="width: 1.25rem; height: 1.25rem; color: #3b82f6;">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+            </svg>
+            <span style="font-weight: 600; color: var(--text);">Controle Manual</span>
+        </div>
+        <div style="display: flex; gap: 0.5rem; margin-bottom: 0.5rem;">
+            <input type="text" id="custom-word" placeholder="Digite uma palavra..." style="
+                flex: 1;
+                padding: 0.5rem 1rem;
+                border: 2px solid var(--border);
+                border-radius: 0.75rem;
+                font-size: 0.875rem;
+            " disabled>
+            <button id="btn-send-custom" class="button button-info" style="padding: 0.5rem 1rem;" disabled>
+                Enviar
+            </button>
+        </div>
+        <div style="font-size: 0.75rem; color: var(--text-secondary);">
+            Envia palavras customizadas
+        </div>
+    </div>
+
+    <!-- Ações Rápidas -->
+    <div style="
+        background: rgba(245, 158, 11, 0.05);
+        padding: 1.25rem;
+        border-radius: 1rem;
+        border: 2px solid rgba(245, 158, 11, 0.2);
+    ">
+        <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem;">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="width: 1.25rem; height: 1.25rem; color: #f59e0b;">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+            <span style="font-weight: 600; color: var(--text);">Ações Rápidas</span>
+        </div>
+        <div style="display: flex; gap: 0.5rem; flex-direction: column;">
+            <button id="btn-send-test" class="button button-accent" style="width: 100%; justify-content: center;" disabled>
+                🔤 Testar Alfabeto
+            </button>
+            <button id="btn-send-reset" class="button" style="
+                width: 100%;
+                justify-content: center;
+                background: #6b7280;
+                color: white;
+                border: none;
+            " disabled>
+                🔄 Posição de Repouso
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Log de Atividades -->
+<div style="
+    background: rgba(0, 0, 0, 0.02);
+    padding: 1rem;
+    border-radius: 1rem;
+    border: 2px solid rgba(0, 0, 0, 0.05);
+">
+    <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem;">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="width: 1.25rem; height: 1.25rem;">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+        </svg>
+        <span style="font-weight: 600; color: var(--text);">Log de Atividades</span>
+    </div>
+    <div id="serial-log" style="
+        height: 120px;
+        overflow-y: auto;
+        font-size: 0.875rem;
+        line-height: 1.4;
+        background: white;
+        padding: 1rem;
+        border-radius: 0.5rem;
+        border: 1px solid var(--border);
+    ">
+        <div style="color: var(--text-secondary); font-style: italic;">
+            Aguardando conexão com a mão robótica...
+        </div>
+    </div>
+</div>
+</div>
+<!-- Seção de Diagnóstico Serial -->
+<div class="card mt-4">
+    <div class="card-header bg-info text-white">
+        <h5 class="mb-0">🔍 Diagnóstico Serial</h5>
+    </div>
+    <div class="card-body">
+        <button class="btn btn-warning mb-3" onclick="diagnosticarSerial()">
+            🔄 Executar Diagnóstico
+        </button>
+        <div id="diagnostico-result" class="border p-3 rounded" style="background: #f8f9fa; font-family: monospace; font-size: 0.9em; max-height: 300px; overflow-y: auto;">
+            Clique em "Executar Diagnóstico" para verificar as portas seriais...
+        </div>
+    </div>
+</div>
+
+<script>
+function diagnosticarSerial() {
+    const resultDiv = document.getElementById('diagnostico-result');
+    resultDiv.innerHTML = '🔍 Executando diagnóstico...';
+    
+    fetch('/serial/ports')
+        .then(response => response.json())
+        .then(data => {
+            let html = '<strong>📋 DIAGNÓSTICO DE PORTAS SERIAIS</strong><br><br>';
+            
+            if (data.ports && data.ports.length > 0) {
+                data.ports.forEach((port, index) => {
+                    html += `<strong>${index + 1}. ${port.device}</strong><br>`;
+                    html += `   Descrição: ${port.description}<br>`;
+                    html += `   Status: ${port.status}<br>`;
+                    if (port.is_arduino) {
+                        html += `   🎯 <strong>ARDUINO DETECTADO: ${port.arduino_types.join(', ')}</strong><br>`;
+                    }
+                    html += '<br>';
+                });
+            } else {
+                html += '❌ Nenhuma porta serial detectada<br>';
+                html += '💡 Verifique:<br>';
+                html += '   - Se o Arduino está conectado via USB<br>';
+                html += '   - Se os drivers estão instalados<br>';
+                html += '   - Se a Arduino IDE está fechada<br>';
+            }
+            
+            resultDiv.innerHTML = html;
+        })
+        .catch(error => {
+            resultDiv.innerHTML = `❌ Erro no diagnóstico: ${error}`;
+        });
+}
+
+// Executar diagnóstico automaticamente ao carregar a página
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(diagnosticarSerial, 1000);
+});
+</script>
         </div>
     </div>
 
@@ -1367,5 +1642,323 @@
     <footer class="footer">
         <span>Desenvolvido pela equipe TRADULIBRAS</span>
     </footer>
+    <script>
+        // ==================== CONTROLE DA COMUNICAÇÃO SERIAL ====================
+        class SerialController {
+            constructor() {
+                this.connected = false;
+                this.port = null;
+                this.init();
+            }
+        
+            init() {
+                this.loadPorts();
+                this.setupEventListeners();
+                this.checkStatus();
+                
+                // Verificar status a cada 5 segundos
+                setInterval(() => this.checkStatus(), 5000);
+            }
+        
+            async loadPorts() {
+                try {
+                    this.log('🔍 Buscando portas seriais...', 'info');
+                    const response = await fetch('/serial/ports');
+                    const data = await response.json();
+                    this.updatePortsSelect(data.ports);
+                } catch (error) {
+                    this.log('❌ Erro ao carregar portas: ' + error.message, 'error');
+                }
+            }
+        
+            updatePortsSelect(ports) {
+                const select = document.getElementById('serial-port');
+                const currentValue = select.value;
+                select.innerHTML = '<option value="">Selecione a porta...</option>';
+                
+                ports.forEach(port => {
+                    const option = document.createElement('option');
+                    option.value = port.device;
+                    option.textContent = `${port.device} - ${port.description}`;
+                    select.appendChild(option);
+                });
+                
+                // Restaurar valor selecionado se ainda existir
+                if (currentValue) {
+                    select.value = currentValue;
+                }
+                
+                this.log(`📋 ${ports.length} porta(s) encontrada(s)`, 'success');
+            }
+        
+            setupEventListeners() {
+                // Botões de conexão
+                document.getElementById('btn-refresh-ports').addEventListener('click', () => this.loadPorts());
+                document.getElementById('btn-connect').addEventListener('click', () => this.connect());
+                document.getElementById('btn-disconnect').addEventListener('click', () => this.disconnect());
+        
+                // Botões de controle
+                document.getElementById('btn-send-text').addEventListener('click', () => this.sendCurrentText());
+                document.getElementById('btn-send-test').addEventListener('click', () => this.sendTest());
+                document.getElementById('btn-send-reset').addEventListener('click', () => this.sendReset());
+                document.getElementById('btn-send-custom').addEventListener('click', () => this.sendCustomWord());
+                
+                // Enter no campo de texto customizado
+                document.getElementById('custom-word').addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        this.sendCustomWord();
+                    }
+                });
+            }
+        
+            async connect() {
+                const portSelect = document.getElementById('serial-port');
+                const port = portSelect.value;
+        
+                if (!port) {
+                    this.log('❌ Selecione uma porta serial!', 'error');
+                    return;
+                }
+        
+                try {
+                    this.log(`🔌 Conectando à porta ${port}...`, 'info');
+                    const response = await fetch('/serial/connect', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ port: port })
+                    });
+        
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        this.connected = true;
+                        this.port = port;
+                        this.updateUI();
+                        this.log('✅ ' + data.message, 'success');
+                    } else {
+                        this.log('❌ ' + data.message, 'error');
+                    }
+                } catch (error) {
+                    this.log('❌ Erro na conexão: ' + error.message, 'error');
+                }
+            }
+        
+            async disconnect() {
+                try {
+                    this.log('🔌 Desconectando...', 'info');
+                    const response = await fetch('/serial/disconnect', {
+                        method: 'POST'
+                    });
+        
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        this.connected = false;
+                        this.port = null;
+                        this.updateUI();
+                        this.log('✅ ' + data.message, 'success');
+                    }
+                } catch (error) {
+                    this.log('❌ Erro na desconexão: ' + error.message, 'error');
+                }
+            }
+        
+            async sendCurrentText() {
+                // Obtém o texto atual do tradutor
+                try {
+                    const response = await fetch('/letra_atual');
+                    const data = await response.json();
+                    
+                    if (data.texto && data.texto.trim()) {
+                        this.log(`📤 Enviando texto detectado: "${data.texto}"`, 'info');
+                        await this.sendWord(data.texto);
+                    } else {
+                        this.log('❌ Nenhum texto detectado para enviar!', 'error');
+                    }
+                } catch (error) {
+                    this.log('❌ Erro ao obter texto: ' + error.message, 'error');
+                }
+            }
+        
+            async sendTest() {
+                // Envia o alfabeto completo para teste
+                this.log('🧪 Iniciando teste do alfabeto...', 'info');
+                await this.sendWord('abcdefghijklmnopqrstuvwxyz');
+            }
+        
+            async sendReset() {
+                // Envia comando de repouso
+                try {
+                    this.log('🔄 Enviando comando de repouso...', 'info');
+                    const response = await fetch('/serial/send_letter', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ letter: '0' })
+                    });
+        
+                    const data = await response.json();
+                    if (data.success) {
+                        this.log('✅ ' + data.message, 'success');
+                    } else {
+                        this.log('❌ ' + data.message, 'error');
+                    }
+                } catch (error) {
+                    this.log('❌ Erro ao enviar comando: ' + error.message, 'error');
+                }
+            }
+        
+            async sendCustomWord() {
+                const wordInput = document.getElementById('custom-word');
+                const word = wordInput.value.trim();
+                
+                if (word) {
+                    this.log(`📝 Enviando palavra customizada: "${word}"`, 'info');
+                    await this.sendWord(word);
+                    wordInput.value = '';
+                } else {
+                    this.log('❌ Digite uma palavra para enviar!', 'error');
+                }
+            }
+        
+            async sendWord(word) {
+                if (!this.connected) {
+                    this.log('❌ Não conectado ao Arduino!', 'error');
+                    return;
+                }
+        
+                try {
+                    const response = await fetch('/serial/send_word', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ word: word })
+                    });
+        
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        data.results.forEach(result => {
+                            this.log('   → ' + result, 'success');
+                        });
+                        this.log('✅ Palavra enviada com sucesso!', 'success');
+                    } else {
+                        this.log('❌ Erro ao enviar palavra: ' + data.message, 'error');
+                    }
+                } catch (error) {
+                    this.log('❌ Erro ao enviar palavra: ' + error.message, 'error');
+                }
+            }
+        
+            updateUI() {
+                const statusDiv = document.getElementById('serial-status');
+                const portInfo = document.getElementById('serial-port-info');
+                const connectBtn = document.getElementById('btn-connect');
+                const disconnectBtn = document.getElementById('btn-disconnect');
+                const controlBtns = document.querySelectorAll('#btn-send-text, #btn-send-test, #btn-send-reset, #btn-send-custom');
+                const customInput = document.getElementById('custom-word');
+        
+                if (this.connected) {
+                    // Conectado
+                    statusDiv.innerHTML = `
+                        <div style="width: 10px; height: 10px; background: #10b981; border-radius: 50%;"></div>
+                        ✅ Conectado à porta ${this.port}
+                    `;
+                    statusDiv.style.color = '#10b981';
+                    
+                    portInfo.textContent = `Mão robótica pronta para receber comandos`;
+                    portInfo.style.color = '#10b981';
+                    
+                    connectBtn.style.display = 'none';
+                    disconnectBtn.style.display = 'block';
+                    
+                    controlBtns.forEach(btn => btn.disabled = false);
+                    customInput.disabled = false;
+                } else {
+                    // Desconectado
+                    statusDiv.innerHTML = `
+                        <div style="width: 10px; height: 10px; background: #f59e0b; border-radius: 50%; animation: pulse 2s infinite;"></div>
+                        🔌 Aguardando conexão...
+                    `;
+                    statusDiv.style.color = '#f59e0b';
+                    
+                    portInfo.textContent = 'Selecione uma porta serial para conectar';
+                    portInfo.style.color = 'var(--text-secondary)';
+                    
+                    connectBtn.style.display = 'block';
+                    disconnectBtn.style.display = 'none';
+                    
+                    controlBtns.forEach(btn => btn.disabled = true);
+                    customInput.disabled = true;
+                }
+            }
+        
+            log(message, type = 'info') {
+                const logDiv = document.getElementById('serial-log');
+                const timestamp = new Date().toLocaleTimeString();
+                
+                const color = type === 'error' ? '#ef4444' : 
+                             type === 'success' ? '#10b981' : 
+                             type === 'info' ? '#3b82f6' : '#6b7280';
+                
+                const logEntry = document.createElement('div');
+                logEntry.style.marginBottom = '0.25rem';
+                logEntry.style.color = color;
+                logEntry.innerHTML = `[${timestamp}] ${message}`;
+                
+                // Limitar a 50 entradas no log
+                if (logDiv.children.length > 50) {
+                    logDiv.removeChild(logDiv.firstChild);
+                }
+                
+                logDiv.appendChild(logEntry);
+                logDiv.scrollTop = logDiv.scrollHeight;
+            }
+        
+            async checkStatus() {
+                try {
+                    const response = await fetch('/serial/status');
+                    const data = await response.json();
+                    
+                    if (data.connected && !this.connected) {
+                        this.connected = true;
+                        this.port = data.port;
+                        this.updateUI();
+                        this.log('✅ Reconectado automaticamente', 'success');
+                    } else if (!data.connected && this.connected) {
+                        this.connected = false;
+                        this.port = null;
+                        this.updateUI();
+                        this.log('⚠️ Conexão perdida', 'error');
+                    }
+                } catch (error) {
+                    console.log('Erro ao verificar status:', error);
+                }
+            }
+        }
+        
+        // Inicializar quando a página carregar
+        document.addEventListener('DOMContentLoaded', function() {
+            window.serialController = new SerialController();
+            
+            // Adicionar estilo de animação pulse se não existir
+            if (!document.querySelector('style#pulse-animation')) {
+                const style = document.createElement('style');
+                style.id = 'pulse-animation';
+                style.textContent = `
+                    @keyframes pulse {
+                        0% { opacity: 1; }
+                        50% { opacity: 0.5; }
+                        100% { opacity: 1; }
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+        });
+        </script>
 </body>
 </html> 

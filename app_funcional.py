@@ -234,14 +234,251 @@ def generate_frames():
         
         yield (b'--frame\r\n'
                b'Content-Type: image/jpeg\r\n\r\n' + frame_jpeg + b'\r\n')
+# ==================== DIAGNÓSTICO SERIAL ====================
+try:
+    import serial
+    import serial.tools.list_ports
+    SERIAL_AVAILABLE = True
+    print("✅ Biblioteca serial disponível")
+except ImportError:
+    SERIAL_AVAILABLE = False
+    print("❌ Biblioteca serial não disponível")
 
+def diagnosticar_portas_seriais():
+    """Faz diagnóstico completo das portas seriais"""
+    print("\n" + "="*60)
+    print("🔍 DIAGNÓSTICO DE PORTAS SERIAIS")
+    print("="*60)
+    
+    if not SERIAL_AVAILABLE:
+        print("❌ Biblioteca pyserial não disponível")
+        print("💡 Execute: pip install pyserial")
+        return []
+    
+    try:
+        ports = list(serial.tools.list_ports.comports())
+        print(f"📋 Portas encontradas: {len(ports)}")
+        
+        if not ports:
+            print("❌ Nenhuma porta serial detectada!")
+            print("💡 Verifique se o Arduino está conectado via USB")
+            return []
+        
+        portas_detalhadas = []
+        
+        for i, port in enumerate(ports, 1):
+            print(f"\n{i}. {port.device}")
+            print(f"   Descrição: {port.description}")
+            print(f"   HWID: {port.hwid}")
+            
+            # Tentar detectar Arduino
+            is_arduino = False
+            arduino_types = []
+            
+            if 'arduino' in port.description.lower():
+                is_arduino = True
+                arduino_types.append("Descrição Arduino")
+            if 'ch340' in port.description.lower():
+                is_arduino = True
+                arduino_types.append("CH340 (Clone Arduino)")
+            if 'USB Serial' in port.description:
+                is_arduino = True
+                arduino_types.append("USB Serial")
+            
+            # Verificar se consegue abrir a porta
+            try:
+                teste = serial.Serial(port.device)
+                teste.close()
+                status = "✅ Disponível"
+            except serial.SerialException as e:
+                status = f"❌ Indisponível - {e}"
+            
+            if is_arduino:
+                print(f"   🎯 ARDUINO DETECTADO: {', '.join(arduino_types)}")
+            print(f"   📍 Status: {status}")
+            
+            port_info = {
+                'device': port.device,
+                'description': port.description,
+                'hwid': port.hwid,
+                'is_arduino': is_arduino,
+                'status': status,
+                'arduino_types': arduino_types
+            }
+            portas_detalhadas.append(port_info)
+        
+        # Mostrar recomendações
+        arduino_ports = [p for p in portas_detalhadas if p['is_arduino']]
+        if arduino_ports:
+            print(f"\n🎯 PORTAS ARDUINO RECOMENDADAS:")
+            for port in arduino_ports:
+                print(f"   → {port['device']} - {port['description']}")
+        else:
+            print("\n💡 DICAS:")
+            print("   1. Conecte o Arduino via USB")
+            print("   2. Instale drivers CH340 se necessário")
+            print("   3. Reinicie o Arduino")
+            print("   4. Feche a Arduino IDE")
+        
+        print("="*60)
+        return portas_detalhadas
+        
+    except Exception as e:
+        print(f"❌ Erro no diagnóstico: {e}")
+        return []
+
+# ==================== CONTROLE SERIAL SIMPLIFICADO ====================
+class SerialController:
+    def __init__(self):
+        self.serial_connection = None
+        self.port = None
+        self.baudrate = 115200
+        self.connected = False
+        
+    def list_ports(self):
+        """Lista portas seriais de forma simples"""
+        return diagnosticar_portas_seriais()
+    
+    def connect(self, port):
+        """Conecta à porta serial"""
+        if not SERIAL_AVAILABLE:
+            return False, "Biblioteca serial não disponível"
+        
+        try:
+            print(f"🔌 Tentando conectar em {port}...")
+            self.serial_connection = serial.Serial(
+                port=port,
+                baudrate=self.baudrate,
+                timeout=1,
+                write_timeout=1
+            )
+            time.sleep(2)  # Aguarda Arduino reiniciar
+            self.port = port
+            self.connected = True
+            return True, f"Conectado à porta {port}"
+        except serial.SerialException as e:
+            error_msg = str(e)
+            if "PermissionError" in error_msg or "acesso" in error_msg.lower():
+                return False, f"Porta {port} em uso. Feche a Arduino IDE e outros programas."
+            elif "FileNotFoundError" in error_msg:
+                return False, f"Porta {port} não encontrada."
+            else:
+                return False, f"Erro: {error_msg}"
+    
+    def disconnect(self):
+        """Desconecta da porta serial"""
+        if self.serial_connection and self.serial_connection.is_open:
+            self.serial_connection.close()
+        self.connected = False
+        self.port = None
+        return True, "Desconectado"
+    
+    def send_letter(self, letter):
+        """Envia uma letra para o Arduino"""
+        if not self.connected or not self.serial_connection:
+            return False, "Não conectado ao Arduino"
+        
+        try:
+            letter = letter.lower().strip()
+            if len(letter) == 1 and (letter.isalpha() or letter == '0'):
+                self.serial_connection.write(letter.encode() + b'\n')
+                self.serial_connection.flush()
+                print(f"📤 Enviado: {letter.upper()}")
+                return True, f"Letra '{letter.upper()}' enviada"
+            else:
+                return False, "Letra inválida"
+        except Exception as e:
+            return False, f"Erro ao enviar: {str(e)}"
+    
+    def get_status(self):
+        """Retorna status da conexão serial"""
+        return {
+            'connected': self.connected,
+            'port': self.port,
+            'serial_available': SERIAL_AVAILABLE
+        }
+
+# Instância global do controlador serial
+serial_controller = SerialController()
+
+# ==================== ROTAS SERIAL ====================
+
+@app.route('/serial/ports')
+@login_required
+def get_serial_ports():
+    """Retorna lista de portas seriais"""
+    ports = serial_controller.list_ports()
+    return jsonify({'ports': ports})
+
+@app.route('/serial/connect', methods=['POST'])
+@login_required
+def serial_connect():
+    """Conecta à porta serial"""
+    data = request.get_json()
+    port = data.get('port')
+    
+    if not port:
+        return jsonify({'success': False, 'message': 'Porta não especificada'})
+    
+    success, message = serial_controller.connect(port)
+    return jsonify({'success': success, 'message': message})
+
+@app.route('/serial/disconnect', methods=['POST'])
+@login_required
+def serial_disconnect():
+    """Desconecta da porta serial"""
+    success, message = serial_controller.disconnect()
+    return jsonify({'success': success, 'message': message})
+
+@app.route('/serial/status')
+@login_required
+def serial_status():
+    """Retorna status da conexão serial"""
+    status = serial_controller.get_status()
+    return jsonify(status)
+
+@app.route('/serial/send_letter', methods=['POST'])
+@login_required
+def send_serial_letter():
+    """Envia uma letra para o Arduino"""
+    data = request.get_json()
+    letter = data.get('letter', '')
+    
+    if not letter:
+        return jsonify({'success': False, 'message': 'Letra não especificada'})
+    
+    success, message = serial_controller.send_letter(letter)
+    return jsonify({'success': success, 'message': message})
+
+@app.route('/serial/send_word', methods=['POST'])
+@login_required
+def send_serial_word():
+    """Envia uma palavra para o Arduino"""
+    data = request.get_json()
+    word = data.get('word', '')
+    
+    if not word:
+        return jsonify({'success': False, 'message': 'Palavra não especificada'})
+    
+    if not serial_controller.connected:
+        return jsonify({'success': False, 'message': 'Não conectado ao Arduino'})
+    
+    results = []
+    for letter in word.lower():
+        if letter.isalpha() or letter == ' ':
+            if letter == ' ':
+                time.sleep(1)
+                results.append("Espaço - pausa")
+            else:
+                success, message = serial_controller.send_letter(letter)
+                results.append(f"{letter.upper()}: {message}")
+                time.sleep(0.8)
+    
+    return jsonify({'success': True, 'results': results})
 @app.route('/')
 def index():
     if current_user.is_authenticated:
-        if current_user.is_admin():
-            return redirect(url_for('admin_dashboard'))
-        else:
-            return redirect(url_for('camera_tradulibras'))  # 👈 Usuários normais vão direto para a câmera
+        return redirect(url_for('admin_dashboard'))
     return redirect(url_for('login'))
 
 @app.route('/login', methods=['GET', 'POST'])
