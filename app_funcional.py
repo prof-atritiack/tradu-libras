@@ -134,15 +134,98 @@ def process_landmarks(hand_landmarks):
     
     return features  # Total: 51 features
 
-def generate_frames():
-    """Gerar frames da câmera ESTÁVEL"""
-    global current_letter, formed_text, corrected_text, last_prediction_time, hand_detected_time
+# ==================== DETECÇÃO AUTOMÁTICA DE WEBCAM USB ====================
+def detectar_webcam_usb_automatico():
+    """Detecta automaticamente a webcam USB (prioriza câmeras externas)"""
+    print("\n" + "="*50)
+    print("🔍 DETECÇÃO AUTOMÁTICA DE WEBCAM USB")
+    print("="*50)
     
-    camera = cv2.VideoCapture(0)
+    cameras_detectadas = []
+    
+    # Testa as primeiras 5 câmeras
+    for i in range(5):
+        try:
+            cap = cv2.VideoCapture(i)
+            if cap.isOpened():
+                success, frame = cap.read()
+                if success:
+                    # Obter informações da câmera
+                    width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+                    height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+                    
+                    camera_info = {
+                        'index': i,
+                        'resolution': f"{width}x{height}",
+                        'width': width,
+                        'height': height,
+                        'internal': i == 0,  # Considera câmera 0 como interna
+                        'status': '✅ Disponível'
+                    }
+                    cameras_detectadas.append(camera_info)
+                    print(f"📷 Câmera {i}: {width}x{height} - {'🔵 Interna' if i == 0 else '🟢 USB'}")
+                cap.release()
+        except Exception as e:
+            print(f"❌ Erro ao testar câmera {i}: {e}")
+    
+    # Priorizar câmeras USB (índice > 0)
+    cameras_usb = [cam for cam in cameras_detectadas if not cam['internal']]
+    cameras_internas = [cam for cam in cameras_detectadas if cam['internal']]
+    
+    if cameras_usb:
+        # Usar a primeira webcam USB encontrada
+        webcam_usb = cameras_usb[0]
+        print(f"\n🎯 WEBCAM USB SELECIONADA AUTOMATICAMENTE:")
+        print(f"   Índice: {webcam_usb['index']}")
+        print(f"   Resolução: {webcam_usb['resolution']}")
+        return webcam_usb['index']
+    elif cameras_internas:
+        # Fallback para câmera interna se não encontrar USB
+        cam_interna = cameras_internas[0]
+        print(f"\n⚠️  Nenhuma webcam USB encontrada. Usando câmera interna:")
+        print(f"   Índice: {cam_interna['index']}")
+        print(f"   Resolução: {cam_interna['resolution']}")
+        return cam_interna['index']
+    else:
+        print("\n❌ NENHUMA CÂMERA DETECTADA!")
+        return 0  # Fallback para câmera 0
+
+# Variável global para controlar a câmera selecionada - DETECTA AUTOMATICAMENTE
+selected_camera_index = detectar_webcam_usb_automatico()
+
+# ==================== FUNÇÃO DA CÂMERA ÚNICA E CORRIGIDA ====================
+def generate_frames():
+    """Gerar frames da câmera USB automaticamente detectada"""
+    global current_letter, formed_text, corrected_text, last_prediction_time, hand_detected_time
+    global selected_camera_index
+    
+    print(f"🎥 CONECTANDO AUTOMATICAMENTE NA WEBCAM {selected_camera_index}...")
+    
+    # Inicializar câmera selecionada automaticamente
+    camera = cv2.VideoCapture(selected_camera_index)
+    
+    # Configurar câmera para melhor performance
     camera.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
     camera.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
+    camera.set(cv2.CAP_PROP_FPS, 30)
+    camera.set(cv2.CAP_PROP_BUFFERSIZE, 1)
     
-    print("✅ Câmera inicializada e funcionando!")
+    # Verificar se a câmera abriu corretamente
+    if not camera.isOpened():
+        print(f"❌ ERRO: Não foi possível conectar na webcam {selected_camera_index}")
+        print("💡 Tentando câmera padrão (0)...")
+        camera = cv2.VideoCapture(0)
+        if not camera.isOpened():
+            print("❌ Nenhuma câmera disponível")
+            return
+    
+    # Obter informações finais da câmera
+    actual_width = int(camera.get(cv2.CAP_PROP_FRAME_WIDTH))
+    actual_height = int(camera.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    
+    print(f"✅ WEBCAM {selected_camera_index} CONECTADA COM SUCESSO!")
+    print(f"   📐 Resolução: {actual_width}x{actual_height}")
+    print(f"   🔄 Pronta para reconhecimento de LIBRAS")
     
     while True:
         success, frame = camera.read()
@@ -162,9 +245,7 @@ def generate_frames():
         points = None
         current_time = datetime.now()
         
-        # Interface visual
-        # SEM TEXTOS NA JANELA DA CÂMERA - INTERFACE COMPLETAMENTE LIMPA
-        
+        # Interface visual LIMPA - apenas landmarks quando detecta mão
         if results.multi_hand_landmarks:
             # Se mão detectada pela primeira vez
             if hand_detected_time is None:
@@ -183,12 +264,9 @@ def generate_frames():
             
             if time_since_detection < min_hand_time:
                 # Aguardando estabilização - limpar letra atual
-                current_letter = ""  # Limpar letra durante estabilização
-                # SEM TEXTOS NA JANELA DA CÂMERA
+                current_letter = ""
             else:
-                # Pronto para detectar - SEM TEXTOS NA JANELA DA CÂMERA
-                
-                # Processar letra se passar do tempo mínimo E cooldown
+                # Pronto para detectar
                 time_since_last = (current_time - last_prediction_time).total_seconds()
                 
                 if time_since_last >= prediction_cooldown and points and len(points) == 51:
@@ -209,11 +287,9 @@ def generate_frames():
                                 formed_text += predicted_letter
                                 corrected_text = formed_text
                             
-                            # Lógica de finalização removida - detecção contínua
-                            
                             # Atualizar tempo da última predição
                             last_prediction_time = current_time
-                            hand_detected_time = None  # Reset para próxima detecção
+                            hand_detected_time = None
                             
                             print(f"✅ Letra detectada: {predicted_letter}")
                             
@@ -222,11 +298,9 @@ def generate_frames():
         else:
             # Sem mão detectada - limpar letra atual
             hand_detected_time = None
-            current_letter = ""  # Limpar letra quando não há mão
-            # SEM TEXTOS NA JANELA DA CÂMERA
+            current_letter = ""
         
-        # SEM TEXTOS NA JANELA DA CÂMERA - INTERFACE COMPLETAMENTE LIMPA
-        # Não mostrar nenhum texto na câmera
+        # Interface COMPLETAMENTE LIMPA - sem textos na câmera
         
         # Converter frame para JPEG
         ret, buffer = cv2.imencode('.jpg', frame)
@@ -234,6 +308,11 @@ def generate_frames():
         
         yield (b'--frame\r\n'
                b'Content-Type: image/jpeg\r\n\r\n' + frame_jpeg + b'\r\n')
+    
+    # Liberar câmera ao sair
+    camera.release()
+    print(f"🔴 Webcam {selected_camera_index} desconectada")
+
 # ==================== DIAGNÓSTICO SERIAL ====================
 try:
     import serial
@@ -475,6 +554,21 @@ def send_serial_word():
                 time.sleep(0.8)
     
     return jsonify({'success': True, 'results': results})
+
+# ==================== ROTA SIMPLES PARA STATUS DA CÂMERA ====================
+
+@app.route('/camera/status')
+@login_required
+def get_camera_status():
+    """Retorna status simples da câmera automática"""
+    return jsonify({
+        'camera_index': selected_camera_index,
+        'status': 'conectada_automaticamente',
+        'message': f'Webcam {selected_camera_index} conectada automaticamente'
+    })
+
+# ==================== ROTAS PRINCIPAIS (MANTIDAS) ====================
+
 @app.route('/')
 def index():
     if current_user.is_authenticated:
@@ -490,11 +584,10 @@ def login():
         
         if user:
             login_user(user)
-            # 👇 Redireciona baseado no tipo de usuário
             if user.is_admin():
                 return redirect(url_for('admin_dashboard'))
             else:
-                return redirect(url_for('camera_tradulibras'))  # 👈 Usuários normais vão direto para a câmera
+                return redirect(url_for('camera_tradulibras'))
         else:
             flash('Usuário ou senha incorretos!')
     
@@ -510,10 +603,9 @@ def logout():
 @app.route('/admin')
 @login_required
 def admin_dashboard():
-    # 👇 Protege acesso apenas para admins
     if not current_user.is_admin():
         flash('Acesso restrito a administradores!', 'error')
-        return redirect(url_for('camera_tradulibras'))  # 👈 Redireciona para a câmera
+        return redirect(url_for('camera_tradulibras'))
     
     user_stats = user_manager.get_stats()
     return render_template('admin_dashboard.html', user_stats=user_stats)
@@ -545,26 +637,11 @@ def limpar_texto():
 def limpar_ultima_letra():
     global formed_text, current_letter
     if formed_text:
-        formed_text = formed_text[:-1]  # Remove a última letra
+        formed_text = formed_text[:-1]
         current_letter = ""
         return jsonify({"status": "success", "message": "Última letra removida", "texto": formed_text})
     else:
         return jsonify({"status": "error", "message": "Não há texto para limpar"})
-
-@app.route('/corrigir_letra', methods=['POST'])
-@login_required
-def corrigir_letra():
-    global formed_text, current_letter
-    data = request.get_json()
-    nova_letra = data.get('letra', '').strip()
-    
-    if nova_letra and formed_text:
-        # Remove a última letra e adiciona a nova
-        formed_text = formed_text[:-1] + nova_letra
-        current_letter = nova_letra
-        return jsonify({"status": "success", "texto": formed_text, "letra": current_letter})
-    else:
-        return jsonify({"status": "error", "message": "Letra inválida ou texto vazio"})
 
 @app.route('/falar_texto', methods=['GET', 'POST'])
 @login_required
@@ -573,20 +650,12 @@ def falar_texto():
     
     if formed_text.strip():
         try:
-            # Usar gTTS para gerar o áudio
             tts = gTTS(text=formed_text, lang='pt-br', slow=False)
-            
-            # Criar arquivo temporário único
             temp_dir = tempfile.gettempdir()
             timestamp = int(time.time())
             temp_file = os.path.join(temp_dir, f'speech_{timestamp}.mp3')
-            
-            # Salvar áudio
             tts.save(temp_file)
-            
-            # Retornar o arquivo de áudio como resposta via send_file
             return send_file(temp_file, mimetype='audio/mpeg', as_attachment=False)
-            
         except Exception as e:
             return jsonify({"success": False, "error": str(e)})
     
@@ -604,12 +673,13 @@ def status():
     })
 
 if __name__ == '__main__':
-    print("🚀 TRADULIBRAS FUNCIONAL - INCLUSAO BC")
-    print("=" * 50)
+    print("🚀 TRADULIBRAS - WEBCAM USB AUTOMÁTICA")
+    print("=" * 60)
     print(f"📊 Classes suportadas: {model_info.get('classes', [])}")
+    print(f"📹 Webcam conectada: {selected_camera_index} (automático)")
     print(f"🎯 Acesso: http://localhost:5000")
-    print("=" * 50)
-    print("✅ Sistema ESTÁVEL e funcionando!")
-    print("=" * 50)
+    print("=" * 60)
+    print("💡 CONECTANDO DIRETO NA WEBCAM USB...")
+    print("=" * 60)
     
     app.run(host='0.0.0.0', port=5000, debug=False)
