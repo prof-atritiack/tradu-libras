@@ -47,9 +47,26 @@ hands = mp_hands.Hands(
 mp_draw = mp.solutions.drawing_utils
 
 # Carregar modelo INCLUSAO BC
-modelo_inclusao_bc = 'modelos/modelo_inclusao_bc_20251003_144506.pkl'
-scaler_inclusao_bc = 'modelos/scaler_inclusao_bc_20251003_144506.pkl'
-info_inclusao_bc = 'modelos/modelo_info_inclusao_bc_20251003_144506.pkl'
+import glob
+import os
+
+# Caminho base dos modelos
+pasta_modelos = 'modelos/'
+
+# Busca todos os arquivos de modelo, scaler e info
+modelos = sorted(glob.glob(os.path.join(pasta_modelos, 'modelo_libras_*.pkl')), key=os.path.getmtime)
+scalers = sorted(glob.glob(os.path.join(pasta_modelos, 'scaler_libras_*.pkl')), key=os.path.getmtime)
+infos = sorted(glob.glob(os.path.join(pasta_modelos, 'modelo_info_libras_*.pkl')), key=os.path.getmtime)
+
+if modelos and scalers and infos:
+    modelo_inclusao_bc = modelos[-1]
+    scaler_inclusao_bc = scalers[-1]
+    info_inclusao_bc = infos[-1]
+    print(f"✅ Modelo mais recente encontrado automaticamente:\n📁 {modelo_inclusao_bc}")
+else:
+    raise FileNotFoundError("❌ Nenhum modelo LIBRAS encontrado na pasta 'modelos/'.")
+
+
 
 if os.path.exists(modelo_inclusao_bc) and os.path.exists(scaler_inclusao_bc) and os.path.exists(info_inclusao_bc):
     with open(modelo_inclusao_bc, 'rb') as f:
