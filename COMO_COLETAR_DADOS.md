@@ -19,14 +19,9 @@ python -c "import cv2; cap = cv2.VideoCapture(0); print('Câmera OK' if cap.isOp
 
 ### 2. Coleta Manual Recomendada
 
-#### **Para padrão INCLUSAO BC (atual):**
-- **Letras necessárias:** I N C L U S A O ESPAÇO B C
-- **Amostras por letra:** 200 gestos diferentes
-- **Total:** 2.200 amostras
-
 #### **Para novas letras:**
 1. Defina o conjunto de letras desejado
-2. Calcule: `número de letras × 200 amostras`
+2. Calcule: `número de letras × 400 amostras`
 3. Planeje sessões de coleta organizadas
 
 ### 3. Processo de Coleta
@@ -51,20 +46,6 @@ python -c "import cv2; cap = cv2.VideoCapture(0); print('Câmera OK' if cap.isOp
 - ❌ Gestos muito rápidos ou confusos
 - ❌ Múltiplas mãos
 - ❌ Fundos ruidosos ou reflexos
-
-### 4. Estrutura de Armazenamento
-
-```
-dados_coletados/
-├── letras/
-│   ├── A/
-│   │   ├── a_001.jpg
-│   │   ├── a_002.jpg
-│   │   └── ...
-│   ├── B/
-│   └── ...
-└── metadados.json
-```
 
 ## 🔄 Processamento dos Dados
 
@@ -109,7 +90,7 @@ print(f'Features por amostra: {df.shape[1]-1}')
 ### 1. Processo de Treinamento
 ```bash
 # Script de treinamento (adaptar conforme necessário)
-python treinador_modelo.py
+python treinador_modelo_libras.py
 ```
 
 ### 2. Validação do Modelo
@@ -117,37 +98,9 @@ python treinador_modelo.py
 - **Cross-validation:** Use validação cruzada k-fold
 - **Métricas:** Precisão, Recall, F1-Score por classe
 
-### 3. Salvamento dos Modelos
-```python
-# Estrutura esperada nos modelos
-modelos/
-├── modelo_INCLUSAO_NOME_DATETIME.pkl
-├── scaler_INCLUSAO_NOME_DATETIME.pkl
-└── modelo_info_INCLUSAO_NOME_DATETIME.pkl
-```
-
-## 🔧 Integração ao Sistema
-
-### 1. Atualizar app_funcional.py
-```python
-# Substituir estas linhas:
-modelo_incluso_bc = 'modelos/modelo_inclusao_bc_NOVO_ARQUIVO.pkl'
-scaler_incluso_bc = 'modelos/scaler_inclusao_bc_NOVO_ARQUIVO.pkl'
-info_incluso_bc = 'modelos/modelo_info_inclusao_bc_NOVO_ARQUIVO.pkl'
-```
-
-### 2. Testar Importação
-```python
-# Verificar se os modelos carregam corretamente
-import pickle
-with open('modelos/modelo_inclusao_bc_NOVO.pkl', 'rb') as f:
-    model = pickle.load(f)
-print("✅ Modelo carregado com sucesso!")
-```
-
 ## 💡 Dicas Importantes
 
-### **Coleta Eficient**
+### **Coleta Eficiente**
 - Use cronômetro para manter tempo consistente por gesto
 - Use grid de coleta (2-3 sessões de 5-10 minutos)
 - Mantenha registro das condições de iluminação

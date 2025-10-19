@@ -74,50 +74,6 @@ python app_funcional.py
 - **Python:** 3.8 ou superior
 - **OS:** Windows 10+, macOS 10.15+, ou Ubuntu 18.04+
 
-## 🔧 Verificação Pós-Instalação
-
-### 1. Testar Câmera
-```bash
-python -c "
-import cv2
-cap = cv2.VideoCapture(0)
-if cap.isOpened():
-    print('✅ Câmera funcionando!')
-else:
-    print('❌ ERRO: Câmera não detectada')
-    cap.release()
-"
-```
-
-### 2. Testar Dependências
-```bash
-python -c "
-try:
-    import flask, cv2, mediapipe, numpy, sklearn, gtts
-    print('✅ Todas as dependências instaladas!')
-except ImportError as e:
-    print(f'❌ ERRO: {e}')
-"
-```
-
-### 3. Testar Modelos
-```bash
-python -c "
-import pickle
-import os
-modelos = [
-    'modelos/modelo_inclusao_bc_20251003_144506.pkl',
-    'modelos/scaler_inclusao_bc_20251003_144506.pkl',
-    'modelos/modelo_info_inclusao_bc_20251003_144506.pkl'
-]
-for modelo in modelos:
-    if os.path.exists(modelo):
-        print(f'✅ {modelo} encontrado')
-    else:
-        print(f'❌ {modelo} não encontrado')
-"
-```
-
 ## 🎯 Checklist de Replicação
 
 ### ✅ Arquivos Essenciais
@@ -126,16 +82,16 @@ for modelo in modelos:
 - [ ] `requirements.txt` - Dependências
 - [ ] `users.json` - Dados dos usuários (é criado automaticamente)
 - [ ] `modelos/` - Diretório com 3 arquivos .pkl
-- [ ] `templates/` - Templates HTML (3 arquivos)
+- [ ] `templates/` - Templates HTML (9 arquivos)
 - [ ] `static/` - Arquivos estáticos (CSS + imagens)
 
 ### ✅ Funcionalidades a Testar
 - [ ] **Instalação:** Script executa sem erros
 - [ ] **Câmera:** Detecta e inicializa webcam
 - [ ] **Interface:** Acessa http://localhost:5000
-- [ ] **Login:** Consegue fazer login com admin/admin123
+- [ ] **Login:** Consegue fazer login com admin/admin123 ou user/user123
 - [ ] **Reconhecimento:** Detecta gestos na câmera
-- [ ] **Áudio:** Reprodói texto sintético
+- [ ] **Áudio:** Reproduz texto sintético
 - [ ] **Rede:** Funciona em http://IP:5000
 
 ## 🚨 Solução de Problemas

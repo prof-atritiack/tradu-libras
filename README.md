@@ -24,15 +24,12 @@ python app_funcional.py
 
 ## 📋 Funcionalidades
 
-### ✅ Sistema Atual (INCLUSAO BC)
-- **Reconhecimento em tempo real** das letras: `I N C L U S A O ESPAÇO B C`
-- **Interface web responsiva** com câmera integrada
+### ✅ Sistema Atual 
+- **Reconhecimento em tempo real** das letras de A-Z
+- **Interface web responsiva** com câmera e sistema de controle da mão robótica integrada
 - **Síntese de voz** integrada (gTTS)
 - **Sistema de autenticação** com níveis de acesso
 - **Detecção estável** com cooldown inteligente
-
-### 🎯 Letras Suportadas
-- **I** N **C** L **U** **S** **A** **O** **ESPAÇO** **B** **C**
 
 ### 🔧 Especificações Técnicas
 - **Modelo:** Ensemble (Random Forest + SVM + KNN)
@@ -41,25 +38,6 @@ python app_funcional.py
 - **Voz:** Google Text-to-Speech (gTTS)
 
 ## 📁 Estrutura do Projeto
-
-```
-tradu-libras/
-├── app_funcional.py          # 🚀 Aplicação principal
-├── auth.py                   # 🔐 Sistema de autenticação
-├── requirements.txt          # 📦 Dependências
-├── users.json               # 👥 Dados dos usuários
-├── modelos/                 # 🤖 Modelos de ML
-│   ├── modelo_inclusao_bc_20251003_144506.pkl
-│   ├── modelo_info_incluso_bc_20251003_144506.pkl
-│   └── scaler_incluso_bc_20251003_144506.pkl
-├── templates/               # 🌐 Templates HTML
-│   ├── login.html
-│   ├── admin_dashboard.html
-│   └── camera_tradulibras.html
-└── static/                  # 🎨 Arquivos estáticos
-    ├── css/
-    └── images/
-```
 
 ## 🌐 Acesso na Rede Local
 
