@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tutorial - TRADULIBRAS</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            color: #2c3e50;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #7f8c8d;
+            font-size: 1.1rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .tutorial-steps {
+            display: grid;
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .step {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            border-left: 6px solid #3498db;
+            transition: transform 0.3s ease;
+        }
+
+        .step:hover {
+            transform: translateY(-5px);
+        }
+
+        .step-number {
+            background: #3498db;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+        }
+
+        .step h3 {
+            color: #2c3e50;
+            font-size: 1.4rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .step-content {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 25px;
+            align-items: start;
+        }
+
+        .step-image {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            border: 2px dashed #bdc3c7;
+            min-height: 150px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+
+        .step-icon {
+            font-size: 3rem;
+            margin-bottom: 10px;
+        }
+
+        .step-text {
+            line-height: 1.6;
+        }
+
+        .step-text ul {
+            margin-left: 20px;
+            margin-bottom: 15px;
+        }
+
+        .step-text li {
+            margin-bottom: 8px;
+        }
+
+        .tips-section {
+            background: #fff9e6;
+            border: 2px solid #f39c12;
+            border-radius: 15px;
+            padding: 30px;
+            margin: 40px 0;
+        }
+
+        .tips-section h3 {
+            color: #e67e22;
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .tips-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .tip {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 4px solid #f39c12;
+        }
+
+        .tip h4 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .navigation {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 40px;
+        }
+
+        .btn {
+            display: inline-block;
+            background: #3498db;
+            color: white;
+            padding: 15px 30px;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            min-width: 160px;
+            text-align: center;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+        }
+
+        .btn-primary {
+            background: #2ecc71;
+        }
+
+        .btn-primary:hover {
+            background: #27ae60;
+        }
+
+        .btn-secondary {
+            background: #9b59b6;
+        }
+
+        .btn-secondary:hover {
+            background: #8e44ad;
+        }
+
+        .btn-back {
+            background: #7f8c8d;
+        }
+
+        .btn-back:hover {
+            background: #636e72;
+        }
+
+        /* Responsividade */
+        @media (max-width: 768px) {
+            .step-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .step-image {
+                min-height: 120px;
+            }
+            
+            .tips-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .step {
+                padding: 20px;
+            }
+            
+            .navigation {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+        }
+
+        /* Animações */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .step {
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        .step:nth-child(1) { animation-delay: 0.1s; }
+        .step:nth-child(2) { animation-delay: 0.2s; }
+        .step:nth-child(3) { animation-delay: 0.3s; }
+        .step:nth-child(4) { animation-delay: 0.4s; }
+        .step:nth-child(5) { animation-delay: 0.5s; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Cabeçalho -->
+        <div class="header">
+            <h1>📚 Tutorial TRADULIBRAS</h1>
+            <p>Aprenda a usar o sistema de tradução de LIBRAS passo a passo</p>
+        </div>
+
+        <!-- Passos do Tutorial -->
+        <div class="tutorial-steps">
+            <!-- Passo 1 -->
+            <div class="step">
+                <div class="step-number">1</div>
+                <h3>🎥 Configuração da Câmera</h3>
+                <div class="step-content">
+                    <div class="step-image">
+                        <div class="step-icon">📷</div>
+                        <small>Posicione a câmera</small>
+                    </div>
+                    <div class="step-text">
+                        <p><strong>Preparação do ambiente:</strong></p>
+                        <ul>
+                            <li>Certifique-se de ter uma webcam conectada</li>
+                            <li>Escolha um local com boa iluminação</li>
+                            <li>Evite fundos muito movimentados ou escuros</li>
+                            <li>Posicione a câmera na altura dos ombros</li>
+                        </ul>
+                        <p><strong>Dica:</strong> A luz natural é a melhor para reconhecimento preciso.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Passo 2 -->
+            <div class="step">
+                <div class="step-number">2</div>
+                <h3>👋 Posicionamento das Mãos</h3>
+                <div class="step-content">
+                    <div class="step-image">
+                        <div class="step-icon">✋</div>
+                        <small>Área de detecção</small>
+                    </div>
+                    <div class="step-text">
+                        <p><strong>Como posicionar as mãos:</strong></p>
+                        <ul>
+                            <li>Mantenha as mãos dentro do campo de visão da câmera</li>
+                            <li>Use gestos claros e bem definidos</li>
+                            <li>Faça cada sinal por 2-3 segundos para melhor reconhecimento</li>
+                            <li>Evite movimentos muito rápidos</li>
+                        </ul>
+                        <p><strong>Importante:</strong> O sistema reconhece uma mão por vez.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Passo 3 -->
+            <div class="step">
+                <div class="step-number">3</div>
+                <h3>🤖 Reconhecimento com IA</h3>
+                <div class="step-content">
+                    <div class="step-image">
+                        <div class="step-icon">🧠</div>
+                        <small>IA em ação</small>
+                    </div>
+                    <div class="step-text">
+                        <p><strong>Tecnologia INCLUSAO BC:</strong></p>
+                        <ul>
+                            <li>Sistema baseado em Machine Learning avançado</li>
+                            <li>Reconhece sinais em tempo real através da webcam</li>
+                            <li>Processa 51 pontos de referência da mão</li>
+                            <li>Alta precisão com modelo treinado em milhares de amostras</li>
+                        </ul>
+                        <p><strong>Tecnologia:</strong> MediaPipe + Modelo INCLUSAO BC</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Passo 4 -->
+            <div class="step">
+                <div class="step-number">4</div>
+                <h3>🔊 Síntese de Voz</h3>
+                <div class="step-content">
+                    <div class="step-image">
+                        <div class="step-icon">🎵</div>
+                        <small>Conversão para áudio</small>
+                    </div>
+                    <div class="step-text">
+                        <p><strong>Conversão automática:</strong></p>
+                        <ul>
+                            <li>Sinais reconhecidos são convertidos em texto</li>
+                            <li>Texto é transformado em áudio usando gTTS (Google Text-to-Speech)</li>
+                            <li>Reprodução automática ou manual do áudio</li>
+                            <li>Suporte para língua portuguesa</li>
+                        </ul>
+                        <p><strong>Comandos especiais:</strong> Ponto (.) para falar texto, Espaço para separar palavras.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Passo 5 -->
+            <div class="step">
+                <div class="step-number">5</div>
+                <h3>🚀 Começando a Usar</h3>
+                <div class="step-content">
+                    <div class="step-image">
+                        <div class="step-icon">⭐</div>
+                        <small>Primeiros passos</small>
+                    </div>
+                    <div class="step-text">
+                        <p><strong>Fluxo de uso:</strong></p>
+                        <ol>
+                            <li>Acesse a tela de tradução</li>
+                            <li>Posicione-se frente à câmera</li>
+                            <li>Comece fazendo os sinais de LIBRAS</li>
+                            <li>Observe o texto sendo formado</li>
+                            <li>Use o ponto (.) para ouvir o texto</li>
+                        </ol>
+                        <p><strong>Pronto!</strong> Você já pode começar a usar o TRADULIBRAS.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Seção de Dicas -->
+        <div class="tips-section">
+            <h3>💡 Dicas para Melhor Reconhecimento</h3>
+            <div class="tips-grid">
+                <div class="tip">
+                    <h4>🌞 Iluminação</h4>
+                    <p>Mantenha boa iluminação frontal. Evite luzes fortes atrás de você que criem sombras.</p>
+                </div>
+                <div class="tip">
+                    <h4>👚 Contraste</h4>
+                    <p>Use cores que contrastem com sua pele para melhor detecção das mãos.</p>
+                </div>
+                <div class="tip">
+                    <h4>📐 Distância</h4>
+                    <p>Mantenha-se a 1-2 metros da câmera para enquadramento ideal.</p>
+                </div>
+                <div class="tip">
+                    <h4>🎯 Precisão</h4>
+                    <p>Faça gestos completos e mantenha cada posição por 2-3 segundos.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navegação -->
+        <div class="navigation">
+            <a href="/introducao" class="btn btn-back">← Voltar</a>
+            <a href="/camera" class="btn btn-primary">📷 Ir para Tradução</a>
+            {% if current_user.is_admin() %}
+            <a href="/admin" class="btn btn-secondary">🛠️ Painel Admin</a>
+            {% endif %}
+        </div>
+    </div>
+
+    <script>
+        // Animação de scroll suave
+        document.addEventListener('DOMContentLoaded', function() {
+            const steps = document.querySelectorAll('.step');
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }
+                });
+            }, { threshold: 0.1 });
+            
+            steps.forEach(step => {
+                step.style.opacity = '0';
+                step.style.transform = 'translateY(30px)';
+                step.style.transition = 'all 0.6s ease-out';
+                observer.observe(step);
+            });
+        });
+    </script>
+</body>
+</html>

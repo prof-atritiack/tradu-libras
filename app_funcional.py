@@ -713,7 +713,7 @@ def get_camera_status():
 @app.route('/')
 def index():
     if current_user.is_authenticated:
-        return redirect(url_for('admin_dashboard'))
+        return redirect(url_for('introducao'))  # ← Vai para introdução
     return redirect(url_for('login'))
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -725,14 +725,338 @@ def login():
         
         if user:
             login_user(user)
-            if user.is_admin():
-                return redirect(url_for('admin_dashboard'))
-            else:
-                return redirect(url_for('camera_tradulibras'))
+            return redirect(url_for('introducao'))  # ← Vai para introdução
         else:
             flash('Usuário ou senha incorretos!')
     
     return render_template('login.html')
+
+@app.route('/introducao')
+@login_required
+def introducao():
+    """Tela de introdução - Design ampliado com informações da plataforma"""
+    
+    # Determinar se é admin
+    is_admin = current_user.is_admin()
+    username = current_user.username
+    
+    html = f"""
+    <!DOCTYPE html>
+    <html lang="pt-br">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>TRADULIBRAS - Introdução</title>
+        <style>
+            * {{
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }}
+            
+            body {{
+                font-family: 'Arial', sans-serif;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                min-height: 100vh;
+                padding: 40px 20px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }}
+            
+            .container {{
+                background: white;
+                border-radius: 25px;
+                box-shadow: 0 25px 50px rgba(0,0,0,0.15);
+                padding: 60px 50px;
+                text-align: center;
+                max-width: 800px;
+                width: 100%;
+                border: 10px solid #2c3e50;
+                min-height: 700px;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+            }}
+            
+            .project-name {{
+                font-size: 5rem;
+                font-weight: bold;
+                color: #2c3e50;
+                margin-bottom: 10px;
+                text-transform: uppercase;
+                letter-spacing: 3px;
+                text-shadow: 3px 3px 6px rgba(0,0,0,0.1);
+                line-height: 1.1;
+            }}
+            
+            .tagline {{
+                font-size: 2rem;
+                color: #e74c3c;
+                font-weight: bold;
+                margin-bottom: 40px;
+                font-style: italic;
+            }}
+            
+            .main-phrase {{
+                font-size: 1.8rem;
+                color: #34495e;
+                font-style: italic;
+                margin: 40px 0;
+                line-height: 1.4;
+                padding: 0 20px;
+            }}
+            
+            .platform-info {{
+                background: #f8f9fa;
+                padding: 30px;
+                border-radius: 15px;
+                margin: 30px 0;
+                border-left: 6px solid #3498db;
+                text-align: left;
+            }}
+            
+            .platform-info h3 {{
+                color: #2c3e50;
+                font-size: 1.5rem;
+                margin-bottom: 20px;
+                text-align: center;
+            }}
+            
+            .features {{
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+                gap: 20px;
+                margin-top: 20px;
+            }}
+            
+            .feature {{
+                background: white;
+                padding: 20px;
+                border-radius: 10px;
+                text-align: center;
+                box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+                border-top: 4px solid #3498db;
+            }}
+            
+            .feature-icon {{
+                font-size: 2.5rem;
+                margin-bottom: 10px;
+            }}
+            
+            .feature h4 {{
+                color: #2c3e50;
+                margin-bottom: 10px;
+                font-size: 1.2rem;
+            }}
+            
+            .feature p {{
+                color: #7f8c8d;
+                line-height: 1.4;
+            }}
+            
+            .welcome-message {{
+                background: #e8f4fc;
+                padding: 20px;
+                border-radius: 12px;
+                margin: 20px 0;
+                border: 2px solid #3498db;
+            }}
+            
+            .navigation {{
+                display: flex;
+                gap: 20px;
+                justify-content: center;
+                flex-wrap: wrap;
+                margin-top: 40px;
+            }}
+            
+            .btn {{
+                display: inline-block;
+                background: #3498db;
+                color: white;
+                padding: 15px 30px;
+                text-decoration: none;
+                border-radius: 25px;
+                font-weight: bold;
+                transition: all 0.3s ease;
+                min-width: 180px;
+                font-size: 1.1rem;
+            }}
+            
+            .btn:hover {{
+                transform: translateY(-3px);
+                box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+            }}
+            
+            .btn-camera {{
+                background: #2ecc71;
+            }}
+            
+            .btn-camera:hover {{
+                background: #27ae60;
+            }}
+            
+            .btn-admin {{
+                background: #9b59b6;
+            }}
+            
+            .btn-admin:hover {{
+                background: #8e44ad;
+            }}
+            
+            .btn-logout {{
+                background: #e74c3c;
+            }}
+            
+            .btn-logout:hover {{
+                background: #c0392b;
+            }}
+            
+            .btn-tutorial {{
+                background: #f39c12;
+            }}
+
+            .btn-tutorial:hover {{
+                background: #e67e22;
+            }}
+            
+            @media (max-width: 768px) {{
+                .container {{
+                    padding: 40px 30px;
+                    min-height: auto;
+                }}
+                
+                .project-name {{
+                    font-size: 3.5rem;
+                }}
+                
+                .tagline {{
+                    font-size: 1.5rem;
+                }}
+                
+                .main-phrase {{
+                    font-size: 1.4rem;
+                }}
+                
+                .navigation {{
+                    flex-direction: column;
+                }}
+                
+                .btn {{
+                    width: 100%;
+                }}
+                
+                .features {{
+                    grid-template-columns: 1fr;
+                }}
+            }}
+            
+            @media (max-width: 480px) {{
+                .container {{
+                    padding: 30px 20px;
+                }}
+                
+                .project-name {{
+                    font-size: 2.8rem;
+                }}
+            }}
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <!-- Título Principal -->
+            <div class="project-name">TRADULIBRAS</div>
+            <div class="tagline">Tradutores de LIBRAS</div>
+            
+            <!-- Mensagem de Boas-vindas -->
+            <div class="welcome-message">
+                <h2>👋 Bem-vindo, {username}!</h2>
+                <p>Você está conectado ao sistema de tradução de LIBRAS</p>
+            </div>
+            
+            <!-- Frase Principal sobre Inclusão -->
+            <div class="main-phrase">
+                "Transformando gestos em palavras, criando pontes de comunicação para um mundo mais inclusivo"
+            </div>
+            
+            <!-- Informações da Plataforma -->
+            <div class="platform-info">
+                <h3>🚀 Sobre a Plataforma</h3>
+                <div class="features">
+                    <div class="feature">
+                        <div class="feature-icon">🤖</div>
+                        <h4>Inteligência Artificial</h4>
+                        <p>Utiliza modelos de Machine Learning avançados para reconhecimento preciso de sinais</p>
+                    </div>
+                    
+                    <div class="feature">
+                        <div class="feature-icon">👋</div>
+                        <h4>Reconhecimento em Tempo Real</h4>
+                        <p>Detecta e traduz gestos de LIBRAS instantaneamente através da webcam</p>
+                    </div>
+                    
+                    <div class="feature">
+                        <div class="feature-icon">🎯</div>
+                        <h4>Tecnologia INCLUSAO BC</h4>
+                        <p>Baseado no modelo INCLUSAO BC treinado com milhares de amostras</p>
+                    </div>
+                    
+                    <div class="feature">
+                        <div class="feature-icon">🔊</div>
+                        <h4>Síntese de Voz</h4>
+                        <p>Converte os sinais reconhecidos em áudio para completa acessibilidade</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navegação -->
+            <div class="navigation">
+"""
+    
+    # Dentro da seção .navigation, adicione:
+    html += f"""
+                <a href="/tutorial" class="btn btn-tutorial">📚 Tutorial</a>
+"""
+    
+    # Adicionar botão admin se for administrador
+    if is_admin:
+        html += """
+                <a href="/admin" class="btn btn-admin">🛠️ Painel Admin</a>
+"""
+    
+    # Botões comuns
+    html += f"""
+                <a href="/camera" class="btn btn-camera">📷 Iniciar Tradução</a>
+                <a href="/logout" class="btn btn-logout">🚪 Sair</a>
+            </div>
+        </div>
+
+        <script>
+            // Pequena animação de entrada
+            document.addEventListener('DOMContentLoaded', function() {{
+                const container = document.querySelector('.container');
+                container.style.opacity = '0';
+                container.style.transform = 'translateY(30px)';
+                
+                setTimeout(() => {{
+                    container.style.transition = 'all 0.8s ease';
+                    container.style.opacity = '1';
+                    container.style.transform = 'translateY(0)';
+                }}, 100);
+            }});
+        </script>
+    </body>
+    </html>
+"""
+    
+    return html
+
+@app.route('/tutorial')
+@login_required
+def tutorial():
+    """Página de tutorial do TRADULIBRAS"""
+    return render_template('tutorial.html')
 
 @app.route('/logout')
 @login_required
