@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-br">
 <head>
-    <title>TRADULIBRAS - Introdução</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TRADULIBRAS - Introdução</title>
     <style>
         * {
             margin: 0;
@@ -15,178 +15,227 @@
             font-family: 'Arial', sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            padding: 20px;
+            padding: 40px 20px;
             display: flex;
             justify-content: center;
             align-items: center;
         }
 
-        .container {
+        .main-square {
             background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-            padding: 40px;
+            border-radius: 30px;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.2);
+            padding: 60px;
             text-align: center;
-            max-width: 500px;
+            max-width: 900px;
             width: 100%;
-            border: 8px solid #2c3e50;
+            border: 12px solid #2c3e50;
+            min-height: 700px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
 
         .project-name {
-            font-size: 3rem;
+            font-size: 6rem;
             font-weight: bold;
             color: #2c3e50;
-            margin-bottom: 10px;
+            margin-bottom: 30px;
             text-transform: uppercase;
-            letter-spacing: 2px;
+            letter-spacing: 4px;
+            text-shadow: 4px 4px 8px rgba(0,0,0,0.1);
+            line-height: 1.1;
         }
 
-        .tagline {
-            font-size: 1.5rem;
+        .inclusion-phrase {
+            font-size: 2rem;
             color: #e74c3c;
             font-weight: bold;
-            margin-bottom: 20px;
+            font-style: italic;
+            margin: 40px 0;
+            line-height: 1.3;
+            padding: 0 20px;
+        }
+
+        .platform-features {
+            background: #f8f9fa;
+            padding: 40px;
+            border-radius: 20px;
+            margin: 30px 0;
+            border: 3px solid #3498db;
+        }
+
+        .feature-item {
+            font-size: 1.4rem;
+            color: #2c3e50;
+            margin: 20px 0;
+            padding: 15px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border-left: 5px solid #3498db;
         }
 
         .welcome-message {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 10px;
-            margin: 20px 0;
-            border-left: 4px solid #3498db;
-        }
-
-        .welcome-message h2 {
-            color: #2c3e50;
-            margin-bottom: 10px;
-        }
-
-        .motivational-phrase {
-            font-size: 1.2rem;
-            color: #7f8c8d;
-            font-style: italic;
+            background: #e8f4fc;
+            padding: 25px;
+            border-radius: 15px;
             margin: 25px 0;
-            line-height: 1.5;
+            border: 2px solid #3498db;
         }
 
-        .navigation-buttons {
+        .navigation {
             display: flex;
-            gap: 15px;
+            gap: 20px;
             justify-content: center;
             flex-wrap: wrap;
-            margin-top: 30px;
+            margin-top: 40px;
         }
 
-        .nav-btn {
+        .btn {
             display: inline-block;
             background: #3498db;
             color: white;
-            padding: 12px 25px;
+            padding: 16px 32px;
             text-decoration: none;
-            border-radius: 25px;
+            border-radius: 30px;
             font-weight: bold;
             transition: all 0.3s ease;
+            min-width: 200px;
+            font-size: 1.1rem;
             border: none;
             cursor: pointer;
-            min-width: 160px;
         }
 
-        .nav-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
         }
 
-        .nav-btn.camera {
+        .btn-tutorial {
+            background: #f39c12;
+        }
+
+        .btn-tutorial:hover {
+            background: #e67e22;
+        }
+
+        .btn-camera {
             background: #2ecc71;
         }
 
-        .nav-btn.camera:hover {
+        .btn-camera:hover {
             background: #27ae60;
         }
 
-        .nav-btn.admin {
+        .btn-admin {
             background: #9b59b6;
         }
 
-        .nav-btn.admin:hover {
+        .btn-admin:hover {
             background: #8e44ad;
         }
 
-        .nav-btn.logout {
+        .btn-logout {
             background: #e74c3c;
         }
 
-        .nav-btn.logout:hover {
+        .btn-logout:hover {
             background: #c0392b;
         }
 
+        @media (max-width: 768px) {
+            .main-square {
+                padding: 40px 30px;
+                min-height: auto;
+            }
+            
+            .project-name {
+                font-size: 4rem;
+            }
+            
+            .inclusion-phrase {
+                font-size: 1.6rem;
+            }
+            
+            .feature-item {
+                font-size: 1.2rem;
+            }
+            
+            .navigation {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+        }
+
         @media (max-width: 480px) {
-            .container {
+            .main-square {
                 padding: 30px 20px;
             }
             
             .project-name {
-                font-size: 2.5rem;
+                font-size: 3rem;
             }
             
-            .navigation-buttons {
-                flex-direction: column;
-            }
-            
-            .nav-btn {
-                width: 100%;
+            .inclusion-phrase {
+                font-size: 1.3rem;
             }
         }
     </style>
 </head>
 <body>
-    <div class="container">
+    <div class="main-square">
+        <!-- Título Principal Gigante -->
         <div class="project-name">TRADULIBRAS</div>
-        <div class="tagline">Tradutores de LIBRAS</div>
         
+        <!-- Mensagem de Boas-vindas -->
         <div class="welcome-message">
-            <h2>👋 Bem-vindo, {{ current_user.username }}!</h2>
-            <p>Você fez login com sucesso no sistema</p>
+            <h2>👋 Bem-vindo, {{ username }}!</h2>
+            <p style="font-size: 1.2rem; margin-top: 10px;">Você está conectado à plataforma de inclusão através da tecnologia</p>
         </div>
         
-        <div class="motivational-phrase">
-            "Onde as mãos falam, os corações entendem e a inclusão se torna realidade"
+        <!-- Frase Única sobre Inclusão -->
+        <div class="inclusion-phrase">
+            "Onde cada gesto é uma palavra, e cada palavra constrói um mundo mais inclusivo"
+        </div>
+        
+        <!-- Características da Plataforma -->
+        <div class="platform-features">
+            <div class="feature-item">🤖 Esta plataforma utiliza Inteligência Artificial para tornar a comunicação acessível</div>
+            <div class="feature-item">👋 Incentivamos e valorizamos o uso da LIBRAS como forma de expressão</div>
+            <div class="feature-item">💝 Acreditamos na tecnologia como ponte para a inclusão social</div>
+            <div class="feature-item">🚀 Transformamos gestos em compreensão mútua</div>
+            <div class="feature-item">🌐 Conectamos pessoas através da linguagem universal dos sinais</div>
         </div>
 
-        <div class="navigation-buttons">
-            {% if current_user.is_admin() %}
-            <a href="{{ url_for('admin_dashboard') }}" class="nav-btn admin">
-                🛠️ Painel Admin
-            </a>
+        <!-- Navegação -->
+        <div class="navigation">
+            <a href="/tutorial" class="btn btn-tutorial">📚 Tutorial</a>
+            
+            {% if is_admin %}
+            <a href="/admin" class="btn btn-admin">🛠️ Painel Admin</a>
             {% endif %}
             
-            <a href="{{ url_for('camera_tradulibras') }}" class="nav-btn camera">
-                📷 Iniciar Tradução
-            </a>
-            
-            <a href="{{ url_for('logout') }}" class="nav-btn logout">
-                🚪 Sair
-            </a>
+            <a href="/camera" class="btn btn-camera">📷 Iniciar Tradução</a>
+            <a href="/logout" class="btn btn-logout">🚪 Sair</a>
         </div>
     </div>
 
     <script>
-        // Efeito simples de frases rotativas
+        // Animação de entrada suave
         document.addEventListener('DOMContentLoaded', function() {
-            const phrases = [
-                "Onde as mãos falam, os corações entendem e a inclusão se torna realidade",
-                "Pontes de comunicação para um mundo mais inclusivo", 
-                "Traduzindo gestos em compreensão e inclusão",
-                "Unindo ouvintes e surdos através da linguagem universal"
-            ];
+            const square = document.querySelector('.main-square');
+            square.style.opacity = '0';
+            square.style.transform = 'scale(0.9)';
             
-            const phraseElement = document.querySelector('.motivational-phrase');
-            let currentIndex = 0;
-            
-            setInterval(() => {
-                currentIndex = (currentIndex + 1) % phrases.length;
-                phraseElement.textContent = `"${phrases[currentIndex]}"`;
-            }, 5000);
+            setTimeout(() => {
+                square.style.transition = 'all 0.8s ease';
+                square.style.opacity = '1';
+                square.style.transform = 'scale(1)';
+            }, 100);
         });
     </script>
 </body>

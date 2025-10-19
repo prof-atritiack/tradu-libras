@@ -734,143 +734,73 @@ def login():
 @app.route('/introducao')
 @login_required
 def introducao():
-    """Tela de introdução - Design ampliado com informações da plataforma"""
+    """Tela de introdução - HTML direto no código"""
     
-    # Determinar se é admin
     is_admin = current_user.is_admin()
     username = current_user.username
     
+    # HTML DIRETO NO CÓDIGO - SEM TEMPLATE EXTERNO
     html = f"""
     <!DOCTYPE html>
-    <html lang="pt-br">
+    <html>
     <head>
+        <title>TRADULIBRAS</title>
         <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>TRADULIBRAS - Introdução</title>
         <style>
-            * {{
-                margin: 0;
-                padding: 0;
-                box-sizing: border-box;
-            }}
-            
             body {{
-                font-family: 'Arial', sans-serif;
+                font-family: Arial;
                 background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                margin: 0;
+                padding: 40px;
                 min-height: 100vh;
-                padding: 40px 20px;
                 display: flex;
                 justify-content: center;
                 align-items: center;
             }}
-            
-            .container {{
+            .main-square {{
                 background: white;
-                border-radius: 25px;
-                box-shadow: 0 25px 50px rgba(0,0,0,0.15);
-                padding: 60px 50px;
+                border-radius: 30px;
+                padding: 60px;
                 text-align: center;
-                max-width: 800px;
+                max-width: 900px;
                 width: 100%;
-                border: 10px solid #2c3e50;
-                min-height: 700px;
-                display: flex;
-                flex-direction: column;
-                justify-content: center;
+                border: 12px solid #2c3e50;
+                box-shadow: 0 30px 60px rgba(0,0,0,0.2);
             }}
-            
             .project-name {{
-                font-size: 5rem;
+                font-size: 80px;
                 font-weight: bold;
                 color: #2c3e50;
-                margin-bottom: 10px;
-                text-transform: uppercase;
-                letter-spacing: 3px;
-                text-shadow: 3px 3px 6px rgba(0,0,0,0.1);
-                line-height: 1.1;
+                margin-bottom: 30px;
             }}
-            
-            .tagline {{
-                font-size: 2rem;
+            .inclusion-phrase {{
+                font-size: 28px;
                 color: #e74c3c;
                 font-weight: bold;
-                margin-bottom: 40px;
-                font-style: italic;
-            }}
-            
-            .main-phrase {{
-                font-size: 1.8rem;
-                color: #34495e;
                 font-style: italic;
                 margin: 40px 0;
-                line-height: 1.4;
-                padding: 0 20px;
             }}
-            
-            .platform-info {{
+            .features {{
                 background: #f8f9fa;
                 padding: 30px;
                 border-radius: 15px;
                 margin: 30px 0;
-                border-left: 6px solid #3498db;
-                text-align: left;
             }}
-            
-            .platform-info h3 {{
-                color: #2c3e50;
-                font-size: 1.5rem;
-                margin-bottom: 20px;
-                text-align: center;
-            }}
-            
-            .features {{
-                display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-                gap: 20px;
-                margin-top: 20px;
-            }}
-            
             .feature {{
-                background: white;
-                padding: 20px;
-                border-radius: 10px;
-                text-align: center;
-                box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-                border-top: 4px solid #3498db;
-            }}
-            
-            .feature-icon {{
-                font-size: 2.5rem;
-                margin-bottom: 10px;
-            }}
-            
-            .feature h4 {{
+                font-size: 20px;
                 color: #2c3e50;
-                margin-bottom: 10px;
-                font-size: 1.2rem;
+                margin: 15px 0;
+                padding: 15px;
+                background: white;
+                border-radius: 10px;
             }}
-            
-            .feature p {{
-                color: #7f8c8d;
-                line-height: 1.4;
-            }}
-            
-            .welcome-message {{
-                background: #e8f4fc;
-                padding: 20px;
-                border-radius: 12px;
-                margin: 20px 0;
-                border: 2px solid #3498db;
-            }}
-            
-            .navigation {{
+            .buttons {{
                 display: flex;
-                gap: 20px;
+                gap: 15px;
                 justify-content: center;
                 flex-wrap: wrap;
                 margin-top: 40px;
             }}
-            
             .btn {{
                 display: inline-block;
                 background: #3498db;
@@ -879,176 +809,51 @@ def introducao():
                 text-decoration: none;
                 border-radius: 25px;
                 font-weight: bold;
-                transition: all 0.3s ease;
-                min-width: 180px;
-                font-size: 1.1rem;
+                font-size: 18px;
             }}
-            
-            .btn:hover {{
-                transform: translateY(-3px);
-                box-shadow: 0 8px 20px rgba(0,0,0,0.2);
-            }}
-            
-            .btn-camera {{
-                background: #2ecc71;
-            }}
-            
-            .btn-camera:hover {{
-                background: #27ae60;
-            }}
-            
-            .btn-admin {{
-                background: #9b59b6;
-            }}
-            
-            .btn-admin:hover {{
-                background: #8e44ad;
-            }}
-            
-            .btn-logout {{
-                background: #e74c3c;
-            }}
-            
-            .btn-logout:hover {{
-                background: #c0392b;
-            }}
-            
-            .btn-tutorial {{
-                background: #f39c12;
-            }}
-
-            .btn-tutorial:hover {{
-                background: #e67e22;
-            }}
-            
-            @media (max-width: 768px) {{
-                .container {{
-                    padding: 40px 30px;
-                    min-height: auto;
-                }}
-                
-                .project-name {{
-                    font-size: 3.5rem;
-                }}
-                
-                .tagline {{
-                    font-size: 1.5rem;
-                }}
-                
-                .main-phrase {{
-                    font-size: 1.4rem;
-                }}
-                
-                .navigation {{
-                    flex-direction: column;
-                }}
-                
-                .btn {{
-                    width: 100%;
-                }}
-                
-                .features {{
-                    grid-template-columns: 1fr;
-                }}
-            }}
-            
-            @media (max-width: 480px) {{
-                .container {{
-                    padding: 30px 20px;
-                }}
-                
-                .project-name {{
-                    font-size: 2.8rem;
-                }}
-            }}
+            .btn-tutorial {{ background: #f39c12; }}
+            .btn-camera {{ background: #2ecc71; }}
+            .btn-admin {{ background: #9b59b6; }}
+            .btn-logout {{ background: #e74c3c; }}
         </style>
     </head>
     <body>
-        <div class="container">
-            <!-- Título Principal -->
+        <div class="main-square">
             <div class="project-name">TRADULIBRAS</div>
-            <div class="tagline">Tradutores de LIBRAS</div>
             
-            <!-- Mensagem de Boas-vindas -->
-            <div class="welcome-message">
+            <div style="background: #e8f4fc; padding: 20px; border-radius: 10px; margin: 20px 0;">
                 <h2>👋 Bem-vindo, {username}!</h2>
-                <p>Você está conectado ao sistema de tradução de LIBRAS</p>
             </div>
             
-            <!-- Frase Principal sobre Inclusão -->
-            <div class="main-phrase">
-                "Transformando gestos em palavras, criando pontes de comunicação para um mundo mais inclusivo"
+            <div class="inclusion-phrase">
+                "Onde cada gesto é uma palavra, e cada palavra constrói um mundo mais inclusivo"
             </div>
             
-            <!-- Informações da Plataforma -->
-            <div class="platform-info">
-                <h3>🚀 Sobre a Plataforma</h3>
-                <div class="features">
-                    <div class="feature">
-                        <div class="feature-icon">🤖</div>
-                        <h4>Inteligência Artificial</h4>
-                        <p>Utiliza modelos de Machine Learning avançados para reconhecimento preciso de sinais</p>
-                    </div>
-                    
-                    <div class="feature">
-                        <div class="feature-icon">👋</div>
-                        <h4>Reconhecimento em Tempo Real</h4>
-                        <p>Detecta e traduz gestos de LIBRAS instantaneamente através da webcam</p>
-                    </div>
-                    
-                    <div class="feature">
-                        <div class="feature-icon">🎯</div>
-                        <h4>Tecnologia INCLUSAO BC</h4>
-                        <p>Baseado no modelo INCLUSAO BC treinado com milhares de amostras</p>
-                    </div>
-                    
-                    <div class="feature">
-                        <div class="feature-icon">🔊</div>
-                        <h4>Síntese de Voz</h4>
-                        <p>Converte os sinais reconhecidos em áudio para completa acessibilidade</p>
-                    </div>
-                </div>
+            <div class="features">
+                <div class="feature">🤖 Esta plataforma utiliza Inteligência Artificial</div>
+                <div class="feature">👋 Incentivamos o uso da LIBRAS</div>
+                <div class="feature">💝 Tecnologia como ponte para a inclusão</div>
+                <div class="feature">🚀 Transformamos gestos em compreensão</div>
+                <div class="feature">🌐 Conectamos pessoas através da linguagem universal</div>
             </div>
 
-            <!-- Navegação -->
-            <div class="navigation">
-"""
-    
-    # Dentro da seção .navigation, adicione:
-    html += f"""
+            <div class="buttons">
                 <a href="/tutorial" class="btn btn-tutorial">📚 Tutorial</a>
-"""
+    """
     
-    # Adicionar botão admin se for administrador
     if is_admin:
-        html += """
+        html += f"""
                 <a href="/admin" class="btn btn-admin">🛠️ Painel Admin</a>
-"""
+        """
     
-    # Botões comuns
     html += f"""
                 <a href="/camera" class="btn btn-camera">📷 Iniciar Tradução</a>
                 <a href="/logout" class="btn btn-logout">🚪 Sair</a>
             </div>
         </div>
-
-        <script>
-            // Pequena animação de entrada
-            document.addEventListener('DOMContentLoaded', function() {{
-                const container = document.querySelector('.container');
-                container.style.opacity = '0';
-                container.style.transform = 'translateY(30px)';
-                
-                setTimeout(() => {{
-                    container.style.transition = 'all 0.8s ease';
-                    container.style.opacity = '1';
-                    container.style.transform = 'translateY(0)';
-                }}, 100);
-            }});
-        </script>
     </body>
     </html>
-"""
+    """
     
     return html
 
