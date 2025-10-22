@@ -4,86 +4,474 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tutorial - TRADULIBRAS</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        :root {
+            --primary: #9dabee;
+            --secondary: #4151df;
+            --accent: #ff6b6b;
+            --success: #2ecc71;
+            --dark: #2c3e50;
+            --light: #f8f9fa;
+            --text: #333;
+            --text-light: #6c757d;
+            --shadow: 0 10px 30px rgba(0,0,0,0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
             margin: 0;
-            padding: 20px;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            margin: 0;
+            padding: 0;
             min-height: 100vh;
+            color: var(--text);
+            line-height: 1.5;
+            overflow: hidden;
         }
+
         .container {
-            max-width: 1000px;
+            max-width: 1400px;
             margin: 0 auto;
-            background: white;
-            padding: 30px;
-            border-radius: 15px;
+            padding: 15px;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
-        h1 {
-            color: #2c3e50;
+
+        .header {
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
+            padding-top: 10px;
+            flex-shrink: 0;
         }
-        .step {
-            background: #f8f9fa;
-            padding: 20px;
-            margin: 20px 0;
-            border-radius: 10px;
-            border-left: 5px solid #3498db;
-        }
-        .buttons {
-            text-align: center;
-            margin-top: 30px;
-        }
-        .btn {
-            display: inline-block;
-            background: #3498db;
+
+        .logo {
+            font-size: 2.2rem;
+            font-weight: 800;
             color: white;
-            padding: 10px 20px;
-            text-decoration: none;
-            border-radius: 5px;
-            margin: 5px;
+            margin-bottom: 8px;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            letter-spacing: 1px;
         }
+
+        .subtitle {
+            color: rgba(255,255,255,0.9);
+            font-size: 1rem;
+            font-weight: 300;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .tutorial-card {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: var(--shadow);
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .card-title {
+            font-size: 1.6rem;
+            color: var(--dark);
+            margin-bottom: 8px;
+            text-align: center;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .card-subtitle {
+            text-align: center;
+            color: var(--text-light);
+            margin-bottom: 20px;
+            font-size: 0.95rem;
+            flex-shrink: 0;
+        }
+
+        .content-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .steps-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 15px;
+            flex: 1;
+            overflow-y: auto;
+            padding: 5px;
+            margin-bottom: 15px;
+        }
+
+        .step {
+            background: var(--light);
+            padding: 18px;
+            border-radius: 12px;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+            border-left: 4px solid var(--primary);
+            min-height: 180px;
+        }
+
+        .step:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.08);
+        }
+
+        .step-number {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: var(--primary);
+            color: white;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.8rem;
+        }
+
+        .step-icon {
+            font-size: 1.8rem;
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+
+        .step-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--dark);
+            margin-bottom: 10px;
+            padding-right: 35px;
+        }
+
+        .step-content {
+            color: var(--text);
+            font-size: 0.9rem;
+        }
+
+        .step-content ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+
+        .step-content li {
+            margin-bottom: 6px;
+            padding-left: 18px;
+            position: relative;
+        }
+
+        .step-content li:before {
+            content: "•";
+            color: var(--primary);
+            font-weight: bold;
+            position: absolute;
+            left: 0;
+        }
+
+        .feature-highlight {
+            background: linear-gradient(135deg, #ffeaa7 0%, #fab1a0 100%);
+            padding: 18px;
+            border-radius: 12px;
+            margin: 15px 0;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            flex-shrink: 0;
+        }
+
+        .feature-highlight h3 {
+            color: var(--dark);
+            margin-bottom: 8px;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .feature-highlight p {
+            color: var(--text);
+            max-width: 700px;
+            margin: 0 auto;
+            font-size: 0.9rem;
+        }
+
+        .buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 15px;
+            flex-shrink: 0;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: 600;
+            transition: var(--transition);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border: none;
+            cursor: pointer;
+            font-size: 0.9rem;
+            min-width: 160px;
+            justify-content: center;
+        }
+
+        .btn-back {
+            background: white;
+            color: var(--dark);
+            border: 2px solid var(--primary);
+        }
+
+        .btn-back:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-2px);
+        }
+
         .btn-primary {
-            background: #2ecc71;
+            background: linear-gradient(135deg, var(--success) 0%, #27ae60 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(46, 204, 113, 0.3);
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 15px;
+            color: rgba(255,255,255,0.7);
+            font-size: 0.8rem;
+            padding: 10px;
+            flex-shrink: 0;
+        }
+
+        /* Scrollbar personalizada */
+        .steps-container::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .steps-container::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        .steps-container::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 10px;
+        }
+
+        .steps-container::-webkit-scrollbar-thumb:hover {
+            background: var(--secondary);
+        }
+
+        @media (max-width: 1024px) {
+            .steps-container {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .steps-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .tutorial-card {
+                padding: 20px;
+            }
+            
+            .buttons {
+                flex-direction: column;
+                align-items: center;
+                gap: 10px;
+            }
+            
+            .btn {
+                width: 100%;
+                max-width: 250px;
+            }
+            
+            .logo {
+                font-size: 1.8rem;
+            }
+            
+            .card-title {
+                font-size: 1.4rem;
+            }
+        }
+
+        @media (max-height: 800px) {
+            .header {
+                margin-bottom: 15px;
+            }
+            
+            .tutorial-card {
+                padding: 20px;
+            }
+            
+            .step {
+                padding: 15px;
+                min-height: 160px;
+            }
+            
+            .feature-highlight {
+                padding: 15px;
+                margin: 10px 0;
+            }
+        }
+
+        @media (max-height: 700px) {
+            .step {
+                min-height: 140px;
+            }
+            
+            .step-content li {
+                margin-bottom: 4px;
+                font-size: 0.85rem;
+            }
+            
+            .step-title {
+                font-size: 1rem;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>📚 Tutorial TRADULIBRAS</h1>
-        
-        <div class="step">
-            <h3>1. 🎥 Configuração da Câmera</h3>
-            <p>• Certifique-se de ter uma webcam conectada</p>
-            <p>• Escolha um local com boa iluminação</p>
-            <p>• Posicione a câmera na altura dos ombros</p>
+        <div class="header">
+            <h1 class="logo">TRADULIBRAS</h1>
+            <p class="subtitle">Aprenda a usar nossa plataforma de tradução de LIBRAS em tempo real</p>
+        </div>
+
+        <div class="tutorial-card">
+            <h2 class="card-title">Tutorial Completo</h2>
+            <p class="card-subtitle">Siga estes passos para uma experiência perfeita com o TRADULIBRAS</p>
+            
+            <div class="content-wrapper">
+                <div class="steps-container">
+                    <div class="step">
+                        <div class="step-number">1</div>
+                        <div class="step-icon">
+                            <i class="fas fa-video"></i>
+                        </div>
+                        <h3 class="step-title">Configuração da Câmera</h3>
+                        <div class="step-content">
+                            <ul>
+                                <li>Certifique-se de ter uma webcam conectada</li>
+                                <li>Escolha um local com boa iluminação</li>
+                                <li>Posicione a câmera na altura dos ombros</li>
+                                <li>Mantenha o fundo neutro para melhor detecção</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-number">2</div>
+                        <div class="step-icon">
+                            <i class="fas fa-hands"></i>
+                        </div>
+                        <h3 class="step-title">Posicionamento das Mãos</h3>
+                        <div class="step-content">
+                            <ul>
+                                <li>Mantenha as mãos dentro do campo de visão</li>
+                                <li>Use gestos claros e bem definidos</li>
+                                <li>Faça cada sinal por 2-3 segundos</li>
+                                <li>Evite movimentos muito rápidos</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-number">3</div>
+                        <div class="step-icon">
+                            <i class="fas fa-volume-up"></i>
+                        </div>
+                        <h3 class="step-title">Tradução</h3>
+                        <div class="step-content">
+                            <ul>
+                                <li>Use ponto (.) para falar o texto</li>
+                                <li>Sinais são convertidos em texto</li>
+                                <li>Texto é transformado em áudio automaticamente</li>
+                                <li>Controle de fala automática disponível</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="step">
+                        <div class="step-number">4</div>
+                        <div class="step-icon">
+                            <i class="fas fa-hand-paper"></i>
+                        </div>
+                        <h3 class="step-title">Mão Robótica</h3>
+                        <div class="step-content">
+                            <ul>
+                                <li>Certifique-se que a conexão foi bem sucedida</li>
+                                <li>A mão fará um breve movimento quando conectada</li>
+                                <li>Reproduz os sinais detectados em tempo real</li>
+                                <li>Feedback visual da tradução</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-number">5</div>
+                        <div class="step-icon">
+                            <i class="fas fa-cogs"></i>
+                        </div>
+                        <h3 class="step-title">Controles e Ajustes</h3>
+                        <div class="step-content">
+                            <ul>
+                                <li>Apague letras individualmente se necessário</li>
+                                <li>Limpe todo o texto com um clique</li>
+                                <li>Use o botão de falar para reprodução manual</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="feature-highlight">
+                    <h3><i class="fas fa-lightbulb"></i> Dica Importante</h3>
+                    <p>Para melhores resultados, mantenha as mãos bem iluminadas e evite fundos muito movimentados. O sistema funciona melhor com gestos pausados e claros.</p>
+                </div>
+                
+                <div class="buttons">
+                    <a href="/introducao" class="btn btn-back">
+                        <i class="fas fa-arrow-left"></i> Voltar para Introdução
+                    </a>
+                    <a href="/camera" class="btn btn-primary">
+                        <i class="fas fa-camera"></i> Iniciar Tradução
+                    </a>
+                </div>
+            </div>
         </div>
         
-        <div class="step">
-            <h3>2. 👋 Posicionamento das Mãos</h3>
-            <p>• Mantenha as mãos dentro do campo de visão</p>
-            <p>• Use gestos claros e bem definidos</p>
-            <p>• Faça cada sinal por 2-3 segundos</p>
-        </div>
-        
-        <div class="step">
-            <h3>3. 🤖 Reconhecimento com IA</h3>
-            <p>• Sistema baseado em Machine Learning</p>
-            <p>• Reconhece sinais em tempo real</p>
-            <p>• Tecnologia INCLUSAO BC</p>
-        </div>
-        
-        <div class="step">
-            <h3>4. 🔊 Síntese de Voz</h3>
-            <p>• Sinais são convertidos em texto</p>
-            <p>• Texto é transformado em áudio automaticamente</p>
-            <p>• Use ponto (.) para falar o texto</p>
-        </div>
-        
-        <div class="buttons">
-            <a href="/introducao" class="btn">← Voltar</a>
-            <a href="/camera" class="btn btn-primary">📷 Ir para Tradução</a>
+        <div class="footer">
+            <p>TRADULIBRAS - Tecnologia para inclusão &copy; 2024</p>
         </div>
     </div>
 </body>

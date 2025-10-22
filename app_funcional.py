@@ -62,7 +62,6 @@ if modelos and scalers and infos:
     modelo_inclusao_bc = modelos[-1]
     scaler_inclusao_bc = scalers[-1]
     info_inclusao_bc = infos[-1]
-    print(f"✅ Modelo mais recente encontrado automaticamente:\n📁 {modelo_inclusao_bc}")
 else:
     raise FileNotFoundError("❌ Nenhum modelo LIBRAS encontrado na pasta 'modelos/'.")
 
@@ -75,10 +74,8 @@ if os.path.exists(modelo_inclusao_bc) and os.path.exists(scaler_inclusao_bc) and
         scaler = pickle.load(f)
     with open(info_inclusao_bc, 'rb') as f:
         model_info = pickle.load(f)
-    print(f"✅ Modelo INCLUSAO BC carregado com sucesso!")
     print(f"📊 Classes: {model_info['classes']}")
 else:
-    print("❌ ERRO: Modelo INCLUSAO BC não encontrado!")
     model = None
     scaler = None
     model_info = {'classes': [], 'accuracy': 0}
@@ -137,11 +134,7 @@ def process_landmarks(hand_landmarks):
 
 # ==================== DETECÇÃO AUTOMÁTICA DE WEBCAM USB ====================
 def detectar_webcam_usb_automatico():
-    """Detecta automaticamente a webcam USB (prioriza câmeras externas)"""
-    print("\n" + "="*50)
-    print("🔍 DETECÇÃO AUTOMÁTICA DE WEBCAM USB")
-    print("="*50)
-    
+    """Detecta automaticamente a webcam USB (prioriza câmeras externas)""" 
     cameras_detectadas = []
     
     # Testa as primeiras 5 câmeras
@@ -164,7 +157,6 @@ def detectar_webcam_usb_automatico():
                         'status': '✅ Disponível'
                     }
                     cameras_detectadas.append(camera_info)
-                    print(f"📷 Câmera {i}: {width}x{height} - {'🔵 Interna' if i == 0 else '🟢 USB'}")
                 cap.release()
         except Exception as e:
             print(f"❌ Erro ao testar câmera {i}: {e}")
@@ -176,19 +168,12 @@ def detectar_webcam_usb_automatico():
     if cameras_usb:
         # Usar a primeira webcam USB encontrada
         webcam_usb = cameras_usb[0]
-        print(f"\n🎯 WEBCAM USB SELECIONADA AUTOMATICAMENTE:")
-        print(f"   Índice: {webcam_usb['index']}")
-        print(f"   Resolução: {webcam_usb['resolution']}")
         return webcam_usb['index']
     elif cameras_internas:
         # Fallback para câmera interna se não encontrar USB
         cam_interna = cameras_internas[0]
-        print(f"\n⚠️  Nenhuma webcam USB encontrada. Usando câmera interna:")
-        print(f"   Índice: {cam_interna['index']}")
-        print(f"   Resolução: {cam_interna['resolution']}")
         return cam_interna['index']
     else:
-        print("\n❌ NENHUMA CÂMERA DETECTADA!")
         return 0  # Fallback para câmera 0
 
 # Variável global para controlar a câmera selecionada - DETECTA AUTOMATICAMENTE
@@ -734,128 +719,12 @@ def login():
 @app.route('/introducao')
 @login_required
 def introducao():
-    """Tela de introdução - HTML direto no código"""
-    
-    is_admin = current_user.is_admin()
-    username = current_user.username
-    
-    # HTML DIRETO NO CÓDIGO - SEM TEMPLATE EXTERNO
-    html = f"""
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <title>TRADULIBRAS</title>
-        <meta charset="UTF-8">
-        <style>
-            body {{
-                font-family: Arial;
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                margin: 0;
-                padding: 40px;
-                min-height: 100vh;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-            }}
-            .main-square {{
-                background: white;
-                border-radius: 30px;
-                padding: 60px;
-                text-align: center;
-                max-width: 900px;
-                width: 100%;
-                border: 12px solid #2c3e50;
-                box-shadow: 0 30px 60px rgba(0,0,0,0.2);
-            }}
-            .project-name {{
-                font-size: 80px;
-                font-weight: bold;
-                color: #2c3e50;
-                margin-bottom: 30px;
-            }}
-            .inclusion-phrase {{
-                font-size: 28px;
-                color: #e74c3c;
-                font-weight: bold;
-                font-style: italic;
-                margin: 40px 0;
-            }}
-            .features {{
-                background: #f8f9fa;
-                padding: 30px;
-                border-radius: 15px;
-                margin: 30px 0;
-            }}
-            .feature {{
-                font-size: 20px;
-                color: #2c3e50;
-                margin: 15px 0;
-                padding: 15px;
-                background: white;
-                border-radius: 10px;
-            }}
-            .buttons {{
-                display: flex;
-                gap: 15px;
-                justify-content: center;
-                flex-wrap: wrap;
-                margin-top: 40px;
-            }}
-            .btn {{
-                display: inline-block;
-                background: #3498db;
-                color: white;
-                padding: 15px 30px;
-                text-decoration: none;
-                border-radius: 25px;
-                font-weight: bold;
-                font-size: 18px;
-            }}
-            .btn-tutorial {{ background: #f39c12; }}
-            .btn-camera {{ background: #2ecc71; }}
-            .btn-admin {{ background: #9b59b6; }}
-            .btn-logout {{ background: #e74c3c; }}
-        </style>
-    </head>
-    <body>
-        <div class="main-square">
-            <div class="project-name">TRADULIBRAS</div>
-            
-            <div style="background: #e8f4fc; padding: 20px; border-radius: 10px; margin: 20px 0;">
-                <h2>👋 Bem-vindo, {username}!</h2>
-            </div>
-            
-            <div class="inclusion-phrase">
-                "Onde cada gesto é uma palavra, e cada palavra constrói um mundo mais inclusivo"
-            </div>
-            
-            <div class="features">
-                <div class="feature">🤖 Esta plataforma utiliza Inteligência Artificial</div>
-                <div class="feature">👋 Incentivamos o uso da LIBRAS</div>
-                <div class="feature">💝 Tecnologia como ponte para a inclusão</div>
-                <div class="feature">🚀 Transformamos gestos em compreensão</div>
-                <div class="feature">🌐 Conectamos pessoas através da linguagem universal</div>
-            </div>
-
-            <div class="buttons">
-                <a href="/tutorial" class="btn btn-tutorial">📚 Tutorial</a>
-    """
-    
-    if is_admin:
-        html += f"""
-                <a href="/admin" class="btn btn-admin">🛠️ Painel Admin</a>
-        """
-    
-    html += f"""
-                <a href="/camera" class="btn btn-camera">📷 Iniciar Tradução</a>
-                <a href="/logout" class="btn btn-logout">🚪 Sair</a>
-            </div>
-        </div>
-    </body>
-    </html>
-    """
-    
-    return html
+    """Tela de introdução usando template"""
+    return render_template(
+        'introducao.html',
+        username=current_user.username,
+        is_admin=current_user.is_admin()
+    )
 
 @app.route('/tutorial')
 @login_required
@@ -889,29 +758,54 @@ def camera_tradulibras():
 def video_feed():
     return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
-@app.route('/letra_atual')
-def get_current_letter():
-    return jsonify({"letra": current_letter, "texto": formed_text})
-
-@app.route('/limpar_texto', methods=['GET', 'POST'])
-@login_required
-def limpar_texto():
-    global formed_text, corrected_text, current_letter
-    formed_text = ""
-    corrected_text = ""
-    current_letter = ""
-    return jsonify({"status": "success", "message": "Texto limpo com sucesso"})
+# ==================== ROTAS PARA O BOTÃO APAGAR ====================
 
 @app.route('/limpar_ultima_letra', methods=['POST'])
 @login_required
 def limpar_ultima_letra():
     global formed_text, current_letter
+    
+    print(f"📝 SOLICITAÇÃO: Apagar última letra")
+    print(f"📝 Texto atual: '{formed_text}'")
+    
     if formed_text:
+        # Remove o último caractere
         formed_text = formed_text[:-1]
         current_letter = ""
-        return jsonify({"status": "success", "message": "Última letra removida", "texto": formed_text})
+        print(f"✅ NOVO TEXTO: '{formed_text}'")
+        
+        return jsonify({
+            "status": "success", 
+            "message": "Última letra removida", 
+            "texto": formed_text
+        })
     else:
-        return jsonify({"status": "error", "message": "Não há texto para limpar"})
+        print("ℹ️ Nenhum texto para limpar")
+        return jsonify({
+            "status": "error", 
+            "message": "Não há texto para limpar"
+        })
+
+@app.route('/letra_atual')
+@login_required
+def get_letra_atual():
+    """Retorna a letra atual e texto formatado"""
+    return jsonify({
+        "letra": current_letter, 
+        "texto": formed_text
+    })
+
+@app.route('/limpar_texto', methods=['POST'])
+@login_required
+def limpar_texto_completo():
+    """Limpa todo o texto"""
+    global formed_text, current_letter
+    formed_text = ""
+    current_letter = ""
+    return jsonify({
+        "status": "success", 
+        "message": "Texto limpo completamente"
+    })
 
 @app.route('/falar_texto', methods=['GET', 'POST'])
 @login_required

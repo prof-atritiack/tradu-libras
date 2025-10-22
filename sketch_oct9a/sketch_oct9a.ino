@@ -26,6 +26,9 @@ const int p_dedao = 7;
 const int p_punho = 8;
 const int p_pulso = 9;
 
+// ==================== CONFIGURAÇÃO DE TIMING ====================
+const int delayZ = 300; // Delay para movimentos sequenciais da letra Z
+
 // ==================== TABELA DE COORDENADAS ====================
 const int coordenadas[26][8] = {
   {180, 180, 180, 180, 115, 180, 90, 97}, // A
@@ -39,26 +42,26 @@ const int coordenadas[26][8] = {
   {180, 180, 180, 0, 120, 100, 90, 97},   // I
   {180, 180, 180, 0, 120, 100, 130, 20},  // J
   {0, 70, 180, 180, 140, 90, 130, 97},    // K
-  {0, 180, 180, 180, 30, 180, 90, 97},    // L
+  {0, 180, 180, 180, 0, 180, 90, 97},     // L
   {0, 0, 0, 180, 135, 135, 180, 97},      // M
   {0, 0, 180, 180, 135, 135, 180, 97},    // N
   {145, 145, 140, 125, 100, 70, 90, 0},   // O
   {0, 70, 180, 180, 140, 90, 160, 10},    // P
   {0, 180, 180, 180, 135, 135, 180, 97},  // Q
-  {65, 90, 180, 180, 135, 180, 90, 97},   // R
+  {0, 65, 180, 180, 140, 90, 90, 97},     // R
   {180, 180, 180, 180, 90, 80, 90, 97},   // S
   {135, 0, 0, 0, 120, 65, 90, 97},        // T
   {0, 0, 180, 180, 115, 180, 90, 97},     // U
-  {0, 60, 180, 180, 115, 180, 90, 97},    // V
+  {0, 100, 180, 180, 140, 90, 90, 97},    // V
   {0, 0, 0, 180, 135, 135, 90, 97},       // W
   {85, 180, 180, 180, 135, 135, 160, 97}, // X
   {180, 180, 180, 0, 30, 180, 90, 97},    // Y
-  {0, 180, 180, 180, 135, 135, 90, 97}    // Z
+  {0, 180, 180, 180, 135, 135, 110, 45}    // Z - Movimento padrão (será sobrescrito pela função especial)
 };
 
 // ==================== FUNÇÃO DE REPOUSO ====================
 void posicaoRepouso() {
-  indicador.write(0);
+  indicador.write(0); 
   medio.write(0);
   anelar.write(0);
   minimo.write(0);
@@ -69,11 +72,46 @@ void posicaoRepouso() {
   Serial.println("REPOUSO: Mao em posicao de repouso");
 }
 
+// ==================== FUNÇÃO ESPECIAL PARA LETRA Z ====================
+void executarLetraZ() {
+  Serial.println("EXECUTANDO: Letra Z - Movimento complexo");
+  
+  // Primeira etapa do movimento da letra Z
+  Serial.println("Z - Etapa 1: Preparando dedos");
+  indicador.write(0);
+  medio.write(180);
+  anelar.write(180);
+  minimo.write(180);
+  delay(delayZ);
+  
+  // Segunda etapa - movimento do polegar
+  Serial.println("Z - Etapa 2: Movimento do polegar");
+  polegar.write(135);
+  dedao.write(135);
+  delay(delayZ);
+  
+  // Terceira etapa - movimento do pulso/punho (se necessário)
+  Serial.println("Z - Etapa 3: Ajuste final");
+  punho.write(90);
+  pulso.write(97);
+  delay(delayZ * 2);
+  
+  Serial.println("Z - Movimento completo!");
+}
+
 // ==================== FUNÇÃO PARA EXECUTAR LETRA ====================
 void executarLetra(char letra) {
   int indice = letra - 'a';
   
   if (indice >= 0 && indice < 26) {
+    
+    // Se for a letra Z, usa a função especial
+    if (letra == 'z') {
+      executarLetraZ();
+      return;
+    }
+    
+    // Para outras letras, movimento normal
     int* coord = coordenadas[indice];
     
     indicador.write(coord[0]);
