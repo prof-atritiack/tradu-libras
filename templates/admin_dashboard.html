@@ -281,6 +281,78 @@
             opacity: 0.9;
         }
 
+        /* Pop-up Styles */
+        .popup-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .popup-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            animation: popupIn 0.3s ease-out;
+        }
+
+        @keyframes popupIn {
+            from {
+                opacity: 0;
+                transform: scale(0.8) translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .popup-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        .popup-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .popup-message {
+            color: #666;
+            line-height: 1.5;
+            margin-bottom: 20px;
+        }
+
+        .popup-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .popup-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+        }
+
         @media (max-width: 768px) {
             .header {
                 flex-direction: column;
@@ -304,6 +376,19 @@
     </style>
 </head>
 <body>
+    <!-- Pop-up de Funcionalidade em Desenvolvimento -->
+    <div class="popup-overlay" id="developmentPopup">
+        <div class="popup-content">
+            <div class="popup-icon">🚧</div>
+            <div class="popup-title">Funcionalidade em Desenvolvimento</div>
+            <div class="popup-message">
+                Esta funcionalidade está sendo desenvolvida e estará disponível em breve. 
+                Agradecemos sua paciência!
+            </div>
+            <button class="popup-btn" onclick="closePopup()">Entendido</button>
+        </div>
+    </div>
+
     <div class="header">
         <div class="logo-section">
             <img src="{{ url_for('static', filename='images/logo.svg') }}" alt="TraduLibras Logo">
@@ -354,10 +439,10 @@
                 <div class="card-content">
                     <p>Gerencie atualizações do sistema TraduLibras.</p>
                     <div style="margin-top: 15px;">
-                        <button class="btn btn-success" onclick="checkUpdates()">
+                        <button class="btn btn-success" onclick="showDevelopmentPopup()">
                             Verificar Atualizações
                         </button>
-                        <button class="btn btn-warning" onclick="updateSystem()">
+                        <button class="btn btn-warning" onclick="showDevelopmentPopup()">
                             Atualizar Sistema
                         </button>
                     </div>
@@ -373,10 +458,10 @@
                 <div class="card-content">
                     <p>Gerencie usuários e permissões do sistema.</p>
                     <div style="margin-top: 15px;">
-                        <button class="btn" onclick="alert('Funcionalidade em desenvolvimento')">
+                        <button class="btn" onclick="showDevelopmentPopup()">
                             Gerenciar Usuários
                         </button>
-                        <button class="btn btn-success" onclick="createUser()">
+                        <button class="btn btn-success" onclick="showDevelopmentPopup()">
                             Novo Usuário
                         </button>
                     </div>
@@ -413,7 +498,7 @@
                         <a href="{{ url_for('camera_tradulibras') }}" class="btn">
                             Reconhecimento LIBRAS
                         </a>
-                        <button class="btn btn-info" onclick="showNetworkInfo()">
+                        <button class="btn btn-info" onclick="showDevelopmentPopup()">
                             Info de Rede
                         </button>
                     </div>
@@ -429,10 +514,10 @@
                 <div class="card-content">
                     <p>Visualize logs e atividades do sistema.</p>
                     <div style="margin-top: 15px;">
-                        <button class="btn" onclick="viewLogs()">
+                        <button class="btn" onclick="showDevelopmentPopup()">
                             Ver Logs
                         </button>
-                        <button class="btn btn-warning" onclick="clearLogs()">
+                        <button class="btn btn-warning" onclick="showDevelopmentPopup()">
                             Limpar Logs
                         </button>
                     </div>
@@ -448,10 +533,10 @@
                 <div class="card-content">
                     <p>Gerencie backups do sistema e dados.</p>
                     <div style="margin-top: 15px;">
-                        <button class="btn btn-success" onclick="createBackup()">
+                        <button class="btn btn-success" onclick="showDevelopmentPopup()">
                             Criar Backup
                         </button>
-                        <button class="btn" onclick="restoreBackup()">
+                        <button class="btn" onclick="showDevelopmentPopup()">
                             Restaurar Backup
                         </button>
                     </div>
@@ -466,6 +551,30 @@
     </div>
 
     <script>
+        // Funções do Pop-up
+        function showDevelopmentPopup() {
+            document.getElementById('developmentPopup').style.display = 'flex';
+        }
+
+        function closePopup() {
+            document.getElementById('developmentPopup').style.display = 'none';
+        }
+
+        // Fechar pop-up ao clicar fora
+        document.getElementById('developmentPopup').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closePopup();
+            }
+        });
+
+        // Fechar pop-up com ESC
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closePopup();
+            }
+        });
+
+        // Funções originais (mantidas para referência futura)
         function showLoading() {
             document.getElementById('loading').style.display = 'block';
         }
@@ -475,162 +584,36 @@
         }
 
         function checkUpdates() {
-            showLoading();
-            fetch('/admin/check-updates')
-                .then(response => response.json())
-                .then(data => {
-                    hideLoading();
-                    if (data.updates_available) {
-                        alert('Atualizações disponíveis! Use o botão "Atualizar Sistema" para aplicar.');
-                    } else {
-                        alert('Sistema está atualizado!');
-                    }
-                })
-                .catch(error => {
-                    hideLoading();
-                    alert('Erro ao verificar atualizações: ' + error);
-                });
+            showDevelopmentPopup();
         }
 
         function updateSystem() {
-            if (confirm('Deseja realmente atualizar o sistema? Isso pode reiniciar o servidor.')) {
-                showLoading();
-                fetch('/admin/update-system', { method: 'POST' })
-                    .then(response => response.json())
-                    .then(data => {
-                        hideLoading();
-                        if (data.success) {
-                            alert('Sistema atualizado com sucesso! A página será recarregada.');
-                            location.reload();
-                        } else {
-                            alert('Erro na atualização: ' + data.error);
-                        }
-                    })
-                    .catch(error => {
-                        hideLoading();
-                        alert('Erro na atualização: ' + error);
-                    });
-            }
+            showDevelopmentPopup();
         }
 
         function createUser() {
-            const username = prompt('Nome do usuário:');
-            if (username) {
-                const password = prompt('Senha:');
-                if (password) {
-                    const role = confirm('É administrador?') ? 'admin' : 'user';
-                    
-                    fetch('/admin/create-user', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                            username: username,
-                            password: password,
-                            role: role
-                        })
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            alert('Usuário criado com sucesso!');
-                            location.reload();
-                        } else {
-                            alert('Erro ao criar usuário: ' + data.error);
-                        }
-                    })
-                    .catch(error => {
-                        alert('Erro ao criar usuário: ' + error);
-                    });
-                }
-            }
+            showDevelopmentPopup();
         }
 
         function showNetworkInfo() {
-            fetch('/network-info')
-                .then(response => response.json())
-                .then(data => {
-                    if (data.error) {
-                        alert('Erro ao obter informações de rede: ' + data.error);
-                        return;
-                    }
-
-                    const mensagem = `
-🌐 INFORMAÇÕES DE REDE
-
-📱 Para acessar de outros dispositivos:
-
-📱 Celular/Tablet:
-   ${data.access_urls.network}
-
-💻 Outro computador:
-   ${data.access_urls.network}
-
-📋 Requisitos:
-   • Todos os dispositivos devem estar na mesma rede Wi-Fi
-   • Firewall deve permitir conexões na porta 5000
-   • Use o endereço IP mostrado acima
-
-🔗 URLs de acesso:
-   • Local: ${data.access_urls.local}
-   • Rede: ${data.access_urls.network}
-
-💡 Dica: Copie o endereço da rede e cole no navegador de outros dispositivos!
-                    `;
-
-                    alert(mensagem);
-                })
-                .catch(error => {
-                    console.error('Erro ao obter informações de rede:', error);
-                    alert('Erro ao obter informações de rede. Verifique a conexão.');
-                });
+            showDevelopmentPopup();
         }
 
         function viewLogs() {
-            window.open('/admin/logs', '_blank');
+            showDevelopmentPopup();
         }
 
         function clearLogs() {
-            if (confirm('Deseja realmente limpar todos os logs?')) {
-                fetch('/admin/clear-logs', { method: 'POST' })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            alert('Logs limpos com sucesso!');
-                        } else {
-                            alert('Erro ao limpar logs: ' + data.error);
-                        }
-                    })
-                    .catch(error => {
-                        alert('Erro ao limpar logs: ' + error);
-                    });
-            }
+            showDevelopmentPopup();
         }
 
         function createBackup() {
-            showLoading();
-            fetch('/admin/create-backup', { method: 'POST' })
-                .then(response => response.json())
-                .then(data => {
-                    hideLoading();
-                    if (data.success) {
-                        alert('Backup criado com sucesso!');
-                    } else {
-                        alert('Erro ao criar backup: ' + data.error);
-                    }
-                })
-                .catch(error => {
-                    hideLoading();
-                    alert('Erro ao criar backup: ' + error);
-                });
+            showDevelopmentPopup();
         }
 
         function restoreBackup() {
-            alert('Funcionalidade de restauração será implementada em breve.');
+            showDevelopmentPopup();
         }
     </script>
 </body>
 </html>
-
-
